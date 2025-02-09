@@ -14,6 +14,7 @@ vi ~/.aws/credentials # aws_session_tokenを追記
 デプロイする
 
 ```bash
+sam build
 sam deploy
 ```
 
@@ -51,6 +52,12 @@ deactivate
 pip install pip-tools
 ```
 
+パッケージインストール
+
+```bash
+pip-sync requirements_dev.txt
+```
+
 requirements.in に必要なパッケージ名を追記する。開発時のみ必要なものは requirements-dev.in に追記。
 
 その後、requirements.txt を生成する
@@ -58,4 +65,5 @@ requirements.in に必要なパッケージ名を追記する。開発時のみ�
 ```bash
 pip-compile
 pip-compile requirements_dev.in
+pip-sync requirements_dev.txt # バージョンが更新されることがあるので適応
 ```
