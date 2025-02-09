@@ -1,0 +1,25 @@
+{
+  "configurations": [
+    {
+      "type": "aws-sam",
+      "request": "direct-invoke",
+      "invokeTarget": {
+        "target": "template",
+        "logicalId": "StockCheckerFunction",
+        "templatePath": "${workspaceFolder}/template.yaml"
+      },
+      "lambda": {
+        "runtime": "python3.9"
+      },
+      "sam": {
+        "containerBuild": false,
+        "skipNewImageCheck": false,
+        "localArguments": ["-e", "${workspaceFolder}/debug_input.json"]
+      },
+      "api": {
+        "httpMethod": "get"
+      },
+      "name": "StockChecker"
+    }
+  ]
+}
