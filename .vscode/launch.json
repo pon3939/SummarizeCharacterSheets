@@ -16,10 +16,8 @@
         "skipNewImageCheck": false,
         "localArguments": ["-e", "${workspaceFolder}/debug_input.json"]
       },
-      "api": {
-        "httpMethod": "get"
-      },
-      "name": "StockChecker"
+      "name": "StockChecker",
+      "preLaunchTask": "install libraries"
     }
   ]
 }

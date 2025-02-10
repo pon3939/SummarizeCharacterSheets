@@ -63,7 +63,7 @@ requirements.in に必要なパッケージ名を追記する。開発時のみ�
 その後、requirements.txt を生成する
 
 ```bash
-pip-compile
+pip-compile layers/requirements.in
 pip-compile requirements_dev.in
-pip-sync requirements_dev.txt # バージョンが更新されることがあるので適応
+pip-sync requirements_dev.txt # エディターの補完等のためにインストール
 ```

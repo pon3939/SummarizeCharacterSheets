@@ -3,7 +3,7 @@ Transform: AWS::Serverless-2016-10-31
 Description: >
   SummarizeCharacterSheets
 
-  Sample SAM Template for SummarizeCharacterSheets
+  SW2.5 のキャラクターシートをスプレッドシートに集計する StepFunctions
 
 Resources:
   StockTradingStateMachine:
@@ -41,6 +41,8 @@ Resources:
       Runtime: python3.9
       Architectures:
         - x86_64
+      Layers:
+        - !Ref SummarizeCharacterSheetsLayer
 
   StockSellerFunction:
     Type: AWS::Serverless::Function
@@ -69,6 +71,17 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
+
+  SummarizeCharacterSheetsLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      ContentUri: "layers/"
+      Description: SummarizeCharacterSheets 用のレイヤー
+      CompatibleRuntimes:
+        - python3.9
+    Metadata:
+      BuildMethod: python3.9
+      BuildArchitecture: x86_64
 
 Outputs:
   # StockTradingStateMachineHourlyTradingSchedule is an implicit Schedule event rule created out of Events key under Serverless::StateMachine
