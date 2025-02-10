@@ -347,7 +347,6 @@ $RECYCLE.BIN/
 
 # レイヤーは自作モジュールのみGit管理する
 layers/*
-!layers/*.py
-!layers/constants/
+!layers/my_modules/
 !layers/requirements.in
 !layers/requirements.txt

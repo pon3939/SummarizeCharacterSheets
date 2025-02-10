@@ -58,7 +58,7 @@ pip install pip-tools
 pip-sync requirements_dev.txt
 ```
 
-requirements.in に必要なパッケージ名を追記する。開発時のみ必要なものは requirements-dev.in に追記。
+layers/requirements.in に必要なパッケージ名を追記する。開発時のみ必要なものは requirements-dev.in に追記。
 
 その後、requirements.txt を生成する
 

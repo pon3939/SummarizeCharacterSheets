@@ -1,5 +1,12 @@
 {
-  "cSpell.words": ["boto", "mypy", "venv", "Ytsheet"],
+  "cSpell.words": [
+    "boto",
+    "mypy",
+    "powertools",
+    "statemachine",
+    "venv",
+    "Ytsheet"
+  ],
   "python.analysis.typeCheckingMode": "standard",
   "python.autoComplete.extraPaths": ["${workspaceFolder}/layers"],
   "python.analysis.extraPaths": ["${workspaceFolder}/layers"]

@@ -5,7 +5,7 @@
       "request": "direct-invoke",
       "invokeTarget": {
         "target": "template",
-        "logicalId": "StockCheckerFunction",
+        "logicalId": "InsertLevelCapsFunction",
         "templatePath": "${workspaceFolder}/template.yaml"
       },
       "lambda": {
@@ -13,10 +13,15 @@
       },
       "sam": {
         "containerBuild": false,
-        "skipNewImageCheck": false,
-        "localArguments": ["-e", "${workspaceFolder}/debug_input.json"]
+        "localArguments": [
+          "-e",
+          "${workspaceFolder}/functions/insert_level_caps/debug_input.json",
+          "-n",
+          "${workspaceFolder}/local_env.json"
+        ],
+        "skipNewImageCheck": false
       },
-      "name": "StockChecker",
+      "name": "InsertLevelCapsFunction",
       "preLaunchTask": "install libraries"
     }
   ]

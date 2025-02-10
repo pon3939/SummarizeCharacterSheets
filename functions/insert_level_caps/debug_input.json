@@ -1,0 +1,7 @@
+{
+  "SeasonId": 4,
+  "LevelCaps": [
+    { "startDatetime": "2025/2/1", "minimumExp": 3000, "maxExp": 3000 },
+    { "startDatetime": "2025/4/1", "minimumExp": 30000, "maxExp": 30000 }
+  ]
+}

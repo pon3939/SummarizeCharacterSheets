@@ -41,8 +41,6 @@ Resources:
       Runtime: python3.9
       Architectures:
         - x86_64
-      Layers:
-        - !Ref SummarizeCharacterSheetsLayer
 
   StockSellerFunction:
     Type: AWS::Serverless::Function
@@ -62,15 +60,23 @@ Resources:
       Architectures:
         - x86_64
 
-  TransactionTable:
-    Type: AWS::Serverless::SimpleTable # More info about SimpleTable Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-simpletable.html
+  InsertLevelCapsFunction:
+    Type: AWS::Serverless::Function
     Properties:
-      PrimaryKey:
-        Name: Id
-        Type: String
-      ProvisionedThroughput:
-        ReadCapacityUnits: 1
-        WriteCapacityUnits: 1
+      Description: レベルキャップテーブルにレコードを追加する
+      CodeUri: functions/insert_level_caps/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref SummarizeCharacterSheetsLayer
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LevelCapsTable
+      Environment:
+        Variables:
+          LEVEL_CAPS_TABLE_NAME: !Ref LevelCapsTable
 
   SummarizeCharacterSheetsLayer:
     Type: AWS::Serverless::LayerVersion
@@ -82,6 +88,35 @@ Resources:
     Metadata:
       BuildMethod: python3.9
       BuildArchitecture: x86_64
+
+  LevelCapsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: level_caps
+      AttributeDefinitions:
+        - AttributeName: "season_id"
+          AttributeType: "N"
+        - AttributeName: "start_datetime"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "season_id"
+          KeyType: "HASH"
+        - AttributeName: "start_datetime"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+    DeletionPolicy: Retain
+
+  TransactionTable:
+    Type: AWS::Serverless::SimpleTable # More info about SimpleTable Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-simpletable.html
+    Properties:
+      PrimaryKey:
+        Name: Id
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
 
 Outputs:
   # StockTradingStateMachineHourlyTradingSchedule is an implicit Schedule event rule created out of Events key under Serverless::StateMachine

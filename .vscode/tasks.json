@@ -6,7 +6,7 @@
     {
       "label": "install libraries",
       "type": "shell",
-      "command": "pip install -r ${workspaceFolder}/requirements_dev.txt -t ${workspaceFolder}/layers"
+      "command": "pip install --upgrade -r ${workspaceFolder}/requirements_dev.txt -t ${workspaceFolder}/layers"
     }
   ]
 }

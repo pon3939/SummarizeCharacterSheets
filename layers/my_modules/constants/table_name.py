@@ -5,5 +5,4 @@
 """
 
 
-LEVEL_CAPS: str = "level_caps"
 PLAYERS: str = "players"
