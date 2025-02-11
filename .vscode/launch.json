@@ -15,7 +15,7 @@
         "containerBuild": false,
         "localArguments": [
           "-e",
-          "${workspaceFolder}/functions/insert_level_caps/debug_input.json",
+          "${workspaceFolder}/functions/debug_inputs/insert_level_caps.json",
           "-n",
           "${workspaceFolder}/local_env.json"
         ],
@@ -39,7 +39,7 @@
         "containerBuild": false,
         "localArguments": [
           "-e",
-          "${workspaceFolder}/functions/insert_players/debug_input.json",
+          "${workspaceFolder}/functions/debug_inputs/insert_players.json",
           "-n",
           "${workspaceFolder}/local_env.json"
         ],
