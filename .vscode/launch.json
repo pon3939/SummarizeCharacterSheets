@@ -23,6 +23,30 @@
       },
       "name": "InsertLevelCapsFunction",
       "preLaunchTask": "install libraries"
+    },
+    {
+      "type": "aws-sam",
+      "request": "direct-invoke",
+      "invokeTarget": {
+        "target": "template",
+        "logicalId": "InsertPlayersFunction",
+        "templatePath": "${workspaceFolder}/template.yaml"
+      },
+      "lambda": {
+        "runtime": "python3.9"
+      },
+      "sam": {
+        "containerBuild": false,
+        "localArguments": [
+          "-e",
+          "${workspaceFolder}/functions/insert_players/debug_input.json",
+          "-n",
+          "${workspaceFolder}/local_env.json"
+        ],
+        "skipNewImageCheck": false
+      },
+      "name": "InsertPlayersFunction",
+      "preLaunchTask": "install libraries"
     }
   ]
 }

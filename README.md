@@ -2,16 +2,23 @@
 
 SW2.5 のキャラクターシートをスプレッドシートに集計する StepFunctions
 
-## デプロイ
+## AWS SSO
 
-初回のみ認証情報を設定する
+デプロイやローカルデバッグには SSO 認証が必要になる
+
+初回のみ設定が必要
 
 ```bash
-aws configure
-vi ~/.aws/credentials # aws_session_tokenを追記
+aws configure sso  # CLI profile nameを"default"にするとデフォルト設定になる
 ```
 
-デプロイする
+ログイン
+
+```bash
+aws sso login
+```
+
+## デプロイ
 
 ```bash
 sam build

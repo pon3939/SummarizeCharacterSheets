@@ -1,5 +1,9 @@
 {
   "InsertLevelCapsFunction": {
     "LEVEL_CAPS_TABLE_NAME": "level_caps"
+  },
+  "InsertPlayersFunction": {
+    "PLAYERS_TABLE_NAME": "players",
+    "PLAYERS_SEASON_IS_INDEX_NAME": "season_id-name-index"
   }
 }

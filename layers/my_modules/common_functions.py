@@ -3,7 +3,7 @@
 
 from datetime import datetime
 from functools import singledispatch
-from typing import Union
+from typing import Any, Union
 
 from boto3 import client
 from mypy_boto3_dynamodb.client import DynamoDBClient
@@ -42,7 +42,7 @@ def ConvertToVerticalHeaders(horizontalHeaders: list[str]) -> list[str]:
 
 
 @singledispatch
-def ConvertDynamoDBToJson(dynamoDBData) -> Union[dict, list]:
+def ConvertDynamoDBToJson(dynamoDBData) -> Any:
     """
 
     DynamoDBから取得したデータを適切な型に変換する

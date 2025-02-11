@@ -5,7 +5,14 @@ Description: >
 
   SW2.5 のキャラクターシートをスプレッドシートに集計する StepFunctions
 
+Parameters:
+  PlayersSeasonIdIndexName:
+    Type: String
+    Default: season_id-name-index
+    Description: プレイヤーテーブルのシーズンIDと名前のインデックス名
+
 Resources:
+  # Step Functions
   StockTradingStateMachine:
     Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
     Properties:
@@ -33,6 +40,7 @@ Resources:
         - DynamoDBWritePolicy:
             TableName: !Ref TransactionTable
 
+  # Lambda
   StockCheckerFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
     Properties:
@@ -60,6 +68,7 @@ Resources:
       Architectures:
         - x86_64
 
+  # レベルキャップ登録Lambda
   InsertLevelCapsFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -78,6 +87,27 @@ Resources:
         Variables:
           LEVEL_CAPS_TABLE_NAME: !Ref LevelCapsTable
 
+  # PL登録Lambda
+  InsertPlayersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: PLテーブルにレコードを追加する
+      CodeUri: functions/insert_players/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref SummarizeCharacterSheetsLayer
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref PlayersTable
+      Environment:
+        Variables:
+          PLAYERS_TABLE_NAME: !Ref PlayersTable
+          PLAYERS_SEASON_ID_INDEX_NAME: !Ref PlayersSeasonIdIndexName
+
+  # Layer
   SummarizeCharacterSheetsLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
@@ -89,6 +119,8 @@ Resources:
       BuildMethod: python3.9
       BuildArchitecture: x86_64
 
+  # DynamoDB
+  # レベルキャップ
   LevelCapsTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -106,7 +138,96 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
-    DeletionPolicy: Retain
+
+  # PL
+  PlayersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: players_temp
+      AttributeDefinitions:
+        - AttributeName: "season_id"
+          AttributeType: "N"
+        - AttributeName: "id"
+          AttributeType: "N"
+        - AttributeName: "name"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "season_id"
+          KeyType: "HASH"
+        - AttributeName: "id"
+          KeyType: "RANGE"
+      GlobalSecondaryIndexes:
+        - IndexName: !Ref PlayersSeasonIdIndexName
+          KeySchema:
+            - AttributeName: "season_id"
+              KeyType: "HASH"
+            - AttributeName: "name"
+              KeyType: "RANGE"
+          Projection: { ProjectionType: "ALL" }
+          ProvisionedThroughput:
+            ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+  # DynamoDB Auto Scaling
+  # PL 読み込み
+  PlayersReadCapacityScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: 10
+      MinCapacity: 1
+      ResourceId: !Join
+        - "/"
+        - - "table"
+          - !Ref PlayersTable
+      RoleARN: !GetAtt ScalingRole.Arn
+      ScalableDimension: dynamodb:table:ReadCapacityUnits
+      ServiceNamespace: dynamodb
+
+  # PL 書き込み
+  PlayersWriteCapacityScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: 10
+      MinCapacity: 1
+      ResourceId: !Join
+        - "/"
+        - - "table"
+          - !Ref PlayersTable
+      RoleARN: !GetAtt ScalingRole.Arn
+      ScalableDimension: dynamodb:table:WriteCapacityUnits
+      ServiceNamespace: dynamodb
+
+  # DynamoDB Auto Scaling Policy
+  # PL 読み込み
+  PlayersReadScalingPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: PlayersReadAutoScalingPolicy
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref PlayersReadCapacityScalableTarget
+      TargetTrackingScalingPolicyConfiguration:
+        TargetValue: 70.0
+        ScaleInCooldown: 60
+        ScaleOutCooldown: 60
+        PredefinedMetricSpecification:
+          PredefinedMetricType: DynamoDBReadCapacityUtilization
+
+  # PL 書き込み
+  PlayersWriteScalingPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: PlayersWriteAutoScalingPolicy
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref PlayersWriteCapacityScalableTarget
+      TargetTrackingScalingPolicyConfiguration:
+        TargetValue: 70.0
+        ScaleInCooldown: 60
+        ScaleOutCooldown: 60
+        PredefinedMetricSpecification:
+          PredefinedMetricType: DynamoDBWriteCapacityUtilization
 
   TransactionTable:
     Type: AWS::Serverless::SimpleTable # More info about SimpleTable Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-simpletable.html
@@ -117,6 +238,37 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
+
+  # Role
+  # DynamoDB の Auto Scaling 用
+  ScalingRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - application-autoscaling.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        - PolicyName: "root"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "dynamodb:DescribeTable"
+                  - "dynamodb:UpdateTable"
+                  - "cloudwatch:PutMetricAlarm"
+                  - "cloudwatch:DescribeAlarms"
+                  - "cloudwatch:GetMetricStatistics"
+                  - "cloudwatch:SetAlarmState"
+                  - "cloudwatch:DeleteAlarms"
+                Resource: "*"
 
 Outputs:
   # StockTradingStateMachineHourlyTradingSchedule is an implicit Schedule event rule created out of Events key under Serverless::StateMachine
