@@ -210,8 +210,6 @@ Resources:
       ScalingTargetId: !Ref PlayersReadCapacityScalableTarget
       TargetTrackingScalingPolicyConfiguration:
         TargetValue: 70.0
-        ScaleInCooldown: 60
-        ScaleOutCooldown: 60
         PredefinedMetricSpecification:
           PredefinedMetricType: DynamoDBReadCapacityUtilization
 
@@ -224,8 +222,6 @@ Resources:
       ScalingTargetId: !Ref PlayersWriteCapacityScalableTarget
       TargetTrackingScalingPolicyConfiguration:
         TargetValue: 70.0
-        ScaleInCooldown: 60
-        ScaleOutCooldown: 60
         PredefinedMetricSpecification:
           PredefinedMetricType: DynamoDBWriteCapacityUtilization
 
