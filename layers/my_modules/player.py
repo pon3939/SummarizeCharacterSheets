@@ -3,8 +3,8 @@
 
 from dataclasses import dataclass
 
-from common_functions import StrForDynamoDBToDateTime
-from player_character import PlayerCharacter
+from .common_functions import StrForDynamoDBToDateTime
+from .player_character import PlayerCharacter
 
 """
 PL
@@ -28,11 +28,12 @@ class Player:
         """
         コンストラクタ
 
-        name str: PL名
-        strUpdateTime str: 最終更新日時
-        maxExp int: 最大経験点
-        minimumExp int: 最小経験点
-        characterJsons list[dict]: PC情報
+        Args:
+            name str: PL名
+            strUpdateTime str: 最終更新日時
+            maxExp int: 最大経験点
+            minimumExp int: 最小経験点
+            characterJsons list[dict]: PC情報
         """
 
         self.Name: str = name

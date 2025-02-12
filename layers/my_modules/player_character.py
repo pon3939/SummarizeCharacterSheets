@@ -5,12 +5,12 @@ from json import loads
 from re import Match, findall, search, sub
 from typing import Union
 
-from common_functions import MakeYtsheetUrl
-from constants import sword_world
-from exp_status import ExpStatus
-from general_skill import GeneralSkill
-from status import Status
-from style import Style
+from .common_functions import MakeYtsheetUrl
+from .constants import sword_world
+from .exp_status import ExpStatus
+from .general_skill import GeneralSkill
+from .status import Status
+from .style import Style
 
 """
 PC
@@ -43,10 +43,11 @@ class PlayerCharacter:
         """
         コンストラクタ
 
-        characterJson dict: PC情報
-        playerName str: 最終更新日時
-        maxExp int: 最大経験点
-        minimumExp int: 最小経験点
+        Args:
+            characterJson dict: PC情報
+            playerName str: 最終更新日時
+            maxExp int: 最大経験点
+            minimumExp int: 最小経験点
         """
         ytsheetJson: dict = loads(characterJson["ytsheet_json"])
 

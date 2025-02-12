@@ -266,6 +266,17 @@ Resources:
                   - "cloudwatch:DeleteAlarms"
                 Resource: "*"
 
+  # Custom Resource
+  # レベルキャップの初期データ登録
+  InitialLevelCapsCustomResource:
+    Type: Custom::InitialLevelCaps
+    Properties:
+      ServiceToken: !GetAtt InsertLevelCapsFunction.Arn
+      InputData:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: functions/initial_data/insert_level_caps.json
 Outputs:
   # StockTradingStateMachineHourlyTradingSchedule is an implicit Schedule event rule created out of Events key under Serverless::StateMachine
   # Find out more about other implicit resources you can reference within SAM

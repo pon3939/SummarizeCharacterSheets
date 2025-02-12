@@ -3,11 +3,19 @@
 
 from datetime import datetime
 from functools import singledispatch
+from json import dumps
 from typing import Any, Union
 
 from boto3 import client
 from mypy_boto3_dynamodb.client import DynamoDBClient
 from pytz import timezone
+from requests import put
+
+from .cloud_formation_response import CloudFormationResponse
+from .constants.aws import (
+    CLOUD_FORMATION_REQUEST_TYPE_MANUAL,
+    CLOUD_FORMATION_STATUS_SUCCESS,
+)
 
 """
 汎用関数
@@ -225,3 +233,41 @@ def MakeYtsheetUrl(id: str) -> str:
         str: URL
     """
     return f"https://yutorize.2-d.jp/ytsheet/sw2.5/?id={id}"
+
+
+def putCloudFormationResponse(
+    response: CloudFormationResponse,
+    status: str = CLOUD_FORMATION_STATUS_SUCCESS,
+    reason: str = "成功",
+) -> None:
+    """
+
+    CloudFormationにレスポンスを返す
+    Custom Resourceの処理完了を知らせるために使用
+
+    Args:
+        response CloudFormationResponse: レスポンス情報
+        status str: ステータス
+        reason str: 理由
+    """
+    if response.RequestType == CLOUD_FORMATION_REQUEST_TYPE_MANUAL:
+        # 手動実行なので何もしない
+        return
+
+    responseBody: str = dumps(
+        {
+            "Status": status,
+            "Reason": reason,
+            "PhysicalResourceId": response.PhysicalResourceId,
+            "StackId": response.StackId,
+            "RequestId": response.RequestId,
+            "LogicalResourceId": response.LogicalResourceId,
+            "Data": {},
+        }
+    )
+
+    headers: dict[str, str] = {
+        "content-type": "",
+        "content-length": str(len(responseBody)),
+    }
+    put(response.ResponseUrl, data=responseBody, headers=headers)
