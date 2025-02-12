@@ -55,9 +55,8 @@ def lambda_handler(event: dict, context: LambdaContext):
             return
 
         inputData: dict[str, Any] = event["ResourceProperties"]["InputData"]
-        seasonId: int = int(inputData["SeasonId"])
-        levelCaps: list[dict[str, str]] = inputData["LevelCaps"]
-        insertLevelCaps(levelCaps, seasonId)
+        seasons: list[dict[str, Any]] = inputData["Seasons"]
+        insertLevelCaps(seasons)
         putCloudFormationResponse(cloudFormationResponse)
     except Exception as e:
         putCloudFormationResponse(
@@ -68,41 +67,42 @@ def lambda_handler(event: dict, context: LambdaContext):
 
 
 def insertLevelCaps(
-    levelCaps: "list[dict[str, str]]",
-    seasonId: int,
+    seasons: list[dict[str, Any]],
 ):
     """レベルキャップを挿入する
 
     Args:
-        levelCaps: list[dict[str, str]]: レベルキャップ
-        seasonId: int: シーズンID
+        seasons: list[dict[str, Any]]: レベルキャップ情報
     """
 
     dynamoDb: DynamoDBClient = InitDb()
+    for season in seasons:
+        seasonId: int = int(season["SeasonId"])
+        levelCaps: list[dict] = season["LevelCaps"]
+        requestItems: list[WriteRequestTypeDef] = []
+        for levelCap in levelCaps:
+            # JSTをGMTに変換
+            startDatetimeInJst: datetime = datetime.strptime(
+                levelCap["StartDatetime"], r"%Y/%m/%d"
+            ).replace(tzinfo=ZoneInfo("Asia/Tokyo"))
 
-    requestItems: list[WriteRequestTypeDef] = []
-    for levelCap in levelCaps:
-        # JSTをGMTに変換
-        startDatetimeInJst: datetime = datetime.strptime(
-            levelCap["startDatetime"], r"%Y/%m/%d"
-        ).replace(tzinfo=ZoneInfo("Asia/Tokyo"))
+            requestItem: WriteRequestTypeDef = {}
+            requestItem["PutRequest"] = {"Item": {}}
+            item: dict = {
+                "season_id": seasonId,
+                "start_datetime"
+                "": DateTimeToStrForDynamoDB(startDatetimeInJst),
+                "max_exp": levelCap["MaxExp"],
+                "minimum_exp": levelCap["MinimumExp"],
+            }
+            requestItem["PutRequest"]["Item"] = ConvertJsonToDynamoDB(item)
+            requestItems.append(requestItem)
 
-        requestItem: WriteRequestTypeDef = {}
-        requestItem["PutRequest"] = {"Item": {}}
-        item: dict = {
-            "season_id": seasonId,
-            "start_datetime" "": DateTimeToStrForDynamoDB(startDatetimeInJst),
-            "max_exp": levelCap["maxExp"],
-            "minimum_exp": levelCap["minimumExp"],
-        }
-        requestItem["PutRequest"]["Item"] = ConvertJsonToDynamoDB(item)
-        requestItems.append(requestItem)
-
-    response: BatchWriteItemOutputTypeDef = dynamoDb.batch_write_item(
-        RequestItems={getenv(LEVEL_CAPS_TABLE_NAME, ""): requestItems}
-    )
-
-    while response["UnprocessedItems"] != {}:
-        response = dynamoDb.batch_write_item(
-            RequestItems=response["UnprocessedItems"]
+        response: BatchWriteItemOutputTypeDef = dynamoDb.batch_write_item(
+            RequestItems={getenv(LEVEL_CAPS_TABLE_NAME, ""): requestItems}
         )
+
+        while response["UnprocessedItems"] != {}:
+            response = dynamoDb.batch_write_item(
+                RequestItems=response["UnprocessedItems"]
+            )
