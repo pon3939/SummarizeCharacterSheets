@@ -1,9 +1,14 @@
 {
   "InsertLevelCapsFunction": {
+    "MY_AWS_REGION": "ap-northeast-1",
     "LEVEL_CAPS_TABLE_NAME": "level_caps"
   },
   "InsertPlayersFunction": {
+    "MY_AWS_REGION": "ap-northeast-1",
     "PLAYERS_TABLE_NAME": "players",
     "PLAYERS_SEASON_IS_INDEX_NAME": "season_id-name-index"
+  },
+  "BackupDynamoDbFunction": {
+    "MY_AWS_REGION": "ap-northeast-1"
   }
 }

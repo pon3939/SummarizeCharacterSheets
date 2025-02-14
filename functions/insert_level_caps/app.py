@@ -44,11 +44,9 @@ def lambda_handler(event: dict, context: LambdaContext):
     )
 
     try:
-        if (
-            cloudFormationResponse.RequestType
-            != CLOUD_FORMATION_REQUEST_TYPE_CREATE
-            and cloudFormationResponse.RequestType
-            != CLOUD_FORMATION_REQUEST_TYPE_MANUAL
+        if cloudFormationResponse.RequestType not in (
+            CLOUD_FORMATION_REQUEST_TYPE_CREATE,
+            CLOUD_FORMATION_REQUEST_TYPE_MANUAL,
         ):
             # 初回デプロイ時以外はスキップする
             putCloudFormationResponse(cloudFormationResponse)

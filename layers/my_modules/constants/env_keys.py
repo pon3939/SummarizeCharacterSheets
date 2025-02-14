@@ -4,6 +4,8 @@
 環境変数名定数
 """
 
+# AWS 標準環境変数
+MY_AWS_REGION: str = "MY_AWS_REGION"
 
 # テーブル名
 LEVEL_CAPS_TABLE_NAME: str = "LEVEL_CAPS_TABLE_NAME"

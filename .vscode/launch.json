@@ -15,7 +15,7 @@
         "containerBuild": false,
         "localArguments": [
           "-e",
-          "${workspaceFolder}/functions/debug_inputs/insert_level_caps.json",
+          "${workspaceFolder}/functions/local_inputs/insert_level_caps.json",
           "-n",
           "${workspaceFolder}/local_env.json"
         ],
@@ -39,13 +39,37 @@
         "containerBuild": false,
         "localArguments": [
           "-e",
-          "${workspaceFolder}/functions/debug_inputs/insert_players.json",
+          "${workspaceFolder}/functions/local_inputs/insert_players.json",
           "-n",
           "${workspaceFolder}/local_env.json"
         ],
         "skipNewImageCheck": false
       },
       "name": "InsertPlayersFunction",
+      "preLaunchTask": "install libraries"
+    },
+    {
+      "type": "aws-sam",
+      "request": "direct-invoke",
+      "invokeTarget": {
+        "target": "template",
+        "logicalId": "BackupDynamoDbFunction",
+        "templatePath": "${workspaceFolder}/template.yaml"
+      },
+      "lambda": {
+        "runtime": "python3.9"
+      },
+      "sam": {
+        "containerBuild": false,
+        "localArguments": [
+          "-e",
+          "${workspaceFolder}/functions/local_inputs/backup_dynamo_db.json",
+          "-n",
+          "${workspaceFolder}/local_env.json"
+        ],
+        "skipNewImageCheck": false
+      },
+      "name": "BackupDynamoDbFunction",
       "preLaunchTask": "install libraries"
     }
   ]

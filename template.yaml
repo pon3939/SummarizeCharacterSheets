@@ -10,6 +10,10 @@ Parameters:
     Type: String
     Default: season_id-name-index
     Description: プレイヤーテーブルのシーズンIDと名前のインデックス名
+  BackupBucketName:
+    Type: String
+    Default: summarize-character-sheets-bucket
+    Description: バックアップ用のバケット名
 
 Resources:
   # Step Functions
@@ -85,6 +89,7 @@ Resources:
             TableName: !Ref LevelCapsTable
       Environment:
         Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
           LEVEL_CAPS_TABLE_NAME: !Ref LevelCapsTable
 
   # PL登録Lambda
@@ -104,8 +109,33 @@ Resources:
             TableName: !Ref PlayersTable
       Environment:
         Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
           PLAYERS_TABLE_NAME: !Ref PlayersTable
           PLAYERS_SEASON_ID_INDEX_NAME: !Ref PlayersSeasonIdIndexName
+
+  # DynamoDBバックアップLambda
+  BackupDynamoDbFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: DynamoDB のバックアップを取る
+      CodeUri: functions/backup_dynamo_db/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 60
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref SummarizeCharacterSheetsLayer
+      Policies:
+        - AmazonDynamoDBReadOnlyAccess
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action: "s3:PutObject"
+              Resource: !Sub "arn:aws:s3:::${BackupBucketName}/*"
+      Environment:
+        Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
 
   # Layer
   SummarizeCharacterSheetsLayer:
@@ -178,10 +208,7 @@ Resources:
     Properties:
       MaxCapacity: 10
       MinCapacity: 1
-      ResourceId: !Join
-        - "/"
-        - - "table"
-          - !Ref PlayersTable
+      ResourceId: !Sub table/${PlayersTable}
       RoleARN: !GetAtt ScalingRole.Arn
       ScalableDimension: dynamodb:table:ReadCapacityUnits
       ServiceNamespace: dynamodb
@@ -192,10 +219,7 @@ Resources:
     Properties:
       MaxCapacity: 10
       MinCapacity: 1
-      ResourceId: !Join
-        - "/"
-        - - "table"
-          - !Ref PlayersTable
+      ResourceId: !Sub table/${PlayersTable}
       RoleARN: !GetAtt ScalingRole.Arn
       ScalableDimension: dynamodb:table:WriteCapacityUnits
       ServiceNamespace: dynamodb
@@ -277,6 +301,16 @@ Resources:
           Name: AWS::Include
           Parameters:
             Location: functions/initial_data/insert_level_caps.json
+
+  # sam delete時のDynamoDBバックアップ
+  BackupDynamoDbCustomResource:
+    Type: Custom::InitialLevelCaps
+    Properties:
+      ServiceToken: !GetAtt BackupDynamoDbFunction.Arn
+      TableNames:
+        - !Ref PlayersTable
+      BucketName: !Ref BackupBucketName
+
 Outputs:
   # StockTradingStateMachineHourlyTradingSchedule is an implicit Schedule event rule created out of Events key under Serverless::StateMachine
   # Find out more about other implicit resources you can reference within SAM
