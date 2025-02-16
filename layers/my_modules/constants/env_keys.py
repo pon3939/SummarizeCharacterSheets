@@ -7,6 +7,9 @@
 # AWS 標準環境変数
 MY_AWS_REGION: str = "MY_AWS_REGION"
 
+# リソース名のプレフィックス
+PREFIX: str = "PREFIX"
+
 # テーブル名
 LEVEL_CAPS_TABLE_NAME: str = "LEVEL_CAPS_TABLE_NAME"
 PLAYERS_TABLE_NAME: str = "PLAYERS_TABLE_NAME"

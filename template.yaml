@@ -168,6 +168,25 @@ Resources:
           MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
           TEMPORARY_CAPACITY_UNITS: 100
 
+  # DynamoDBレコード登録Lambda
+  InsertDynamoDbFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: DynamoDB にレコードを登録する
+      CodeUri: functions/insert_dynamo_db/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref MyLayer
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Environment:
+        Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
+          PREFIX: !Ref AWS::StackName
+
   # Layer
   MyLayer:
     Type: AWS::Serverless::LayerVersion
@@ -229,6 +248,46 @@ Resources:
           ProvisionedThroughput:
             ReadCapacityUnits: 1
             WriteCapacityUnits: 1
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+  # Googleサービスアカウント
+  GoogleServiceAccountsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${AWS::StackName}_google_service_accounts
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: N
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+  # 環境情報
+  EnvironmentsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${AWS::StackName}_environments
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: N
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+  TransactionTable:
+    Type: AWS::Serverless::SimpleTable # More info about SimpleTable Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-simpletable.html
+    Properties:
+      PrimaryKey:
+        Name: Id
+        Type: String
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
@@ -304,16 +363,6 @@ Resources:
         PredefinedMetricSpecification:
           PredefinedMetricType: DynamoDBWriteCapacityUtilization
 
-  TransactionTable:
-    Type: AWS::Serverless::SimpleTable # More info about SimpleTable Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-simpletable.html
-    Properties:
-      PrimaryKey:
-        Name: Id
-        Type: String
-      ProvisionedThroughput:
-        ReadCapacityUnits: 1
-        WriteCapacityUnits: 1
-
   # バックアッププラン
   BackupPlan:
     Type: AWS::Backup::BackupPlan
@@ -369,6 +418,17 @@ Resources:
       TableNames:
         - !Ref PlayersTable
       BucketName: !Ref BackupBucketName
+
+  # その他テーブルの初期データ登録
+  InitialDynamoDbCustomResource:
+    Type: Custom::InitialDynamoDb
+    Properties:
+      ServiceToken: !GetAtt InsertDynamoDbFunction.Arn
+      InputData:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: functions/initial_data/insert_dynamo_db.json
 
 Outputs:
   # StockTradingStateMachineHourlyTradingSchedule is an implicit Schedule event rule created out of Events key under Serverless::StateMachine
