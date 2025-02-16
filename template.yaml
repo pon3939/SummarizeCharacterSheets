@@ -87,7 +87,7 @@ Resources:
       Architectures:
         - x86_64
       Layers:
-        - !Ref SummarizeCharacterSheetsLayer
+        - !Ref MyLayer
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref LevelCapsTable
@@ -107,7 +107,7 @@ Resources:
       Architectures:
         - x86_64
       Layers:
-        - !Ref SummarizeCharacterSheetsLayer
+        - !Ref MyLayer
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref PlayersTable
@@ -129,7 +129,7 @@ Resources:
       Architectures:
         - x86_64
       Layers:
-        - !Ref SummarizeCharacterSheetsLayer
+        - !Ref MyLayer
       Policies:
         - AmazonDynamoDBFullAccess
         - Version: "2012-10-17"
@@ -155,7 +155,7 @@ Resources:
       Architectures:
         - x86_64
       Layers:
-        - !Ref SummarizeCharacterSheetsLayer
+        - !Ref MyLayer
       Policies:
         - AmazonDynamoDBFullAccess
         - Version: "2012-10-17"
@@ -169,9 +169,10 @@ Resources:
           TEMPORARY_CAPACITY_UNITS: 100
 
   # Layer
-  SummarizeCharacterSheetsLayer:
+  MyLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
+      LayerName: !Sub "${AWS::StackName}_my_layer"
       ContentUri: "layers/"
       Description: SummarizeCharacterSheets 用のレイヤー
       CompatibleRuntimes:
