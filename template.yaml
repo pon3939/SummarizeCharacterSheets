@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
 Description: >
   SummarizeCharacterSheets
@@ -37,7 +37,7 @@ Resources:
           Properties:
             Description: Schedule to run the stock trading state machine every hour
             Enabled: False # This schedule is disabled by default to avoid incurring charges.
-            Schedule: "rate(1 hour)"
+            Schedule: rate(1 hour)
       Policies: # Find out more about SAM policy templates: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-templates.html
         - LambdaInvokePolicy:
             FunctionName: !Ref StockCheckerFunction
@@ -132,11 +132,11 @@ Resources:
         - !Ref MyLayer
       Policies:
         - AmazonDynamoDBFullAccess
-        - Version: "2012-10-17"
+        - Version: 2012-10-17
           Statement:
-            - Effect: "Allow"
-              Action: "s3:PutObject"
-              Resource: !Sub "arn:aws:s3:::${BackupBucketName}/*"
+            - Effect: Allow
+              Action: s3:PutObject
+              Resource: !Sub arn:aws:s3:::${BackupBucketName}/*
       Environment:
         Variables:
           MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
@@ -158,11 +158,11 @@ Resources:
         - !Ref MyLayer
       Policies:
         - AmazonDynamoDBFullAccess
-        - Version: "2012-10-17"
+        - Version: 2012-10-17
           Statement:
-            - Effect: "Allow"
-              Action: "s3:GetObject"
-              Resource: !Sub "arn:aws:s3:::${BackupBucketName}/*"
+            - Effect: Allow
+              Action: s3:GetObject
+              Resource: !Sub arn:aws:s3:::${BackupBucketName}/*
       Environment:
         Variables:
           MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
@@ -172,8 +172,8 @@ Resources:
   MyLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
-      LayerName: !Sub "${AWS::StackName}_my_layer"
-      ContentUri: "layers/"
+      LayerName: !Sub ${AWS::StackName}_my_layer
+      ContentUri: layers/
       Description: SummarizeCharacterSheets 用のレイヤー
       CompatibleRuntimes:
         - python3.9
@@ -186,17 +186,17 @@ Resources:
   LevelCapsTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: level_caps
+      TableName: !Sub ${AWS::StackName}_level_caps
       AttributeDefinitions:
-        - AttributeName: "season_id"
-          AttributeType: "N"
-        - AttributeName: "start_datetime"
-          AttributeType: "S"
+        - AttributeName: season_id
+          AttributeType: N
+        - AttributeName: start_datetime
+          AttributeType: S
       KeySchema:
-        - AttributeName: "season_id"
-          KeyType: "HASH"
-        - AttributeName: "start_datetime"
-          KeyType: "RANGE"
+        - AttributeName: season_id
+          KeyType: HASH
+        - AttributeName: start_datetime
+          KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
@@ -205,27 +205,27 @@ Resources:
   PlayersTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: players
+      TableName: !Sub ${AWS::StackName}_players
       AttributeDefinitions:
-        - AttributeName: "season_id"
-          AttributeType: "N"
-        - AttributeName: "id"
-          AttributeType: "N"
-        - AttributeName: "name"
-          AttributeType: "S"
+        - AttributeName: season_id
+          AttributeType: N
+        - AttributeName: id
+          AttributeType: N
+        - AttributeName: name
+          AttributeType: S
       KeySchema:
-        - AttributeName: "season_id"
-          KeyType: "HASH"
-        - AttributeName: "id"
-          KeyType: "RANGE"
+        - AttributeName: season_id
+          KeyType: HASH
+        - AttributeName: id
+          KeyType: RANGE
       GlobalSecondaryIndexes:
         - IndexName: !Ref PlayersSeasonIdIndexName
           KeySchema:
-            - AttributeName: "season_id"
-              KeyType: "HASH"
-            - AttributeName: "name"
-              KeyType: "RANGE"
-          Projection: { ProjectionType: "ALL" }
+            - AttributeName: season_id
+              KeyType: HASH
+            - AttributeName: name
+              KeyType: RANGE
+          Projection: { ProjectionType: ALL }
           ProvisionedThroughput:
             ReadCapacityUnits: 1
             WriteCapacityUnits: 1
@@ -272,7 +272,7 @@ Resources:
   PlayersReadScalingPolicy:
     Type: AWS::ApplicationAutoScaling::ScalingPolicy
     Properties:
-      PolicyName: players_read_auto_scaling_policy
+      PolicyName: !Sub ${PlayersTable}_read_scaling_policy
       PolicyType: TargetTrackingScaling
       ScalingTargetId: !Ref PlayersReadCapacityScalableTarget
       TargetTrackingScalingPolicyConfiguration:
@@ -284,7 +284,7 @@ Resources:
   PlayersWriteScalingPolicy:
     Type: AWS::ApplicationAutoScaling::ScalingPolicy
     Properties:
-      PolicyName: players_write_auto_scaling_policy
+      PolicyName: !Sub ${PlayersTable}_write_scaling_policy
       PolicyType: TargetTrackingScaling
       ScalingTargetId: !Ref PlayersWriteCapacityScalableTarget
       TargetTrackingScalingPolicyConfiguration:
@@ -296,7 +296,7 @@ Resources:
   PlayersSeasonIdIndexWriteScalingPolicy:
     Type: AWS::ApplicationAutoScaling::ScalingPolicy
     Properties:
-      PolicyName: players_season_id_index_write_auto_scaling_policy
+      PolicyName: !Sub ${PlayersTable}_${PlayersSeasonIdIndexName}_write_scaling_policy
       PolicyType: TargetTrackingScaling
       ScalingTargetId: !Ref PlayersSeasonIdIndexWriteCapacityScalableTarget
       TargetTrackingScalingPolicyConfiguration:
@@ -319,9 +319,9 @@ Resources:
     Type: AWS::Backup::BackupPlan
     Properties:
       BackupPlan:
-        BackupPlanName: backup_plan
+        BackupPlanName: !Sub ${AWS::StackName}_backup_plan
         BackupPlanRule:
-          - RuleName: daily_backup
+          - RuleName: !Sub ${AWS::StackName}_backup_rule
             TargetBackupVault: !Ref BackupVaultName
             ScheduleExpression: cron(0 19 * * ? *)
             StartWindowMinutes: 60
@@ -335,7 +335,7 @@ Resources:
     Properties:
       BackupPlanId: !Ref BackupPlan
       BackupSelection:
-        SelectionName: backup_selection
+        SelectionName: !Sub ${AWS::StackName}_backup_selection
         IamRoleArn: !Sub arn:aws:iam::${AWS::AccountId}:role/service-role/AWSBackupDefaultServiceRole
         Resources:
           - !GetAtt PlayersTable.Arn
@@ -375,8 +375,8 @@ Outputs:
   # Find out more about other implicit resources you can reference within SAM
   # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-specification-generated-resources.html
   StockTradingStateMachineArn:
-    Description: "Stock Trading State machine ARN"
+    Description: Stock Trading State machine ARN
     Value: !Ref StockTradingStateMachine
   StockTradingStateMachineRoleArn:
-    Description: "IAM Role created for Stock Trading State machine based on the specified SAM Policy Templates"
+    Description: IAM Role created for Stock Trading State machine based on the specified SAM Policy Templates
     Value: !GetAtt StockTradingStateMachineRole.Arn
