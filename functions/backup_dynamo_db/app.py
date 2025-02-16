@@ -1,27 +1,25 @@
 # -*- coding: utf-8 -*-
 
 
-from json import dumps
 from os import getenv
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from my_modules.cloud_formation_response import CloudFormationResponse
-from my_modules.common_functions import InitS3, putCloudFormationResponse
+from my_modules.common_functions import putCloudFormationResponse
 from my_modules.constants.aws import (
     CLOUD_FORMATION_REQUEST_TYPE_DELETE,
     CLOUD_FORMATION_REQUEST_TYPE_MANUAL,
     CLOUD_FORMATION_STATUS_FAILED,
 )
-from my_modules.constants.common import BACKUP_KEY
 from my_modules.constants.env_keys import TEMPORARY_CAPACITY_UNITS
 from my_modules.my_dynamo_db_client import MyDynamoDBClient
+from my_modules.my_s3_client import MyS3Client
 from mypy_boto3_dynamodb.type_defs import (
     DescribeTableOutputTypeDef,
     ProvisionedThroughputDescriptionTypeDef,
     ScanOutputTypeDef,
     TableDescriptionTypeDef,
 )
-from mypy_boto3_s3.client import S3Client
 
 """
 Dynamo DBをバックアップ
@@ -70,7 +68,7 @@ def backupDynamoDb(tableNames: list[str], bucketName: str):
         bucketName: str: バックアップ先のバケット名
     """
     dynamoDb: MyDynamoDBClient = MyDynamoDBClient()
-    s3: S3Client = InitS3()
+    s3: MyS3Client = MyS3Client()
     for tableName in tableNames:
         # 読み込みキャパシティを一時的に増やす
         describeTableResponse: DescribeTableOutputTypeDef = (
@@ -127,8 +125,8 @@ def backupDynamoDb(tableNames: list[str], bucketName: str):
             )
 
         # S3に保存
-        s3.put_object(
-            Bucket=bucketName,
-            Key=f"{tableName}.json",
-            Body=dumps({BACKUP_KEY: response["Items"]}, ensure_ascii=False),
+        s3.PutBackupObject(
+            bucketName,
+            tableName,
+            response["Items"],
         )

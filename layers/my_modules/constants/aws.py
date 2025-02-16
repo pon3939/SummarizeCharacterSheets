@@ -17,5 +17,8 @@ CLOUD_FORMATION_REQUEST_TYPE_MANUAL: str = "Manual"
 # S3のエラーコード
 S3_ERROR_CODE_NOT_FOUND: str = "NoSuchKey"
 
+# S3のディレクトリ名
+S3_DIRECTORY_BACKUPS: str = "backups"
+
 # DynamoDBのバッチ書き込み最大数
 DYNAMO_DB_MAX_BATCH_WRITE_ITEM: int = 25

@@ -1,31 +1,27 @@
 # -*- coding: utf-8 -*-
 
 
-from json import loads
 from os import getenv
 from typing import Union
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from botocore.exceptions import ClientError
 from my_modules.cloud_formation_response import CloudFormationResponse
-from my_modules.common_functions import InitS3, putCloudFormationResponse
+from my_modules.common_functions import putCloudFormationResponse
 from my_modules.constants.aws import (
     CLOUD_FORMATION_REQUEST_TYPE_CREATE,
     CLOUD_FORMATION_REQUEST_TYPE_MANUAL,
     CLOUD_FORMATION_STATUS_FAILED,
-    S3_ERROR_CODE_NOT_FOUND,
 )
-from my_modules.constants.common import BACKUP_KEY
 from my_modules.constants.env_keys import TEMPORARY_CAPACITY_UNITS
 from my_modules.my_dynamo_db_client import MyDynamoDBClient
+from my_modules.my_s3_client import MyS3Client
 from mypy_boto3_dynamodb.type_defs import (
+    AttributeValueTypeDef,
     DescribeTableOutputTypeDef,
     ProvisionedThroughputDescriptionTypeDef,
     TableDescriptionTypeDef,
     WriteRequestTypeDef,
 )
-from mypy_boto3_s3.client import S3Client
-from mypy_boto3_s3.type_defs import GetObjectOutputTypeDef
 
 """
 Dynamo DBをリストア
@@ -75,29 +71,14 @@ def restoreDynamoDb(tableNames: list[str], bucketName: str):
     """
 
     dynamoDb: MyDynamoDBClient = MyDynamoDBClient()
-    s3: S3Client = InitS3()
+    s3: MyS3Client = MyS3Client()
     requestItems: dict[str, list[WriteRequestTypeDef]] = {}
     originalCapacityUnits: dict[str, dict[str, Union[int, list[str]]]] = {}
     for tableName in tableNames:
-        try:
-            # バケットからファイルを取得
-            getObjectResponse: GetObjectOutputTypeDef = s3.get_object(
-                Bucket=bucketName, Key=f"{tableName}.json"
-            )
-        except ClientError as e:
-            if (
-                e.response.get("Error", {}).get("Code", "")
-                == S3_ERROR_CODE_NOT_FOUND
-            ):
-                # ファイルが存在しない場合はスキップ
-                continue
-
-            raise e
-
-        responseJson: dict = loads(
-            getObjectResponse["Body"].read().decode("utf-8"),
+        items: list[dict[str, AttributeValueTypeDef]] = s3.GetBackupObject(
+            bucketName,
+            tableName,
         )
-        items: list[dict] = responseJson[BACKUP_KEY]
         if len(items) == 0:
             # ファイルが空の場合はスキップ
             continue

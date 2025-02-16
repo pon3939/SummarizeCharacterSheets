@@ -4,11 +4,8 @@
 from datetime import datetime
 from functools import singledispatch
 from json import dumps
-from os import getenv
 from typing import Any, Union
 
-from boto3 import client
-from mypy_boto3_s3.client import S3Client
 from pytz import timezone
 from requests import put
 
@@ -17,17 +14,10 @@ from .constants.aws import (
     CLOUD_FORMATION_REQUEST_TYPE_MANUAL,
     CLOUD_FORMATION_STATUS_SUCCESS,
 )
-from .constants.env_keys import MY_AWS_REGION
 
 """
 汎用関数
 """
-
-
-def InitS3() -> S3Client:
-    """S3に接続する"""
-
-    return client("s3", region_name=getenv(MY_AWS_REGION, ""))
 
 
 def ConvertToVerticalHeaders(horizontalHeaders: list[str]) -> list[str]:
