@@ -6,7 +6,12 @@ SW2.5 のキャラクターシートをスプレッドシートに集計する S
 
 ### 本番環境
 
-s3 に`summarize-character-sheets-bucket`バケットを作成する。
+下記を作成
+
+- s3 バケット
+  - summarize-character-sheets-bucket
+- AWS Backup ボールト
+  - summarize-character-sheets-vault
 
 ### ローカル環境
 
