@@ -11,7 +11,7 @@ SW2.5 のキャラクターシートをスプレッドシートに集計する S
 - s3 バケット
   - summarize-character-sheets-bucket
 - AWS Backup ボールト
-  - summarize-character-sheets-vault
+  - summarize_character_sheets_vault
 
 ### ローカル環境
 
@@ -74,7 +74,7 @@ pip-sync requirements_dev.txt
 ```
 
 layers/requirements.in に必要なパッケージ名を追記する。
-開発時のみ必要なものは requirements-dev.in に追記。
+開発時のみ必要なものは requirements_dev.in に追記。
 その後、requirements.txt を生成する。
 
 ```bash

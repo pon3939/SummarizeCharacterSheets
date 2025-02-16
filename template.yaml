@@ -8,7 +8,7 @@ Description: >
 Parameters:
   PlayersSeasonIdIndexName:
     Type: String
-    Default: season_id-name-index
+    Default: season_id_name_index
     Description: プレイヤーテーブルのシーズンIDと名前のインデックス名
   BackupBucketName:
     Type: String
@@ -16,7 +16,7 @@ Parameters:
     Description: バックアップ用のバケット名
   BackupVaultName:
     Type: String
-    Default: summarize-character-sheets-vault
+    Default: summarize_character_sheets_vault
     Description: バックアップ用のボールト名
 
 Resources:
