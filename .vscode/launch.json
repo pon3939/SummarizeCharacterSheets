@@ -71,6 +71,30 @@
       },
       "name": "BackupDynamoDbFunction",
       "preLaunchTask": "install libraries"
+    },
+    {
+      "type": "aws-sam",
+      "request": "direct-invoke",
+      "invokeTarget": {
+        "target": "template",
+        "logicalId": "RestoreDynamoDbFunction",
+        "templatePath": "${workspaceFolder}/template.yaml"
+      },
+      "lambda": {
+        "runtime": "python3.9"
+      },
+      "sam": {
+        "containerBuild": false,
+        "localArguments": [
+          "-e",
+          "${workspaceFolder}/functions/local_inputs/restore_dynamo_db.json",
+          "-n",
+          "${workspaceFolder}/local_env.json"
+        ],
+        "skipNewImageCheck": false
+      },
+      "name": "RestoreDynamoDbFunction",
+      "preLaunchTask": "install libraries"
     }
   ]
 }

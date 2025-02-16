@@ -127,7 +127,7 @@ Resources:
       Layers:
         - !Ref SummarizeCharacterSheetsLayer
       Policies:
-        - AmazonDynamoDBReadOnlyAccess
+        - AmazonDynamoDBFullAccess
         - Version: "2012-10-17"
           Statement:
             - Effect: "Allow"
@@ -136,6 +136,33 @@ Resources:
       Environment:
         Variables:
           MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
+          TEMPORARY_CAPACITY_UNITS: 100
+
+  # DynamoDBリストアLambda
+  RestoreDynamoDbFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: DynamoDB をリストアする
+      CodeUri: functions/restore_dynamo_db/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 300
+      MemorySize: 256
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref SummarizeCharacterSheetsLayer
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action: "s3:GetObject"
+              Resource: !Sub "arn:aws:s3:::${BackupBucketName}/*"
+      Environment:
+        Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
+          TEMPORARY_CAPACITY_UNITS: 100
 
   # Layer
   SummarizeCharacterSheetsLayer:
@@ -173,7 +200,7 @@ Resources:
   PlayersTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: players_temp
+      TableName: players
       AttributeDefinitions:
         - AttributeName: "season_id"
           AttributeType: "N"
@@ -206,7 +233,7 @@ Resources:
   PlayersReadCapacityScalableTarget:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
     Properties:
-      MaxCapacity: 10
+      MaxCapacity: 100
       MinCapacity: 1
       ResourceId: !Sub table/${PlayersTable}
       RoleARN: !GetAtt ScalingRole.Arn
@@ -217,11 +244,22 @@ Resources:
   PlayersWriteCapacityScalableTarget:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
     Properties:
-      MaxCapacity: 10
+      MaxCapacity: 100
       MinCapacity: 1
       ResourceId: !Sub table/${PlayersTable}
       RoleARN: !GetAtt ScalingRole.Arn
       ScalableDimension: dynamodb:table:WriteCapacityUnits
+      ServiceNamespace: dynamodb
+
+  # PL インデックス書き込み
+  PlayersSeasonIdIndexWriteCapacityScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: 100
+      MinCapacity: 1
+      ResourceId: !Sub table/${PlayersTable}/index/${PlayersSeasonIdIndexName}
+      RoleARN: !GetAtt ScalingRole.Arn
+      ScalableDimension: dynamodb:index:WriteCapacityUnits
       ServiceNamespace: dynamodb
 
   # DynamoDB Auto Scaling Policy
@@ -244,6 +282,18 @@ Resources:
       PolicyName: PlayersWriteAutoScalingPolicy
       PolicyType: TargetTrackingScaling
       ScalingTargetId: !Ref PlayersWriteCapacityScalableTarget
+      TargetTrackingScalingPolicyConfiguration:
+        TargetValue: 70.0
+        PredefinedMetricSpecification:
+          PredefinedMetricType: DynamoDBWriteCapacityUtilization
+
+  # PL インデックス書き込み
+  PlayersSeasonIdIndexWriteScalingPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: PlayersSeasonIdIndexWriteAutoScalingPolicy
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref PlayersSeasonIdIndexWriteCapacityScalableTarget
       TargetTrackingScalingPolicyConfiguration:
         TargetValue: 70.0
         PredefinedMetricSpecification:
@@ -304,9 +354,18 @@ Resources:
 
   # sam delete時のDynamoDBバックアップ
   BackupDynamoDbCustomResource:
-    Type: Custom::InitialLevelCaps
+    Type: Custom::BackupDynamoDb
     Properties:
       ServiceToken: !GetAtt BackupDynamoDbFunction.Arn
+      TableNames:
+        - !Ref PlayersTable
+      BucketName: !Ref BackupBucketName
+
+  # デプロイ時のDynamoDBリストア
+  RestoreDynamoDbCustomResource:
+    Type: Custom::RestoreDynamoDb
+    Properties:
+      ServiceToken: !GetAtt RestoreDynamoDbFunction.Arn
       TableNames:
         - !Ref PlayersTable
       BucketName: !Ref BackupBucketName

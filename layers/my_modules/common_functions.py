@@ -8,7 +8,6 @@ from os import getenv
 from typing import Any, Union
 
 from boto3 import client
-from mypy_boto3_dynamodb.client import DynamoDBClient
 from mypy_boto3_s3.client import S3Client
 from pytz import timezone
 from requests import put
@@ -23,12 +22,6 @@ from .constants.env_keys import MY_AWS_REGION
 """
 汎用関数
 """
-
-
-def InitDb() -> DynamoDBClient:
-    """DBに接続する"""
-
-    return client("dynamodb", region_name=getenv(MY_AWS_REGION, ""))
 
 
 def InitS3() -> S3Client:

@@ -10,7 +10,6 @@ from my_modules.cloud_formation_response import CloudFormationResponse
 from my_modules.common_functions import (
     ConvertJsonToDynamoDB,
     DateTimeToStrForDynamoDB,
-    InitDb,
     putCloudFormationResponse,
 )
 from my_modules.constants.aws import (
@@ -19,11 +18,8 @@ from my_modules.constants.aws import (
     CLOUD_FORMATION_STATUS_FAILED,
 )
 from my_modules.constants.env_keys import LEVEL_CAPS_TABLE_NAME
-from mypy_boto3_dynamodb.client import DynamoDBClient
-from mypy_boto3_dynamodb.type_defs import (
-    BatchWriteItemOutputTypeDef,
-    WriteRequestTypeDef,
-)
+from my_modules.my_dynamo_db_client import MyDynamoDBClient
+from mypy_boto3_dynamodb.type_defs import WriteRequestTypeDef
 
 """
 level_capsに登録
@@ -73,11 +69,11 @@ def insertLevelCaps(
         seasons: list[dict[str, Any]]: レベルキャップ情報
     """
 
-    dynamoDb: DynamoDBClient = InitDb()
+    dynamoDb: MyDynamoDBClient = MyDynamoDBClient()
+    requestItems: list[WriteRequestTypeDef] = []
     for season in seasons:
         seasonId: int = int(season["SeasonId"])
         levelCaps: list[dict] = season["LevelCaps"]
-        requestItems: list[WriteRequestTypeDef] = []
         for levelCap in levelCaps:
             # JSTをGMTに変換
             startDatetimeInJst: datetime = datetime.strptime(
@@ -96,11 +92,4 @@ def insertLevelCaps(
             requestItem["PutRequest"]["Item"] = ConvertJsonToDynamoDB(item)
             requestItems.append(requestItem)
 
-        response: BatchWriteItemOutputTypeDef = dynamoDb.batch_write_item(
-            RequestItems={getenv(LEVEL_CAPS_TABLE_NAME, ""): requestItems}
-        )
-
-        while response["UnprocessedItems"] != {}:
-            response = dynamoDb.batch_write_item(
-                RequestItems=response["UnprocessedItems"]
-            )
+    dynamoDb.BatchWriteItem({getenv(LEVEL_CAPS_TABLE_NAME, ""): requestItems})

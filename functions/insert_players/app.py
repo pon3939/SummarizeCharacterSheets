@@ -8,15 +8,13 @@ from my_modules.common_functions import (
     ConvertDynamoDBToJson,
     ConvertJsonToDynamoDB,
     GetCurrentDateTimeForDynamoDB,
-    InitDb,
 )
 from my_modules.constants.env_keys import (
     PLAYERS_SEASON_ID_INDEX_NAME,
     PLAYERS_TABLE_NAME,
 )
-from mypy_boto3_dynamodb.client import DynamoDBClient
+from my_modules.my_dynamo_db_client import MyDynamoDBClient
 from mypy_boto3_dynamodb.type_defs import (
-    BatchWriteItemOutputTypeDef,
     QueryOutputTypeDef,
     WriteRequestTypeDef,
 )
@@ -26,7 +24,7 @@ Playersに登録
 """
 
 
-DynamoDb: Union[DynamoDBClient, None] = None
+DynamoDb: Union[MyDynamoDBClient, None] = None
 
 
 def lambda_handler(event: dict, context: LambdaContext):
@@ -44,7 +42,7 @@ def lambda_handler(event: dict, context: LambdaContext):
     seasonId: int = int(event["SeasonId"])
     players: list[dict] = event["Players"]
 
-    DynamoDb = InitDb()
+    DynamoDb = MyDynamoDBClient()
     maxId: int = GetMaxId(seasonId)
     putPlayers(players, seasonId, maxId)
 
@@ -68,27 +66,15 @@ def GetMaxId(seasonId: int) -> int:
     expressionAttributeValues: dict = ConvertJsonToDynamoDB(
         {":season_id": seasonId}
     )
-    response: QueryOutputTypeDef = DynamoDb.query(
-        TableName=getenv(PLAYERS_TABLE_NAME, ""),
-        ProjectionExpression=projectionExpression,
-        KeyConditionExpression=KeyConditionExpression,
-        ExpressionAttributeValues=expressionAttributeValues,
+    response: QueryOutputTypeDef = DynamoDb.Query(
+        getenv(PLAYERS_TABLE_NAME, ""),
+        projectionExpression,
+        KeyConditionExpression,
+        expressionAttributeValues,
     )
 
     # ページ分割分を取得
-    dynamoDbPlayers: list[dict] = []
-    while "LastEvaluatedKey" in response:
-        dynamoDbPlayers += response["Items"]
-        response = DynamoDb.query(
-            TableName=getenv(PLAYERS_TABLE_NAME, ""),
-            ProjectionExpression=projectionExpression,
-            KeyConditionExpression=KeyConditionExpression,
-            ExpressionAttributeValues=expressionAttributeValues,
-            ExclusiveStartKey=response["LastEvaluatedKey"],
-        )
-
-    dynamoDbPlayers += response["Items"]
-
+    dynamoDbPlayers: list[dict] = response["Items"]
     if len(dynamoDbPlayers) == 0:
         return 0
 
@@ -115,29 +101,29 @@ def putPlayers(players: "list[dict]", seasonId: int, maxId: int):
     requestItems: list[WriteRequestTypeDef] = []
     for player in players:
         # プレイヤー名で存在チェック
-        queryResult: QueryOutputTypeDef = DynamoDb.query(
-            TableName=getenv(PLAYERS_TABLE_NAME, ""),
-            ProjectionExpression="id",
-            IndexName=getenv(PLAYERS_SEASON_ID_INDEX_NAME, ""),
-            KeyConditionExpression="season_id = :season_id AND #name = :name",
-            ExpressionAttributeNames={"#name": "name"},
-            ExpressionAttributeValues=ConvertJsonToDynamoDB(
+        queryResult: QueryOutputTypeDef = DynamoDb.Query(
+            getenv(PLAYERS_TABLE_NAME, ""),
+            "id",
+            "season_id = :season_id AND #name = :name",
+            ConvertJsonToDynamoDB(
                 {":season_id": seasonId, ":name": player["Name"]}
             ),
+            {"#name": "name"},
+            getenv(PLAYERS_SEASON_ID_INDEX_NAME, ""),
         )
         existsPlayers: list[dict] = ConvertDynamoDBToJson(queryResult["Items"])
 
         if len(existsPlayers) > 0:
             # 更新
-            DynamoDb.update_item(
-                TableName=getenv(PLAYERS_TABLE_NAME, ""),
-                Key=ConvertJsonToDynamoDB(
+            DynamoDb.UpdateItem(
+                getenv(PLAYERS_TABLE_NAME, ""),
+                ConvertJsonToDynamoDB(
                     {"season_id": seasonId, "id": existsPlayers[0]["id"]}
                 ),
-                UpdateExpression="SET ytsheet_ids = "
+                "SET ytsheet_ids = "
                 " list_append(ytsheet_ids, :new_ytsheet_id), "
                 " update_time = :update_time",
-                ExpressionAttributeValues=ConvertJsonToDynamoDB(
+                ConvertJsonToDynamoDB(
                     {
                         ":new_ytsheet_id": [player["YtsheetId"]],
                         ":update_time": (GetCurrentDateTimeForDynamoDB()),
@@ -164,11 +150,4 @@ def putPlayers(players: "list[dict]", seasonId: int, maxId: int):
     if len(requestItems) == 0:
         return
 
-    response: BatchWriteItemOutputTypeDef = DynamoDb.batch_write_item(
-        RequestItems={getenv(PLAYERS_TABLE_NAME, ""): requestItems}
-    )
-
-    while response["UnprocessedItems"] != {}:
-        response = DynamoDb.batch_write_item(
-            RequestItems=response["UnprocessedItems"]
-        )
+    DynamoDb.BatchWriteItem({getenv(PLAYERS_TABLE_NAME, ""): requestItems})
