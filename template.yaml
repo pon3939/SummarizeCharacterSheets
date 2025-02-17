@@ -131,7 +131,7 @@ Resources:
       Layers:
         - !Ref MyLayer
       Policies:
-        - AmazonDynamoDBFullAccess
+        - !Ref DynamoDbPolicy
         - !Ref S3Policy
       Environment:
         Variables:
@@ -153,7 +153,7 @@ Resources:
       Layers:
         - !Ref MyLayer
       Policies:
-        - AmazonDynamoDBFullAccess
+        - !Ref DynamoDbPolicy
         - !Ref S3Policy
       Environment:
         Variables:
@@ -173,7 +173,7 @@ Resources:
       Layers:
         - !Ref MyLayer
       Policies:
-        - AmazonDynamoDBFullAccess
+        - !Ref DynamoDbPolicy
       Environment:
         Variables:
           MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
@@ -394,6 +394,24 @@ Resources:
               - s3:GetObject
               - s3:PutObject
             Resource: !Sub arn:aws:s3:::${MyBucketName}/*
+
+  # DynamoDB汎用アクセスポリシー
+  DynamoDbPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - dynamodb:BatchWriteItem
+              - dynamodb:Scan
+              - dynamodb:DescribeTable
+              - dynamodb:UpdateTable
+            Resource: "*"
+            Condition:
+              StringLike:
+                dynamodb:TableName: !Sub ${AWS::StackName}_*
 
   # Custom Resource
   # レベルキャップの初期データ登録
