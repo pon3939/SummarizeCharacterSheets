@@ -10,10 +10,10 @@ Parameters:
     Type: String
     Default: season_id_name_index
     Description: プレイヤーテーブルのシーズンIDと名前のインデックス名
-  BackupBucketName:
+  MyBucketName:
     Type: String
     Default: summarize-character-sheets-bucket
-    Description: バックアップ用のバケット名
+    Description: バケット名
   BackupVaultName:
     Type: String
     Default: summarize_character_sheets_vault
@@ -132,11 +132,7 @@ Resources:
         - !Ref MyLayer
       Policies:
         - AmazonDynamoDBFullAccess
-        - Version: 2012-10-17
-          Statement:
-            - Effect: Allow
-              Action: s3:PutObject
-              Resource: !Sub arn:aws:s3:::${BackupBucketName}/*
+        - !Ref S3Policy
       Environment:
         Variables:
           MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
@@ -158,11 +154,7 @@ Resources:
         - !Ref MyLayer
       Policies:
         - AmazonDynamoDBFullAccess
-        - Version: 2012-10-17
-          Statement:
-            - Effect: Allow
-              Action: s3:GetObject
-              Resource: !Sub arn:aws:s3:::${BackupBucketName}/*
+        - !Ref S3Policy
       Environment:
         Variables:
           MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
@@ -389,6 +381,20 @@ Resources:
         Resources:
           - !GetAtt PlayersTable.Arn
 
+  # ポリシー
+  # S3アクセスポリシー
+  S3Policy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+            Resource: !Sub arn:aws:s3:::${MyBucketName}/*
+
   # Custom Resource
   # レベルキャップの初期データ登録
   InitialLevelCapsCustomResource:
@@ -408,7 +414,7 @@ Resources:
       ServiceToken: !GetAtt BackupDynamoDbFunction.Arn
       TableNames:
         - !Ref PlayersTable
-      BucketName: !Ref BackupBucketName
+      BucketName: !Ref MyBucketName
 
   # デプロイ時のDynamoDBリストア
   RestoreDynamoDbCustomResource:
@@ -417,7 +423,7 @@ Resources:
       ServiceToken: !GetAtt RestoreDynamoDbFunction.Arn
       TableNames:
         - !Ref PlayersTable
-      BucketName: !Ref BackupBucketName
+      BucketName: !Ref MyBucketName
 
   # その他テーブルの初期データ登録
   InitialDynamoDbCustomResource:
