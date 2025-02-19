@@ -1,20 +1,19 @@
 # -*- coding: utf-8 -*-
-
+from datetime import datetime
+from functools import singledispatch
 from os import getenv
+from typing import Any, Union
 
 from boto3 import client
 from mypy_boto3_dynamodb.client import DynamoDBClient
 from mypy_boto3_dynamodb.type_defs import (
     BatchWriteItemOutputTypeDef,
-    DescribeTableOutputTypeDef,
-    GlobalSecondaryIndexUpdateTypeDef,
     QueryOutputTypeDef,
     ScanOutputTypeDef,
-    UpdateTableInputRequestTypeDef,
     WriteRequestTypeDef,
 )
+from pytz import timezone
 
-from .constants.aws import DYNAMO_DB_MAX_BATCH_WRITE_ITEM
 from .constants.env_keys import MY_AWS_REGION
 
 """
@@ -26,6 +25,9 @@ class MyDynamoDBClient:
     """
     DynamoDBClient拡張クラス
     """
+
+    # DynamoDBのバッチ書き込み最大数
+    _DYNAMO_DB_MAX_BATCH_WRITE_ITEM: int = 25
 
     def __init__(self):
         """
@@ -44,7 +46,7 @@ class MyDynamoDBClient:
         一括登録
 
         Args:
-            requestItems dict: リクエストアイテム
+            requestItems (dict): リクエストアイテム
 
         Returns:
             int: アクティブなPC数
@@ -59,7 +61,7 @@ class MyDynamoDBClient:
 
                 separatedRequestItems[tableName].append(request)
                 count += 1
-                if count == DYNAMO_DB_MAX_BATCH_WRITE_ITEM:
+                if count == self._DYNAMO_DB_MAX_BATCH_WRITE_ITEM:
                     # 処理件数上限に達した場合は登録
                     batchWriteItemResponse: BatchWriteItemOutputTypeDef = (
                         self.Client.batch_write_item(
@@ -95,7 +97,7 @@ class MyDynamoDBClient:
         スキャン
 
         Args:
-            tableName str: テーブル名
+            tableName (str): テーブル名
 
         Returns:
             dict: スキャン結果
@@ -129,12 +131,12 @@ class MyDynamoDBClient:
         クエリ
 
         Args:
-            tableName str: テーブル名
-            projectionExpression str: 取得するカラム
-            keyConditionExpression str: 取得条件
-            expressionAttributeValues dict: パラメーター
-            expressionAttributeNames dict: エスケープしたパラメーター
-            indexName str: インデックス名
+            tableName (str): テーブル名
+            projectionExpression (str): 取得するカラム
+            keyConditionExpression (str): 取得条件
+            expressionAttributeValues (dict): パラメーター
+            expressionAttributeNames (dict): エスケープしたパラメーター
+            indexName (str): インデックス名
         Returns:
             QueryOutputTypeDef: クエリ結果
         """
@@ -175,10 +177,10 @@ class MyDynamoDBClient:
         更新
 
         Args:
-            tableName str: テーブル名
-            key dict: 更新条件
-            updateExpression str: 更新内容
-            expressionAttributeValues dict: パラメーター
+            tableName (str): テーブル名
+            key (dict): 更新条件
+            updateExpression (str): 更新内容
+            expressionAttributeValues (dict): パラメーター
         """
         self.Client.update_item(
             TableName=tableName,
@@ -187,60 +189,175 @@ class MyDynamoDBClient:
             ExpressionAttributeValues=expressionAttributeValues,
         )
 
-    def UpdateTable(
-        self,
-        tableName: str,
-        readCapacity: int,
-        writeCapacity: int,
-        indexNames: list[str] = [],
-    ):
-        """
 
-        テーブル定義更新
+def StrForDynamoDBToDateTime(target: str) -> datetime:
+    """
 
-        Args:
-            tableName (str): テーブル名
-            read_capacity (int): 読み取りキャパシティー
-            write_capacity (int): 書き込みキャパシティー
-            indexNames (list[str]): インデックス名
-        """
-        kwargs: UpdateTableInputRequestTypeDef = {
-            "TableName": tableName,
-            "ProvisionedThroughput": {
-                "ReadCapacityUnits": readCapacity,
-                "WriteCapacityUnits": writeCapacity,
-            },
+    DynamoDBに登録された日時文字列からdatetimeを取得
+
+    Args:
+        target str: 日時文字列
+    Returns:
+        datetime: 日時
+    """
+    isoStr = target.removesuffix("Z")
+    utc: datetime = datetime.fromisoformat(isoStr)
+    return utc.astimezone(timezone("Asia/Tokyo"))
+
+
+@singledispatch
+def ConvertDynamoDBToJson(dynamoDBData) -> Any:
+    """
+
+    DynamoDBから取得したデータを適切な型に変換する
+    未対応の型の場合、例外を発生させる
+
+    Args:
+        dynamoDBData: DynamoDBから取得したデータ
+    """
+    raise Exception("未対応の型です")
+
+
+@ConvertDynamoDBToJson.register(dict)
+def _(dynamoDBData: dict) -> dict:
+    """
+
+    DynamoDBから取得したデータを適切な型に変換する
+
+    Args:
+        dynamoDBData dict: DynamoDBから取得したデータ
+    Returns:
+        dict: 変換後のJSON
+    """
+
+    convertedJson: dict = {}
+    for key, value in dynamoDBData.items():
+        if isinstance(value, dict):
+            # 適切な型に変換する
+            convertedJson[key] = _ConvertDynamoDBToJsonByTypeKey(value)
+        else:
+            raise Exception("未対応の型です")
+
+    return convertedJson
+
+
+@ConvertDynamoDBToJson.register(list)
+def _(dynamoDBData: list) -> list:
+    """
+
+    DynamoDBから取得したデータを適切な型に変換する
+
+    Args:
+        dynamoDBData list: DynamoDBから取得したデータ
+    Returns:
+        list: 変換後のJSON
+    """
+    return list(map(ConvertDynamoDBToJson, dynamoDBData))
+
+
+def _ConvertDynamoDBToJsonByTypeKey(
+    dynamoDBData: dict,
+) -> Union[str, float, list, dict]:
+    """
+
+    DynamoDBから取得したデータを適切な型に変換する
+
+    Args:
+        dynamoDBData dict: DynamoDBから取得したデータ
+    Returns:
+        Union[str, float, list, dict]: 変換後のJSON
+    """
+
+    key = next(iter(dynamoDBData.keys()))
+    value = next(iter(dynamoDBData.values()))
+    if key == "S":
+        # 文字列
+        return value
+    elif key == "N":
+        # 数値
+        return float(value)
+    elif key == "M":
+        # 辞書
+        return ConvertDynamoDBToJson(value)
+    elif key == "L":
+        # リスト
+        return list(map(_ConvertDynamoDBToJsonByTypeKey, value))
+
+    raise Exception("未対応の型です")
+
+
+def ConvertJsonToDynamoDB(json: dict) -> dict:
+    """
+
+    データをDynamoDBで扱える型に変換する
+
+    Args:
+        json dict: 変換するデータ
+    Returns:
+        dict: 変換後のデータ
+    """
+    convertedJson: dict = {}
+    for key, value in json.items():
+        convertedJson[key] = _ConvertJsonToDynamoDBByTypeKey(value)
+
+    return convertedJson
+
+
+def _ConvertJsonToDynamoDBByTypeKey(
+    value: Union[str, int, float, dict, list]
+) -> dict:
+    """
+
+    データをDynamoDBで扱える型に変換する
+
+    Args:
+        json dict: 変換するデータ
+    Returns:
+        dict: 変換後のデータ
+    """
+    # 適切な型に変換する
+    if isinstance(value, str):
+        # 文字列
+        return {"S": value}
+    elif isinstance(value, (int, float)):
+        # 数値
+        return {"N": str(value)}
+    elif isinstance(value, dict):
+        # 辞書
+        return {"M": ConvertJsonToDynamoDB(value)}
+    elif isinstance(value, list):
+        # リスト
+        return {
+            "L": list(map(lambda x: _ConvertJsonToDynamoDBByTypeKey(x), value))
         }
-        if len(indexNames) != 0:
-            globalSecondaryIndexUpdates: list[
-                GlobalSecondaryIndexUpdateTypeDef
-            ] = []
-            for indexName in indexNames:
-                globalSecondaryIndexUpdates.append(
-                    {
-                        "Update": {
-                            "IndexName": indexName,
-                            "ProvisionedThroughput": {
-                                "ReadCapacityUnits": readCapacity,
-                                "WriteCapacityUnits": writeCapacity,
-                            },
-                        }
-                    }
-                )
+    else:
+        raise Exception("未対応の型です")
 
-            kwargs["GlobalSecondaryIndexUpdates"] = globalSecondaryIndexUpdates
 
-        self.Client.update_table(**kwargs)
+def GetCurrentDateTimeForDynamoDB() -> str:
+    """
 
-    def DescribeTable(self, tableName: str) -> DescribeTableOutputTypeDef:
-        """
+    DynamoDBに登録するための現在日時文字列を取得
 
-        テーブル情報取得
+    Returns:
+        str: 現在日時文字列
+    """
 
-        Args:
-            tableName (str): テーブル名
+    return DateTimeToStrForDynamoDB(datetime.now())
 
-        Returns:
-            DescribeTableOutputTypeDef: _description_
-        """
-        return self.Client.describe_table(TableName=tableName)
+
+def DateTimeToStrForDynamoDB(target: datetime) -> str:
+    """
+
+    DynamoDBに登録するための日時文字列を取得
+
+    Args:
+        target datetime: 変換する日時
+    Returns:
+        str: 日時文字列
+    """
+    gmt = target
+    if target.tzinfo is not None:
+        gmt = target.astimezone(None).replace(tzinfo=None)
+
+    return f"{gmt.isoformat(timespec='milliseconds')}Z"

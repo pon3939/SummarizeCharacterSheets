@@ -21,65 +21,64 @@ Parameters:
 
 Resources:
   # Step Functions
-  StockTradingStateMachine:
-    Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
+  # スプレッドシート更新
+  UpdateSpreadSheetStateMachine:
+    Type: AWS::Serverless::StateMachine
     Properties:
-      DefinitionUri: statemachine/stock_trader.asl.json
+      Name: !Sub ${AWS::StackName}_update_spread_sheet
+      DefinitionUri: statemachine/update_spread_sheet.asl.json
       DefinitionSubstitutions:
-        StockCheckerFunctionArn: !GetAtt StockCheckerFunction.Arn
-        StockSellerFunctionArn: !GetAtt StockSellerFunction.Arn
-        StockBuyerFunctionArn: !GetAtt StockBuyerFunction.Arn
-        DDBPutItem: !Sub arn:${AWS::Partition}:states:::dynamodb:putItem
-        DDBTable: !Ref TransactionTable
+        UpdatePlayerSheetFunctionArn: !GetAtt UpdatePlayerSheetFunction.Arn
+        MyBucketName: !Ref MyBucketName
+        EnvironmentsTable: !Ref EnvironmentsTable
+        LevelCapsTable: !Ref LevelCapsTable
+        GoogleServiceAccountsTable: !Ref GoogleServiceAccountsTable
+        PlayersTable: !Ref PlayersTable
       Events:
         HourlyTradingSchedule:
-          Type: Schedule # More info about Schedule Event Source: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-statemachine-schedule.html
+          Type: Schedule
           Properties:
-            Description: Schedule to run the stock trading state machine every hour
-            Enabled: False # This schedule is disabled by default to avoid incurring charges.
-            Schedule: rate(1 hour)
-      Policies: # Find out more about SAM policy templates: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-templates.html
+            Description: 8時間ごとに定期実行
+            Input: '{"environment_id" : 3}'
+            Schedule: cron(0 1/8 ? * * *)
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref EnvironmentsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref LevelCapsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref GoogleServiceAccountsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref PlayersTable
         - LambdaInvokePolicy:
-            FunctionName: !Ref StockCheckerFunction
-        - LambdaInvokePolicy:
-            FunctionName: !Ref StockSellerFunction
-        - LambdaInvokePolicy:
-            FunctionName: !Ref StockBuyerFunction
-        - DynamoDBWritePolicy:
-            TableName: !Ref TransactionTable
+            FunctionName: !Ref UpdatePlayerSheetFunction
 
   # Lambda
-  StockCheckerFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
-    Properties:
-      CodeUri: functions/stock_checker/
-      Handler: app.lambda_handler
-      Runtime: python3.9
-      Architectures:
-        - x86_64
-
-  StockSellerFunction:
+  # PLシート更新Lambda
+  UpdatePlayerSheetFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: functions/stock_seller/
+      FunctionName: !Sub ${AWS::StackName}_update_player_sheet
+      Description: PL シートを更新する
+      CodeUri: functions/update_player_sheet/
       Handler: app.lambda_handler
       Runtime: python3.9
+      Timeout: 60
       Architectures:
         - x86_64
-
-  StockBuyerFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: functions/stock_buyer/
-      Handler: app.lambda_handler
-      Runtime: python3.9
-      Architectures:
-        - x86_64
+      Layers:
+        - !Ref MyLayer
+      Policies:
+        - !Ref S3Policy
+      Environment:
+        Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
 
   # レベルキャップ登録Lambda
   InsertLevelCapsFunction:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub ${AWS::StackName}_insert_level_caps
       Description: レベルキャップテーブルにレコードを追加する
       CodeUri: functions/insert_level_caps/
       Handler: app.lambda_handler
@@ -100,6 +99,7 @@ Resources:
   InsertPlayersFunction:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub ${AWS::StackName}_insert_players
       Description: PLテーブルにレコードを追加する
       CodeUri: functions/insert_players/
       Handler: app.lambda_handler
@@ -121,6 +121,7 @@ Resources:
   BackupDynamoDbFunction:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub ${AWS::StackName}_backup_dynamo_db
       Description: DynamoDB のバックアップを取る
       CodeUri: functions/backup_dynamo_db/
       Handler: app.lambda_handler
@@ -136,18 +137,17 @@ Resources:
       Environment:
         Variables:
           MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
-          TEMPORARY_CAPACITY_UNITS: 100
 
   # DynamoDBリストアLambda
   RestoreDynamoDbFunction:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub ${AWS::StackName}_restore_dynamo_db
       Description: DynamoDB をリストアする
       CodeUri: functions/restore_dynamo_db/
       Handler: app.lambda_handler
       Runtime: python3.9
-      Timeout: 300
-      MemorySize: 256
+      Timeout: 60
       Architectures:
         - x86_64
       Layers:
@@ -158,12 +158,12 @@ Resources:
       Environment:
         Variables:
           MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
-          TEMPORARY_CAPACITY_UNITS: 100
 
   # DynamoDBレコード登録Lambda
   InsertDynamoDbFunction:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub ${AWS::StackName}_insert_dynamo_db
       Description: DynamoDB にレコードを登録する
       CodeUri: functions/insert_dynamo_db/
       Handler: app.lambda_handler
@@ -274,22 +274,12 @@ Resources:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
 
-  TransactionTable:
-    Type: AWS::Serverless::SimpleTable # More info about SimpleTable Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-simpletable.html
-    Properties:
-      PrimaryKey:
-        Name: Id
-        Type: String
-      ProvisionedThroughput:
-        ReadCapacityUnits: 1
-        WriteCapacityUnits: 1
-
   # DynamoDB Auto Scaling
   # PL 読み込み
   PlayersReadCapacityScalableTarget:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
     Properties:
-      MaxCapacity: 100
+      MaxCapacity: 20
       MinCapacity: 1
       ResourceId: !Sub table/${PlayersTable}
       RoleARN: !Sub arn:aws:iam::${AWS::AccountId}:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable
@@ -300,7 +290,7 @@ Resources:
   PlayersWriteCapacityScalableTarget:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
     Properties:
-      MaxCapacity: 100
+      MaxCapacity: 10
       MinCapacity: 1
       ResourceId: !Sub table/${PlayersTable}
       RoleARN: !Sub arn:aws:iam::${AWS::AccountId}:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable
@@ -311,7 +301,7 @@ Resources:
   PlayersSeasonIdIndexWriteCapacityScalableTarget:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
     Properties:
-      MaxCapacity: 100
+      MaxCapacity: 10
       MinCapacity: 1
       ResourceId: !Sub table/${PlayersTable}/index/${PlayersSeasonIdIndexName}
       RoleARN: !Sub arn:aws:iam::${AWS::AccountId}:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable
@@ -391,9 +381,12 @@ Resources:
         Statement:
           - Effect: Allow
             Action:
+              - s3:ListBucket
               - s3:GetObject
               - s3:PutObject
-            Resource: !Sub arn:aws:s3:::${MyBucketName}/*
+            Resource:
+              - !Sub arn:aws:s3:::${MyBucketName}
+              - !Sub arn:aws:s3:::${MyBucketName}/*
 
   # DynamoDB汎用アクセスポリシー
   DynamoDbPolicy:
@@ -453,14 +446,3 @@ Resources:
           Name: AWS::Include
           Parameters:
             Location: functions/initial_data/insert_dynamo_db.json
-
-Outputs:
-  # StockTradingStateMachineHourlyTradingSchedule is an implicit Schedule event rule created out of Events key under Serverless::StateMachine
-  # Find out more about other implicit resources you can reference within SAM
-  # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-specification-generated-resources.html
-  StockTradingStateMachineArn:
-    Description: Stock Trading State machine ARN
-    Value: !Ref StockTradingStateMachine
-  StockTradingStateMachineRoleArn:
-    Description: IAM Role created for Stock Trading State machine based on the specified SAM Policy Templates
-    Value: !GetAtt StockTradingStateMachineRole.Arn

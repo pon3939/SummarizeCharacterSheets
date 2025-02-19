@@ -3,7 +3,8 @@
 
 from dataclasses import dataclass
 
-from .common_functions import StrForDynamoDBToDateTime
+from .exp_status import ExpStatus
+from .my_dynamo_db_client import StrForDynamoDBToDateTime
 from .player_character import PlayerCharacter
 
 """
@@ -30,10 +31,10 @@ class Player:
 
         Args:
             name str: PL名
-            strUpdateTime str: 最終更新日時
-            maxExp int: 最大経験点
-            minimumExp int: 最小経験点
-            characterJsons list[dict]: PC情報
+            strUpdateTime (str): 最終更新日時
+            maxExp (int): 最大経験点
+            minimumExp (int): 最小経験点
+            characterJsons (list[dict]): PC情報
         """
 
         self.Name: str = name
@@ -63,7 +64,7 @@ class Player:
         アクティブなPC数を返却する
 
         Returns:
-            int: アクティブなPC数
+            (int): アクティブなPC数
         """
 
         return len([x for x in self.Characters if x.ActiveStatus.IsActive()])
@@ -74,7 +75,28 @@ class Player:
         ヴァグランツのPC数を返却する
 
         Returns:
-            int: ヴァグランツのPC数
+            (int): ヴァグランツのPC数
         """
 
         return len([x for x in self.Characters if x.IsVagrants()])
+
+    def GetActiveStatus(self) -> ExpStatus:
+        """アクティブ状態を取得
+
+        Returns:
+            ExpStatus: アクティブ状態
+        """
+        return max(
+            map(
+                lambda x: x.ActiveStatus,
+                self.Characters,
+            )
+        )
+
+    def GetPlayerTimes(self) -> int:
+        """PL参加回数を取得
+
+        Returns:
+            int: PL参加回数
+        """
+        return sum(map(lambda x: x.PlayerTimes, self.Characters))

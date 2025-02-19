@@ -1,5 +1,6 @@
 aws-lambda-powertools
 boto3
+gspread
 mypy_boto3_dynamodb
 mypy_boto3_s3
 pytz

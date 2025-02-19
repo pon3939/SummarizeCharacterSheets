@@ -2,6 +2,7 @@
 
 from json import dumps, loads
 from os import getenv
+from typing import Any
 
 from boto3 import client
 from botocore.exceptions import ClientError
@@ -9,7 +10,6 @@ from mypy_boto3_dynamodb.type_defs import AttributeValueTypeDef
 from mypy_boto3_s3.client import S3Client
 from mypy_boto3_s3.type_defs import GetObjectOutputTypeDef
 
-from .constants.aws import S3_DIRECTORY_BACKUPS, S3_ERROR_CODE_NOT_FOUND
 from .constants.common import BACKUP_KEY
 from .constants.env_keys import MY_AWS_REGION
 
@@ -22,6 +22,10 @@ class MyS3Client:
     """
     S3Client拡張クラス
     """
+
+    # S3のディレクトリ名
+    _S3_DIRECTORY_BACKUPS: str = "backups"
+    _S3_DIRECTORY_PLAYER_CHARACTERS: str = "player_characters"
 
     def __init__(self):
         """
@@ -50,7 +54,7 @@ class MyS3Client:
 
         self.Client.put_object(
             Bucket=bucketName,
-            Key=f"{S3_DIRECTORY_BACKUPS}/{tableName}.json",
+            Key=f"{self._S3_DIRECTORY_BACKUPS}/{tableName}.json",
             Body=dumps({BACKUP_KEY: body}, ensure_ascii=False),
         )
 
@@ -72,13 +76,10 @@ class MyS3Client:
             # バケットからファイルを取得
             response: GetObjectOutputTypeDef = self.Client.get_object(
                 Bucket=bucketName,
-                Key=f"{S3_DIRECTORY_BACKUPS}/{tableName}.json",
+                Key=f"{self._S3_DIRECTORY_BACKUPS}/{tableName}.json",
             )
         except ClientError as e:
-            if (
-                e.response.get("Error", {}).get("Code", "")
-                == S3_ERROR_CODE_NOT_FOUND
-            ):
+            if e.response.get("Error", {}).get("Code", "") == "NoSuchKey":
                 # ファイルが存在しない
                 return []
 
@@ -88,3 +89,31 @@ class MyS3Client:
             response["Body"].read().decode("utf-8"),
         )
         return responseJson[BACKUP_KEY]
+
+    def GetPlayerCharacterObject(
+        self, bucketName: str, seasonId: int, ytsheetId: str
+    ) -> dict[str, Any]:
+        """
+
+        PCオブジェクトを取得
+
+        Args:
+            bucketName (str): バケット名
+            seasonId (int): シーズンID
+            ytsheetId (str): ファイル名
+
+        Returns:
+            dict: PCデータ
+        """
+        # バケットからファイルを取得
+        response: GetObjectOutputTypeDef = self.Client.get_object(
+            Bucket=bucketName,
+            Key=(
+                f"{self._S3_DIRECTORY_PLAYER_CHARACTERS}/"
+                f"{seasonId}/{ytsheetId}.json"
+            ),
+        )
+
+        return loads(
+            response["Body"].read().decode("utf-8"),
+        )

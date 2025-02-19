@@ -9,15 +9,16 @@
     "PLAYERS_SEASON_IS_INDEX_NAME": "season_id_name_index"
   },
   "BackupDynamoDbFunction": {
-    "MY_AWS_REGION": "ap-northeast-1",
-    "TEMPORARY_CAPACITY_UNITS": "100"
+    "MY_AWS_REGION": "ap-northeast-1"
   },
   "RestoreDynamoDbFunction": {
-    "MY_AWS_REGION": "ap-northeast-1",
-    "TEMPORARY_CAPACITY_UNITS": "100"
+    "MY_AWS_REGION": "ap-northeast-1"
   },
   "InsertDynamoDbFunction": {
     "MY_AWS_REGION": "ap-northeast-1",
     "PREFIX": "summarize-character-sheets"
+  },
+  "UpdatePlayerSheetFunction": {
+    "MY_AWS_REGION": "ap-northeast-1"
   }
 }

@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from dataclasses import dataclass
-from json import loads
 from re import Match, findall, search, sub
 from typing import Union
 
-from .common_functions import MakeYtsheetUrl
 from .constants import sword_world
 from .exp_status import ExpStatus
 from .general_skill import GeneralSkill
@@ -49,54 +47,56 @@ class PlayerCharacter:
             maxExp int: 最大経験点
             minimumExp int: 最小経験点
         """
-        ytsheetJson: dict = loads(characterJson["ytsheet_json"])
-
         # 文字列
-        self.YtsheetId: str = characterJson["ytsheet_id"]
-        self.Race: str = ytsheetJson.get("race", "")
-        self.Age: str = ytsheetJson.get("age", "")
-        self.Gender: str = ytsheetJson.get("gender", "")
-        self.Birth: str = ytsheetJson.get("birth", "")
-        self.CombatFeatsLv1: str = ytsheetJson.get("combatFeatsLv1", "")
-        self.CombatFeatsLv3: str = ytsheetJson.get("combatFeatsLv3", "")
-        self.CombatFeatsLv5: str = ytsheetJson.get("combatFeatsLv5", "")
-        self.CombatFeatsLv7: str = ytsheetJson.get("combatFeatsLv7", "")
-        self.CombatFeatsLv9: str = ytsheetJson.get("combatFeatsLv9", "")
-        self.CombatFeatsLv11: str = ytsheetJson.get("combatFeatsLv11", "")
-        self.CombatFeatsLv13: str = ytsheetJson.get("combatFeatsLv13", "")
-        self.CombatFeatsLv1bat: str = ytsheetJson.get("combatFeatsLv1bat", "")
-        self.AdventurerRank: str = ytsheetJson.get("rank", "")
+        self.YtsheetId: str = characterJson["id"]
+        self.Race: str = characterJson.get("race", "")
+        self.Age: str = characterJson.get("age", "")
+        self.Gender: str = characterJson.get("gender", "")
+        self.Birth: str = characterJson.get("birth", "")
+        self.CombatFeatsLv1: str = characterJson.get("combatFeatsLv1", "")
+        self.CombatFeatsLv3: str = characterJson.get("combatFeatsLv3", "")
+        self.CombatFeatsLv5: str = characterJson.get("combatFeatsLv5", "")
+        self.CombatFeatsLv7: str = characterJson.get("combatFeatsLv7", "")
+        self.CombatFeatsLv9: str = characterJson.get("combatFeatsLv9", "")
+        self.CombatFeatsLv11: str = characterJson.get("combatFeatsLv11", "")
+        self.CombatFeatsLv13: str = characterJson.get("combatFeatsLv13", "")
+        self.CombatFeatsLv1bat: str = characterJson.get(
+            "combatFeatsLv1bat", ""
+        )
+        self.AdventurerRank: str = characterJson.get("rank", "")
 
         # 数値
-        self.Level: int = int(ytsheetJson.get("level", "0"))
-        self.Exp: int = int(ytsheetJson.get("expTotal", "0"))
-        self.GrowthTimes: int = int(ytsheetJson.get("historyGrowTotal", "0"))
-        self.TotalHonor: int = int(ytsheetJson.get("historyHonorTotal", "0"))
-        self.Hp: int = int(ytsheetJson.get("hpTotal", "0"))
-        self.Mp: int = int(ytsheetJson.get("mpTotal", "0"))
-        self.LifeResistance: int = int(ytsheetJson.get("vitResistTotal", "0"))
-        self.SpiritResistance: int = int(
-            ytsheetJson.get("mndResistTotal", "0")
+        self.Level: int = int(characterJson.get("level", "0"))
+        self.Exp: int = int(characterJson.get("expTotal", "0"))
+        self.GrowthTimes: int = int(characterJson.get("historyGrowTotal", "0"))
+        self.TotalHonor: int = int(characterJson.get("historyHonorTotal", "0"))
+        self.Hp: int = int(characterJson.get("hpTotal", "0"))
+        self.Mp: int = int(characterJson.get("mpTotal", "0"))
+        self.LifeResistance: int = int(
+            characterJson.get("vitResistTotal", "0")
         )
-        self.MonsterKnowledge: int = int(ytsheetJson.get("monsterLore", "0"))
-        self.Initiative: int = int(ytsheetJson.get("initiative", "0"))
+        self.SpiritResistance: int = int(
+            characterJson.get("mndResistTotal", "0")
+        )
+        self.MonsterKnowledge: int = int(characterJson.get("monsterLore", "0"))
+        self.Initiative: int = int(characterJson.get("initiative", "0"))
         self.HistoryMoneyTotal: int = int(
-            ytsheetJson.get("historyMoneyTotal", "0")
+            characterJson.get("historyMoneyTotal", "0")
         )
 
         # 特殊な変数
-        self.Sin: str = ytsheetJson.get("sin", "0")
+        self.Sin: str = characterJson.get("sin", "0")
 
         # PC名
         # フリガナを削除
         self.Name: str = sub(
             r"\|([^《]*)《[^》]*》",
             r"\1",
-            ytsheetJson.get("characterName", ""),
+            characterJson.get("characterName", ""),
         )
         if self.Name == "":
             # PC名が空の場合は二つ名を表示
-            self.Name = ytsheetJson.get("aka", "")
+            self.Name = characterJson.get("aka", "")
 
         # 経験点の状態
         self.ActiveStatus: ExpStatus = ExpStatus.INACTIVE
@@ -106,123 +106,123 @@ class PlayerCharacter:
             self.ActiveStatus = ExpStatus.ACTIVE
 
         # 信仰
-        self.Faith: str = ytsheetJson.get("faith", "なし")
+        self.Faith: str = characterJson.get("faith", "なし")
         if self.Faith == "その他の信仰":
-            self.Faith = ytsheetJson.get("faithOther", self.Faith)
+            self.Faith = characterJson.get("faithOther", self.Faith)
 
         # 自動取得
-        self.AutoCombatFeats: list[str] = ytsheetJson.get(
+        self.AutoCombatFeats: list[str] = characterJson.get(
             "combatFeatsAuto", ""
         ).split(",")
 
         # 技能レベル
         self.Skills: dict[str, int] = {}
         for skill in sword_world.SKILLS:
-            skillLevel: int = int(ytsheetJson.get(skill, "0"))
+            skillLevel: int = int(characterJson.get(skill, "0"))
             if skillLevel > 0:
                 self.Skills[skill] = skillLevel
 
         # 各能力値
         self.Dexterity: Status = Status(
-            int(ytsheetJson.get("sttBaseA", "0")),
-            int(ytsheetJson.get("sttDex", "0")),
-            int(ytsheetJson.get("sttAddA", "0")),
-            int(ytsheetJson.get("sttEquipA", "0")),
+            int(characterJson.get("sttBaseA", "0")),
+            int(characterJson.get("sttDex", "0")),
+            int(characterJson.get("sttAddA", "0")),
+            int(characterJson.get("sttEquipA", "0")),
         )
         self.Agility: Status = Status(
-            int(ytsheetJson.get("sttBaseB", "0")),
-            int(ytsheetJson.get("sttAgi", "0")),
-            int(ytsheetJson.get("sttAddB", "0")),
-            int(ytsheetJson.get("sttEquipB", "0")),
+            int(characterJson.get("sttBaseB", "0")),
+            int(characterJson.get("sttAgi", "0")),
+            int(characterJson.get("sttAddB", "0")),
+            int(characterJson.get("sttEquipB", "0")),
         )
         self.Strength: Status = Status(
-            int(ytsheetJson.get("sttBaseC", "0")),
-            int(ytsheetJson.get("sttStr", "0")),
-            int(ytsheetJson.get("sttAddC", "0")),
-            int(ytsheetJson.get("sttEquipC", "0")),
+            int(characterJson.get("sttBaseC", "0")),
+            int(characterJson.get("sttStr", "0")),
+            int(characterJson.get("sttAddC", "0")),
+            int(characterJson.get("sttEquipC", "0")),
         )
         self.Vitality: Status = Status(
-            int(ytsheetJson.get("sttBaseD", "0")),
-            int(ytsheetJson.get("sttVit", "0")),
-            int(ytsheetJson.get("sttAddD", "0")),
-            int(ytsheetJson.get("sttEquipD", "0")),
+            int(characterJson.get("sttBaseD", "0")),
+            int(characterJson.get("sttVit", "0")),
+            int(characterJson.get("sttAddD", "0")),
+            int(characterJson.get("sttEquipD", "0")),
         )
         self.Intelligence: Status = Status(
-            int(ytsheetJson.get("sttBaseE", "0")),
-            int(ytsheetJson.get("sttInt", "0")),
-            int(ytsheetJson.get("sttAddE", "0")),
-            int(ytsheetJson.get("sttEquipE", "0")),
+            int(characterJson.get("sttBaseE", "0")),
+            int(characterJson.get("sttInt", "0")),
+            int(characterJson.get("sttAddE", "0")),
+            int(characterJson.get("sttEquipE", "0")),
         )
         self.Mental: Status = Status(
-            int(ytsheetJson.get("sttBaseF", "0")),
-            int(ytsheetJson.get("sttMnd", "0")),
-            int(ytsheetJson.get("sttAddF", "0")),
-            int(ytsheetJson.get("sttEquipF", "0")),
+            int(characterJson.get("sttBaseF", "0")),
+            int(characterJson.get("sttMnd", "0")),
+            int(characterJson.get("sttAddF", "0")),
+            int(characterJson.get("sttEquipF", "0")),
         )
 
         # 秘伝
         self.Styles: list[Style] = []
-        mysticArtsNum: int = int(ytsheetJson.get("mysticArtsNum", "0"))
+        mysticArtsNum: int = int(characterJson.get("mysticArtsNum", "0"))
         for i in range(1, mysticArtsNum + 1):
             style: Union[Style, None] = _FindStyle(
-                ytsheetJson.get(f"mysticArts{i}", "")
+                characterJson.get(f"mysticArts{i}", "")
             )
             if style is not None and style not in self.Styles:
                 self.Styles.append(style)
 
         # 秘伝魔法
-        mysticMagicNum: int = int(ytsheetJson.get("mysticMagicNum", "0"))
+        mysticMagicNum: int = int(characterJson.get("mysticMagicNum", "0"))
         for i in range(1, mysticMagicNum + 1):
-            style = _FindStyle(ytsheetJson.get(f"mysticMagic{i}", ""))
+            style = _FindStyle(characterJson.get(f"mysticMagic{i}", ""))
             if style is not None and style not in self.Styles:
                 self.Styles.append(style)
 
         # 名誉アイテム
-        honorItemsNum: int = int(ytsheetJson.get("honorItemsNum", "0"))
+        honorItemsNum: int = int(characterJson.get("honorItemsNum", "0"))
         for i in range(1, honorItemsNum + 1):
-            style = _FindStyle(ytsheetJson.get(f"honorItem{i}", ""))
+            style = _FindStyle(characterJson.get(f"honorItem{i}", ""))
             if style is not None and style not in self.Styles:
                 self.Styles.append(style)
 
         # 不名誉詳細
-        disHonorItemsNum: int = int(ytsheetJson.get("dishonorItemsNum", "0"))
+        disHonorItemsNum: int = int(characterJson.get("dishonorItemsNum", "0"))
         for i in range(1, disHonorItemsNum + 1):
-            style = _FindStyle(ytsheetJson.get(f"dishonorItem{i}", ""))
+            style = _FindStyle(characterJson.get(f"dishonorItem{i}", ""))
             if style is not None and style not in self.Styles:
                 self.Styles.append(style)
 
         # 武器
         self.AbyssCurses: list[str] = []
-        weaponNum: int = int(ytsheetJson.get("weaponNum", "0"))
+        weaponNum: int = int(characterJson.get("weaponNum", "0"))
 
         for i in range(1, weaponNum + 1):
             self.AbyssCurses += _FindAbyssCurses(
-                ytsheetJson.get(f"weapon{i}Name", "")
+                characterJson.get(f"weapon{i}Name", "")
             )
             self.AbyssCurses += _FindAbyssCurses(
-                ytsheetJson.get(f"weapon{i}Note", "")
+                characterJson.get(f"weapon{i}Note", "")
             )
 
         # 鎧
-        armourNum: int = int(ytsheetJson.get("armourNum", "0"))
+        armourNum: int = int(characterJson.get("armourNum", "0"))
         for i in range(1, armourNum + 1):
             self.AbyssCurses += _FindAbyssCurses(
-                ytsheetJson.get(f"armour{i}Name", "")
+                characterJson.get(f"armour{i}Name", "")
             )
             self.AbyssCurses += _FindAbyssCurses(
-                ytsheetJson.get(f"armour{i}Note", "")
+                characterJson.get(f"armour{i}Note", "")
             )
 
         # 所持品
-        self.AbyssCurses += _FindAbyssCurses(ytsheetJson.get("items", ""))
+        self.AbyssCurses += _FindAbyssCurses(characterJson.get("items", ""))
 
         # 重複を削除
         self.AbyssCurses = list(set(self.AbyssCurses))
 
         # 一般技能
         self.GeneralSkills: list[GeneralSkill] = []
-        for i in range(1, int(ytsheetJson.get("commonClassNum", "0")) + 1):
-            generalSkillName: str = ytsheetJson.get(f"commonClass{i}", "")
+        for i in range(1, int(characterJson.get("commonClassNum", "0")) + 1):
+            generalSkillName: str = characterJson.get(f"commonClass{i}", "")
             generalSkillName = generalSkillName.removeprefix("|")
             if generalSkillName == "":
                 continue
@@ -256,7 +256,7 @@ class PlayerCharacter:
             self.GeneralSkills.append(
                 GeneralSkill(
                     generalSkillName,
-                    int(ytsheetJson.get(f"lvCommon{i}", "0")),
+                    int(characterJson.get(f"lvCommon{i}", "0")),
                 )
             )
 
@@ -264,9 +264,9 @@ class PlayerCharacter:
         self.GameMasterScenarioKeys: list[str] = []
         self.PlayerTimes: int = 0
         self.DiedTimes: int = 0
-        historyNum: int = int(ytsheetJson.get("historyNum", "0"))
+        historyNum: int = int(characterJson.get("historyNum", "0"))
         for i in range(1, historyNum + 1):
-            gameMaster: str = ytsheetJson.get(f"history{i}Gm", "")
+            gameMaster: str = characterJson.get(f"history{i}Gm", "")
             if gameMaster == "":
                 continue
 
@@ -276,7 +276,7 @@ class PlayerCharacter:
                 or gameMaster in _SELF_GAME_MASTER_NAMES
             ):
                 # 複数PC所持PLのGM回数集計のため、シナリオごとに一意のキーを作成
-                date: str = ytsheetJson.get(f"history{i}Date", "")
+                date: str = characterJson.get(f"history{i}Date", "")
                 count: int = len(
                     [
                         x
@@ -291,12 +291,12 @@ class PlayerCharacter:
                 self.PlayerTimes += 1
 
             # 備考
-            if search(_DIED_REGEXP, ytsheetJson.get(f"history{i}Note", "")):
+            if search(_DIED_REGEXP, characterJson.get(f"history{i}Note", "")):
                 # 死亡回数を集計
                 self.DiedTimes += 1
 
         # 経歴を1行ごとに分割
-        freeNotes: list[str] = ytsheetJson.get("freeNote", "").split(
+        freeNotes: list[str] = characterJson.get("freeNote", "").split(
             "&lt;br&gt;"
         )
 
@@ -483,6 +483,9 @@ class PlayerCharacter:
         Returns:
             str: URL
         """
+        # 循環参照対策で遅延インポート
+        from .common_functions import MakeYtsheetUrl
+
         return MakeYtsheetUrl(self.YtsheetId)
 
     def GetSkillLevel(self, key: str) -> int:
