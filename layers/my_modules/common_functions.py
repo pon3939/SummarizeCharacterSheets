@@ -19,34 +19,13 @@ from .player import Player
 """
 
 
-def ConvertToVerticalHeaders(horizontalHeaders: list[str]) -> list[str]:
-    """
-
-    ヘッダーを縦書き用の文字に変換する
-
-    Args:
-        horizontalHeader list[str]: 横書きヘッダー
-    Returns:
-        list[str]: 縦書きヘッダー
-    """
-
-    return list(
-        map(
-            lambda x: x.replace("ー", "｜")
-            .replace("(", "︵")
-            .replace(")", "︶"),
-            horizontalHeaders,
-        )
-    )
-
-
 def MakeYtsheetUrl(id: str) -> str:
     """
 
     ゆとシートのURLを作成
 
     Args:
-        id str: ゆとシートのID
+        id (str): ゆとシートのID
     Returns:
         str: URL
     """
@@ -64,9 +43,9 @@ def putCloudFormationResponse(
     Custom Resourceの処理完了を知らせるために使用
 
     Args:
-        response CloudFormationResponse: レスポンス情報
-        status str: ステータス
-        reason str: 理由
+        response (CloudFormationResponse): レスポンス情報
+        status (str): ステータス
+        reason (str): 理由
     """
     if response.RequestType == CLOUD_FORMATION_REQUEST_TYPE_MANUAL:
         # 手動実行なので何もしない

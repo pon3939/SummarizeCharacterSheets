@@ -92,3 +92,24 @@ class MyWorksheet:
         self.worksheet.set_basic_filter(
             1, 1, rowCount - (1 if isContainTotalRow else 0), columnCount
         )
+
+
+def ConvertToVerticalHeaders(horizontalHeaders: list[str]) -> list[str]:
+    """
+
+    ヘッダーを縦書き用の文字に変換する
+
+    Args:
+        horizontalHeader (list[str]): ヘッダー
+    Returns:
+        list[str]: 縦書きヘッダー
+    """
+
+    return list(
+        map(
+            lambda x: x.replace("ー", "｜")
+            .replace("(", "︵")
+            .replace(")", "︶"),
+            horizontalHeaders,
+        )
+    )

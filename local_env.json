@@ -26,5 +26,8 @@
   },
   "UpdateBasicSheetFunction": {
     "MY_AWS_REGION": "ap-northeast-1"
+  },
+  "UpdateAbilitySheet": {
+    "MY_AWS_REGION": "ap-northeast-1"
   }
 }
