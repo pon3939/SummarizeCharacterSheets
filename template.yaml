@@ -28,6 +28,7 @@ Resources:
       Name: !Sub ${AWS::StackName}_update_spread_sheet
       DefinitionUri: statemachine/update_spread_sheet.asl.json
       DefinitionSubstitutions:
+        ReorderWorksheetsFunctionArn: !GetAtt ReorderWorksheetsFunction.Arn
         UpdatePlayerSheetFunctionArn: !GetAtt UpdatePlayerSheetFunction.Arn
         MyBucketName: !Ref MyBucketName
         EnvironmentsTable: !Ref EnvironmentsTable
@@ -42,6 +43,10 @@ Resources:
             Input: '{"environment_id" : 3}'
             Schedule: cron(0 1/8 ? * * *)
       Policies:
+        - LambdaInvokePolicy:
+            FunctionName: !Ref ReorderWorksheetsFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref UpdatePlayerSheetFunction
         - DynamoDBReadPolicy:
             TableName: !Ref EnvironmentsTable
         - DynamoDBReadPolicy:
@@ -50,10 +55,26 @@ Resources:
             TableName: !Ref GoogleServiceAccountsTable
         - DynamoDBReadPolicy:
             TableName: !Ref PlayersTable
-        - LambdaInvokePolicy:
-            FunctionName: !Ref UpdatePlayerSheetFunction
 
   # Lambda
+  # ワークシート並べ替えLambda
+  ReorderWorksheetsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}_reorder_worksheets
+      Description: ワークシートを並べ変える
+      CodeUri: functions/reorder_worksheets/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 60
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref MyLayer
+      Environment:
+        Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
+
   # PLシート更新Lambda
   UpdatePlayerSheetFunction:
     Type: AWS::Serverless::Function

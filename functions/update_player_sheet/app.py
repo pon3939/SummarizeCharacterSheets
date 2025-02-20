@@ -9,7 +9,7 @@ from gspread.worksheet import CellFormat
 from my_modules.common_functions import initializePlayers
 from my_modules.constants.spread_sheet import DEFAULT_TEXT_FORMAT, TRUE_STRING
 from my_modules.my_dynamo_db_client import ConvertDynamoDBToJson
-from my_modules.my_spread_sheet import MyWorksheet
+from my_modules.my_worksheet import MyWorksheet
 from my_modules.player import Player
 
 """
@@ -45,24 +45,26 @@ def lambda_handler(event: dict, context: LambdaContext):
         playerJsons, levelCap, bucketName, int(environment["season_id"])
     )
 
-    updatePlayerSheet(environment, googleServiceAccount, players)
+    updatePlayerSheet(
+        environment["spreadsheet_id"], googleServiceAccount, players
+    )
 
 
 def updatePlayerSheet(
-    environment: dict[str, Any],
+    spreadsheetId: str,
     googleServiceAccount: dict[str, str],
     players: list[Player],
 ):
     """PLシートを更新する
 
     Args:
-        environment: (dict[str, Any]): 環境情報
+        spreadsheetId: (str): スプレッドシートのID
         googleServiceAccount: (dict[str, str]): スプレッドシート認証情報
         players: (list[Player]): プレイヤー情報
     """
 
     worksheet: MyWorksheet = MyWorksheet(
-        googleServiceAccount, environment["spreadsheet_id"], "PL"
+        googleServiceAccount, spreadsheetId, "PL"
     )
     updateData: list[list] = []
 

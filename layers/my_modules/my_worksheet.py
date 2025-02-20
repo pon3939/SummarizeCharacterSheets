@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from google.oauth2 import service_account
-from gspread.auth import authorize
-from gspread.client import Client
-from gspread.spreadsheet import Spreadsheet
 from gspread.utils import ValueInputOption, rowcol_to_a1
 from gspread.worksheet import CellFormat, Worksheet
 
 from .constants.spread_sheet import DEFAULT_TEXT_FORMAT
+from .my_spreadsheet import MySpreadsheet
 
 """
 Worksheet拡張クラス
@@ -34,13 +31,10 @@ class MyWorksheet:
         """
 
         # サービスアカウントでスプレッドシートにログイン
-        credentials = service_account.Credentials.from_service_account_info(
-            googleServiceAccount,
-            scopes=["https://www.googleapis.com/auth/spreadsheets"],
+        spreadsheet: MySpreadsheet = MySpreadsheet(
+            googleServiceAccount, spreadsheetId
         )
-        client: Client = authorize(credentials)
-        spreadsheet: Spreadsheet = client.open_by_key(spreadsheetId)
-        self.worksheet: Worksheet = spreadsheet.worksheet(worksheetName)
+        self.worksheet: Worksheet = spreadsheet.getWorksheet(worksheetName)
 
     def Update(
         self,
