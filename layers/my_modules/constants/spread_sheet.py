@@ -26,6 +26,9 @@ FAITH_HEADER_TEXT: str = "信仰"
 VAGRANTS_HEADER_TEXT: str = "ｳﾞｧｸﾞﾗﾝﾂ"
 DIED_TIMES_HEADER_TEXT: str = "死亡"
 EXP_HEADER_TEXT: str = "経験点"
+RACE_HEADER_TEXT: str = "種族"
+DICE_AVERAGE_HEADER_TEXT: str = "ﾀﾞｲｽ平均"
+ADVENTURER_BIRTH_HEADER_TEXT: str = "冒険者\n生まれ"
 
 # 合計行のラベル
 TOTAL_TEXT: str = "合計"

@@ -32,6 +32,7 @@ Resources:
         UpdatePlayerSheetFunctionArn: !GetAtt UpdatePlayerSheetFunction.Arn
         UpdateBasicSheetFunctionArn: !GetAtt UpdateBasicSheetFunction.Arn
         UpdateAbilitySheetFunctionArn: !GetAtt UpdateAbilitySheetFunction.Arn
+        UpdateStatusSheetFunctionArn: !GetAtt UpdateStatusSheetFunction.Arn
         MyBucketName: !Ref MyBucketName
         EnvironmentsTable: !Ref EnvironmentsTable
         LevelCapsTable: !Ref LevelCapsTable
@@ -53,6 +54,8 @@ Resources:
             FunctionName: !Ref UpdateBasicSheetFunction
         - LambdaInvokePolicy:
             FunctionName: !Ref UpdateAbilitySheetFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref UpdateStatusSheetFunction
         - DynamoDBReadPolicy:
             TableName: !Ref EnvironmentsTable
         - DynamoDBReadPolicy:
@@ -128,6 +131,26 @@ Resources:
       FunctionName: !Sub ${AWS::StackName}_update_ability_sheet
       Description: 技能シートを更新する
       CodeUri: functions/update_ability_sheet/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 60
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref MyLayer
+      Policies:
+        - !Ref S3Policy
+      Environment:
+        Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
+
+  # 能力値シート更新Lambda
+  UpdateStatusSheetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}_update_status_sheet
+      Description: 能力値シートを更新する
+      CodeUri: functions/update_status_sheet/
       Handler: app.lambda_handler
       Runtime: python3.9
       Timeout: 60

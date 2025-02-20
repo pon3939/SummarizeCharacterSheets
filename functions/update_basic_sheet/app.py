@@ -17,6 +17,7 @@ from my_modules.constants.spread_sheet import (
     PLAYER_CHARACTER_NAME_HEADER_TEXT,
     PLAYER_COUNT_HEADER_TEXT,
     PLAYER_NAME_HEADER_TEXT,
+    RACE_HEADER_TEXT,
     TOTAL_GAME_COUNT_HEADER_TEXT,
     TOTAL_TEXT,
     TRUE_STRING,
@@ -81,8 +82,8 @@ def updateBasicSheet(
         PLAYER_CHARACTER_NAME_HEADER_TEXT,
         ACTIVE_HEADER_TEXT,
         PLAYER_NAME_HEADER_TEXT,
-        "種族",
-        "種族\nマイナーチェンジ除く",
+        RACE_HEADER_TEXT,
+        "種族\nﾏｲﾅｰﾁｪﾝｼﾞ除く",
         "年齢",
         "性別",
         "身長",
@@ -199,7 +200,7 @@ def updateBasicSheet(
     updateData.append(total)
 
     # アクティブ
-    startA1 = utils.rowcol_to_a1(2, activeCountIndex + 1)
+    startA1: str = utils.rowcol_to_a1(2, activeCountIndex + 1)
     endA1: str = utils.rowcol_to_a1(len(updateData) - 1, activeCountIndex + 1)
     formats.append(
         {
