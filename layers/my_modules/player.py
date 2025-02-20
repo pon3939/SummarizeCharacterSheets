@@ -51,13 +51,6 @@ class Player:
             )
         )
 
-        gameMasterScenarioKeys: list[str] = []
-        for character in self.Characters:
-            gameMasterScenarioKeys.extend(character.GameMasterScenarioKeys)
-
-        # 同一シナリオの重複を排除してGM回数を集計
-        self.GameMasterTimes: int = len(set(gameMasterScenarioKeys))
-
     def CountActivePlayerCharacters(self) -> int:
         """
 
@@ -100,3 +93,11 @@ class Player:
             int: PL参加回数
         """
         return sum(map(lambda x: x.PlayerTimes, self.Characters))
+
+    def GetGameMasterTimes(self) -> int:
+        gameMasterScenarioKeys: list[str] = []
+        for character in self.Characters:
+            gameMasterScenarioKeys.extend(character.GameMasterScenarioKeys)
+
+        # 同一シナリオの重複を排除してGM回数を集計
+        return len(set(gameMasterScenarioKeys))

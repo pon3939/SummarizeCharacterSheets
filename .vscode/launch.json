@@ -135,13 +135,37 @@
         "containerBuild": false,
         "localArguments": [
           "-e",
-          "${workspaceFolder}/functions/local_inputs/update_player_sheet.json",
+          "${workspaceFolder}/functions/local_inputs/update_worksheet.json",
           "-n",
           "${workspaceFolder}/local_env.json"
         ],
         "skipNewImageCheck": false
       },
       "name": "UpdatePlayerSheetFunction",
+      "preLaunchTask": "install libraries"
+    },
+    {
+      "type": "aws-sam",
+      "request": "direct-invoke",
+      "invokeTarget": {
+        "target": "template",
+        "logicalId": "UpdateBasicSheetFunction",
+        "templatePath": "${workspaceFolder}/template.yaml"
+      },
+      "lambda": {
+        "runtime": "python3.9"
+      },
+      "sam": {
+        "containerBuild": false,
+        "localArguments": [
+          "-e",
+          "${workspaceFolder}/functions/local_inputs/update_worksheet.json",
+          "-n",
+          "${workspaceFolder}/local_env.json"
+        ],
+        "skipNewImageCheck": false
+      },
+      "name": "UpdateBasicSheetFunction",
       "preLaunchTask": "install libraries"
     }
   ]

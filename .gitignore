@@ -348,5 +348,6 @@ $RECYCLE.BIN/
 # レイヤーは自作モジュールのみGit管理する
 layers/*
 !layers/my_modules/
+!layers/my_modules/**
 !layers/requirements.in
 !layers/requirements.txt

@@ -7,7 +7,18 @@ from aws_lambda_powertools.utilities.typing import LambdaContext
 from gspread import utils
 from gspread.worksheet import CellFormat
 from my_modules.common_functions import initializePlayers
-from my_modules.constants.spread_sheet import DEFAULT_TEXT_FORMAT, TRUE_STRING
+from my_modules.constants.spread_sheet import (
+    ACTIVE_HEADER_TEXT,
+    DEFAULT_TEXT_FORMAT,
+    GAME_MASTER_COUNT_HEADER_TEXT,
+    NO_HEADER_TEXT,
+    PLAYER_COUNT_HEADER_TEXT,
+    PLAYER_NAME_HEADER_TEXT,
+    TOTAL_GAME_COUNT_HEADER_TEXT,
+    TOTAL_TEXT,
+    TRUE_STRING,
+    UPDATE_DATETIME_HEADER_TEXT,
+)
 from my_modules.my_dynamo_db_client import ConvertDynamoDBToJson
 from my_modules.my_worksheet import MyWorksheet
 from my_modules.player import Player
@@ -15,13 +26,6 @@ from my_modules.player import Player
 """
 PLシートを更新
 """
-
-# ヘッダーに出力する文字列
-PLAYER_NAME_HEADER_TEXT: str = "PL名"
-ACTIVE_HEADER_TEXT: str = "ｱｸﾃｨﾌﾞ"
-PLAYER_COUNT_HEADER_TEXT: str = "PL"
-GAME_MASTER_COUNT_HEADER_TEXT: str = "GM"
-TOTAL_GAME_COUNT_HEADER_TEXT: str = "総卓数"
 
 
 def lambda_handler(event: dict, context: LambdaContext):
@@ -71,7 +75,7 @@ def updatePlayerSheet(
     # ヘッダー
     maxPcCount: int = max(map(lambda x: len(x.Characters), players))
     header: list[str] = [
-        "No.",
+        NO_HEADER_TEXT,
         PLAYER_NAME_HEADER_TEXT,
         ACTIVE_HEADER_TEXT,
     ]
@@ -83,7 +87,7 @@ def updatePlayerSheet(
             PLAYER_COUNT_HEADER_TEXT,
             GAME_MASTER_COUNT_HEADER_TEXT,
             TOTAL_GAME_COUNT_HEADER_TEXT,
-            "更新日時",
+            UPDATE_DATETIME_HEADER_TEXT,
         ]
     )
     updateData.append(header)
@@ -128,7 +132,7 @@ def updatePlayerSheet(
         row.append(playerTimes)
 
         # GM
-        gameMasterTimes: int = player.GameMasterTimes
+        gameMasterTimes: int = player.GetGameMasterTimes()
         row.append(gameMasterTimes)
 
         # 参加+GM
@@ -142,7 +146,7 @@ def updatePlayerSheet(
     # 合計行
     total: list = [None] * len(header)
     activeCountIndex: int = header.index(ACTIVE_HEADER_TEXT)
-    total[activeCountIndex - 1] = "合計"
+    total[activeCountIndex - 1] = TOTAL_TEXT
 
     # アクティブ
     total[activeCountIndex] = sum(

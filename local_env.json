@@ -18,7 +18,13 @@
     "MY_AWS_REGION": "ap-northeast-1",
     "PREFIX": "summarize-character-sheets"
   },
+  "ReorderWorksheetsFunction": {
+    "MY_AWS_REGION": "ap-northeast-1"
+  },
   "UpdatePlayerSheetFunction": {
+    "MY_AWS_REGION": "ap-northeast-1"
+  },
+  "UpdateBasicSheetFunction": {
     "MY_AWS_REGION": "ap-northeast-1"
   }
 }

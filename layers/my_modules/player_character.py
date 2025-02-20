@@ -500,6 +500,14 @@ class PlayerCharacter:
         """
         return self.Skills.get(key, 0)
 
+    def GetGameMasterTimes(self) -> int:
+        """GM回数を取得
+
+        Returns:
+            int: GM回数
+        """
+        return len(self.GameMasterScenarioKeys)
+
 
 def _FindStyle(string: str) -> Union[Style, None]:
     """

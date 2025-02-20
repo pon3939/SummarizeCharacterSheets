@@ -14,5 +14,6 @@
   ],
   "python.analysis.typeCheckingMode": "standard",
   "python.autoComplete.extraPaths": ["${workspaceFolder}/layers"],
-  "python.analysis.extraPaths": ["${workspaceFolder}/layers"]
+  "python.analysis.extraPaths": ["${workspaceFolder}/layers"],
+  "explorer.excludeGitIgnore": true
 }
