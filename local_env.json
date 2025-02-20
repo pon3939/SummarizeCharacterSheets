@@ -32,5 +32,8 @@
   },
   "UpdateStatusSheetFunction": {
     "MY_AWS_REGION": "ap-northeast-1"
+  },
+  "UpdateCombatSkillSheetFunction": {
+    "MY_AWS_REGION": "ap-northeast-1"
   }
 }

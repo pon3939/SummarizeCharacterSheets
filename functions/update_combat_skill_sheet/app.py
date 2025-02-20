@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-from typing import Any
+from typing import Any, Union
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from gspread import utils
@@ -9,23 +9,22 @@ from gspread.worksheet import CellFormat
 from my_modules.common_functions import initializePlayers
 from my_modules.constants.spread_sheet import (
     ACTIVE_HEADER_TEXT,
+    BATTLE_DANCER_HEADER_TEXT,
     DEFAULT_TEXT_FORMAT,
-    EXP_HEADER_TEXT,
-    FAITH_HEADER_TEXT,
     LEVEL_HEADER_TEXT,
     NO_HEADER_TEXT,
     PLAYER_CHARACTER_NAME_HEADER_TEXT,
-    TOTAL_TEXT,
 )
-from my_modules.constants.sword_world import SKILLS
-from my_modules.exp_status import ExpStatus
+from my_modules.constants.sword_world import BATTLE_DANCER_LEVEL_KEY
 from my_modules.my_dynamo_db_client import ConvertDynamoDBToJson
-from my_modules.my_worksheet import ConvertToVerticalHeaders, MyWorksheet
+from my_modules.my_worksheet import MyWorksheet
 from my_modules.player import Player
 
 """
-技能シートを更新
+戦闘特技シートを更新
 """
+
+MAX_LEVEL: int = 13
 
 
 def lambda_handler(event: dict, context: LambdaContext):
@@ -49,17 +48,17 @@ def lambda_handler(event: dict, context: LambdaContext):
         playerJsons, levelCap, bucketName, int(environment["season_id"])
     )
 
-    updateAbilitySheet(
+    updateCombatSkillSheet(
         environment["spreadsheet_id"], googleServiceAccount, players
     )
 
 
-def updateAbilitySheet(
+def updateCombatSkillSheet(
     spreadsheetId: str,
     googleServiceAccount: dict[str, str],
     players: list[Player],
 ):
-    """技能シートを更新する
+    """戦闘特技シートを更新する
 
     Args:
         spreadsheetId: (str): スプレッドシートのID
@@ -68,7 +67,7 @@ def updateAbilitySheet(
     """
 
     worksheet: MyWorksheet = MyWorksheet(
-        googleServiceAccount, spreadsheetId, "技能"
+        googleServiceAccount, spreadsheetId, "戦闘特技"
     )
     updateData: list[list] = []
 
@@ -77,18 +76,13 @@ def updateAbilitySheet(
         NO_HEADER_TEXT,
         PLAYER_CHARACTER_NAME_HEADER_TEXT,
         ACTIVE_HEADER_TEXT,
-        FAITH_HEADER_TEXT,
-        LEVEL_HEADER_TEXT,
-        EXP_HEADER_TEXT,
+        BATTLE_DANCER_HEADER_TEXT,
     ]
-    verticalHeaders: list[str] = []
-    for skill in SKILLS.values():
-        verticalHeaders.append(skill)
+    for level in range(1, MAX_LEVEL + 1, 2):
+        headers.append(f"{LEVEL_HEADER_TEXT}{level}")
 
-    headers.extend(verticalHeaders)
-
-    # ヘッダーを縦書き用に変換
-    updateData.append(ConvertToVerticalHeaders(headers))
+    headers.append("自動取得")
+    updateData.append(headers)
 
     formats: list[CellFormat] = []
     no: int = 0
@@ -106,44 +100,38 @@ def updateAbilitySheet(
             # 参加傾向
             row.append(character.ActiveStatus.GetStrForSpreadsheet())
 
-            # 信仰
-            row.append(character.Faith)
+            # バトルダンサー
+            row.append(character.CombatFeatsLv1bat)
 
-            # Lv
-            row.append(character.Level)
+            # Lv.1
+            row.append(character.CombatFeatsLv1)
 
-            # 経験点
-            row.append(character.Exp)
+            # Lv.3
+            row.append(character.CombatFeatsLv3)
 
-            # 技能レベル
-            for skill in SKILLS:
-                row.append(character.Skills.get(skill, ""))
+            # Lv.5
+            row.append(character.CombatFeatsLv5)
+
+            # Lv.7
+            row.append(character.CombatFeatsLv7)
+
+            # Lv.9
+            row.append(character.CombatFeatsLv9)
+
+            # Lv.11
+            row.append(character.CombatFeatsLv11)
+
+            # Lv.13
+            row.append(character.CombatFeatsLv13)
+
+            # 自動取得
+            for autoCombatFeat in character.AutoCombatFeats:
+                row.append(autoCombatFeat)
 
             updateData.append(row)
 
             # 書式設定
             rowIndex: int = no + 1
-
-            # 経験点の文字色
-            expTextFormat: dict = DEFAULT_TEXT_FORMAT.copy()
-            if character.ActiveStatus == ExpStatus.MAX:
-                expTextFormat["foregroundColorStyle"] = {
-                    "rgbColor": {"red": 1, "green": 0, "blue": 0}
-                }
-            elif character.ActiveStatus == ExpStatus.INACTIVE:
-                expTextFormat["foregroundColorStyle"] = {
-                    "rgbColor": {"red": 0, "green": 0, "blue": 1}
-                }
-
-            if character.ActiveStatus in [ExpStatus.MAX, ExpStatus.INACTIVE]:
-                formats.append(
-                    {
-                        "range": utils.rowcol_to_a1(
-                            rowIndex, headers.index(EXP_HEADER_TEXT) + 1
-                        ),
-                        "format": {"textFormat": expTextFormat},
-                    }
-                )
 
             # PC列のハイパーリンク
             pcTextFormat: dict = DEFAULT_TEXT_FORMAT.copy()
@@ -158,36 +146,50 @@ def updateAbilitySheet(
                 }
             )
 
-    # 合計行
-    notSkillColumnCount: int = len(headers) - len(SKILLS)
-    total: list = [None] * notSkillColumnCount
-    total[-1] = TOTAL_TEXT
-    total += list(
-        map(
-            lambda x: sum(
-                len([z for z in y.Characters if z.GetSkillLevel(x) > 0])
-                for y in players
-            ),
-            SKILLS.keys(),
-        )
-    )
-    updateData.append(total)
+            # 習得レベルに満たないものはグレーで表示
+            grayOutTextFormat: dict = DEFAULT_TEXT_FORMAT.copy()
+            grayOutTextFormat["foregroundColorStyle"] = {
+                "rgbColor": {"red": 0.4, "green": 0.4, "blue": 0.4}
+            }
+
+            grayOutStartIndex: Union[int, None] = None
+            for level in range(3, MAX_LEVEL + 1, 2):
+                if character.Level < level:
+                    grayOutStartIndex = (
+                        headers.index(f"{LEVEL_HEADER_TEXT}{level}") + 1
+                    )
+                    break
+
+            if grayOutStartIndex is not None:
+                startA1: str = utils.rowcol_to_a1(rowIndex, grayOutStartIndex)
+                endA1: str = utils.rowcol_to_a1(
+                    rowIndex,
+                    headers.index(f"{LEVEL_HEADER_TEXT}{MAX_LEVEL}") + 1,
+                )
+                formats.append(
+                    {
+                        "range": f"{startA1}:{endA1}",
+                        "format": {"textFormat": grayOutTextFormat},
+                    }
+                )
+
+            # バトルダンサー未習得もグレーで表示
+            if character.Skills.get(BATTLE_DANCER_LEVEL_KEY, 0) == 0:
+                battleDancerA1: str = utils.rowcol_to_a1(
+                    rowIndex, headers.index(BATTLE_DANCER_HEADER_TEXT) + 1
+                )
+                formats.append(
+                    {
+                        "range": f"{battleDancerA1}:{battleDancerA1}",
+                        "format": {"textFormat": grayOutTextFormat},
+                    }
+                )
 
     # 書式設定
-    # 技能レベルのヘッダー
-    startA1: str = utils.rowcol_to_a1(1, notSkillColumnCount + 1)
-    endA1: str = utils.rowcol_to_a1(1, len(headers))
-    formats.append(
-        {
-            "range": f"{startA1}:{endA1}",
-            "format": {"textRotation": {"vertical": True}},
-        }
-    )
-
     # アクティブ
     activeCountIndex: int = headers.index(ACTIVE_HEADER_TEXT)
     startA1 = utils.rowcol_to_a1(2, activeCountIndex + 1)
-    endA1 = utils.rowcol_to_a1(len(updateData) - 1, activeCountIndex + 1)
+    endA1 = utils.rowcol_to_a1(len(updateData), activeCountIndex + 1)
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
@@ -196,4 +198,4 @@ def updateAbilitySheet(
     )
 
     # 更新
-    worksheet.Update(updateData, formats, True)
+    worksheet.Update(updateData, formats, False)
