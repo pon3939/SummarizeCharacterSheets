@@ -175,12 +175,12 @@ def updateCombatSkillSheet(
 
             # バトルダンサー未習得もグレーで表示
             if character.Skills.get(BATTLE_DANCER_LEVEL_KEY, 0) == 0:
-                battleDancerA1: str = utils.rowcol_to_a1(
-                    rowIndex, headers.index(BATTLE_DANCER_HEADER_TEXT) + 1
-                )
                 formats.append(
                     {
-                        "range": f"{battleDancerA1}:{battleDancerA1}",
+                        "range": utils.rowcol_to_a1(
+                            rowIndex,
+                            headers.index(BATTLE_DANCER_HEADER_TEXT) + 1,
+                        ),
                         "format": {"textFormat": grayOutTextFormat},
                     }
                 )

@@ -60,7 +60,7 @@ class Player:
             (int): アクティブなPC数
         """
 
-        return len([x for x in self.Characters if x.ActiveStatus.IsActive()])
+        return sum(1 for x in self.Characters if x.ActiveStatus.IsActive())
 
     def CountVagrantsPlayerCharacters(self) -> int:
         """
@@ -71,7 +71,7 @@ class Player:
             (int): ヴァグランツのPC数
         """
 
-        return len([x for x in self.Characters if x.IsVagrants()])
+        return sum(1 for x in self.Characters if x.IsVagrants())
 
     def GetActiveStatus(self) -> ExpStatus:
         """アクティブ状態を取得

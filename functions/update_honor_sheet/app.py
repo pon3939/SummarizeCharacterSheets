@@ -10,25 +10,18 @@ from my_modules.common_functions import initializePlayers
 from my_modules.constants.spread_sheet import (
     ACTIVE_HEADER_TEXT,
     DEFAULT_TEXT_FORMAT,
-    DIED_TIMES_HEADER_TEXT,
-    FAITH_HEADER_TEXT,
-    GAME_MASTER_COUNT_HEADER_TEXT,
     NO_HEADER_TEXT,
     PLAYER_CHARACTER_NAME_HEADER_TEXT,
-    PLAYER_COUNT_HEADER_TEXT,
-    PLAYER_NAME_HEADER_TEXT,
-    RACE_HEADER_TEXT,
-    TOTAL_GAME_COUNT_HEADER_TEXT,
     TOTAL_TEXT,
     TRUE_STRING,
-    VAGRANTS_HEADER_TEXT,
 )
+from my_modules.constants.sword_world import STYLES
 from my_modules.my_dynamo_db_client import ConvertDynamoDBToJson
-from my_modules.my_worksheet import MyWorksheet
+from my_modules.my_worksheet import ConvertToVerticalHeaders, MyWorksheet
 from my_modules.player import Player
 
 """
-基本シートを更新
+名誉点・流派シートを更新
 """
 
 
@@ -53,17 +46,17 @@ def lambda_handler(event: dict, context: LambdaContext):
         playerJsons, levelCap, bucketName, int(environment["season_id"])
     )
 
-    updateBasicSheet(
+    updateHonorSheet(
         environment["spreadsheet_id"], googleServiceAccount, players
     )
 
 
-def updateBasicSheet(
+def updateHonorSheet(
     spreadsheetId: str,
     googleServiceAccount: dict[str, str],
     players: list[Player],
 ):
-    """基本シートを更新する
+    """名誉点・流派シートを更新する
 
     Args:
         spreadsheetId: (str): スプレッドシートのID
@@ -72,38 +65,45 @@ def updateBasicSheet(
     """
 
     worksheet: MyWorksheet = MyWorksheet(
-        googleServiceAccount, spreadsheetId, "基本"
+        googleServiceAccount, spreadsheetId, "名誉点・流派"
     )
     updateData: list[list] = []
 
     # ヘッダー
-    header: list[str] = [
+    headers: list[str] = [
         NO_HEADER_TEXT,
         PLAYER_CHARACTER_NAME_HEADER_TEXT,
         ACTIVE_HEADER_TEXT,
-        PLAYER_NAME_HEADER_TEXT,
-        RACE_HEADER_TEXT,
-        "種族\nﾏｲﾅｰﾁｪﾝｼﾞ除く",
-        "年齢",
-        "性別",
-        "身長",
-        "体重",
-        FAITH_HEADER_TEXT,
-        VAGRANTS_HEADER_TEXT,
-        "穢れ",
-        PLAYER_COUNT_HEADER_TEXT,
-        GAME_MASTER_COUNT_HEADER_TEXT,
-        TOTAL_GAME_COUNT_HEADER_TEXT,
-        "累計ガメル",
-        DIED_TIMES_HEADER_TEXT,
+        "冒険者ランク",
+        "累計名誉点",
+        "入門数",
     ]
-    updateData.append(header)
+    verticalHeaders: list[str] = ["2.0流派"]
+    for style in STYLES:
+        verticalHeaders.append(style.Name)
+
+    # 縦書きに変換
+    headers.extend(ConvertToVerticalHeaders(verticalHeaders))
+    updateData.append(headers)
 
     formats: list[CellFormat] = []
     no: int = 0
     for player in players:
         for character in player.Characters:
             row: list = []
+
+            # 流派の情報を取得
+            is20: bool = False
+            learnedStyles: list[str] = []
+            for style in STYLES:
+                learnedStyle: str = ""
+                if style in character.Styles:
+                    # 該当する流派に入門している
+                    learnedStyle = TRUE_STRING
+                    if style.Is20:
+                        is20 = True
+
+                learnedStyles.append(learnedStyle)
 
             # No.
             no += 1
@@ -115,52 +115,20 @@ def updateBasicSheet(
             # 参加傾向
             row.append(character.ActiveStatus.GetStrForSpreadsheet())
 
-            # PL
-            row.append(player.Name)
+            # 冒険者ランク
+            row.append(character.AdventurerRank)
 
-            # 種族
-            row.append(character.GetMinorRace())
+            # 累計名誉点
+            row.append(character.TotalHonor)
 
-            # 種族(マイナーチェンジ除く)
-            row.append(character.GetMajorRace())
+            # 加入数
+            row.append(len(character.Styles))
 
-            # 年齢
-            row.append(character.Age)
+            # 2.0流派
+            row.append(TRUE_STRING if is20 else "")
 
-            # 性別
-            row.append(character.Gender)
-
-            # 身長
-            row.append(character.Height)
-
-            # 体重
-            row.append(character.Weight)
-
-            # 信仰
-            row.append(character.Faith)
-
-            # ヴァグランツ
-            row.append(TRUE_STRING if character.IsVagrants() else "")
-
-            # 穢れ
-            row.append(character.Sin)
-
-            # 参加
-            playerTimes: int = character.PlayerTimes
-            row.append(playerTimes)
-
-            # GM
-            gameMasterTimes: int = character.GetGameMasterTimes()
-            row.append(gameMasterTimes)
-
-            # 参加+GM
-            row.append(playerTimes + gameMasterTimes)
-
-            # ガメル
-            row.append(character.HistoryMoneyTotal)
-
-            # 死亡
-            row.append(character.DiedTimes)
+            # 各流派
+            row += learnedStyles
 
             updateData.append(row)
 
@@ -171,36 +139,50 @@ def updateBasicSheet(
                 {
                     "range": utils.rowcol_to_a1(
                         no + 1,
-                        header.index(PLAYER_CHARACTER_NAME_HEADER_TEXT) + 1,
+                        headers.index(PLAYER_CHARACTER_NAME_HEADER_TEXT) + 1,
                     ),
                     "format": {"textFormat": pcTextFormat},
                 }
             )
 
     # 合計行
-    total: list = [None] * len(header)
-    activeCountIndex: int = header.index(ACTIVE_HEADER_TEXT)
-    total[activeCountIndex - 1] = TOTAL_TEXT
+    notTotalColumnCount: int = len(headers) - len(STYLES) - 1
+    total: list = [None] * notTotalColumnCount
+    total[-1] = TOTAL_TEXT
 
-    # アクティブ
-    total[activeCountIndex] = sum(
-        x.CountActivePlayerCharacters() for x in players
+    # 2.0流派所持
+    total.append(
+        sum(
+            sum(1 for y in x.Characters if any(z.Is20 for z in y.Styles))
+            for x in players
+        )
     )
 
-    # ヴァグランツ
-    vagrantsCountIndex: int = header.index(VAGRANTS_HEADER_TEXT)
-    total[vagrantsCountIndex] = sum(
-        x.CountVagrantsPlayerCharacters() for x in players
-    )
-
-    # 死亡回数
-    total[header.index(DIED_TIMES_HEADER_TEXT)] = sum(
-        sum(y.DiedTimes for y in x.Characters) for x in players
+    # 各流派
+    total += list(
+        map(
+            lambda x: sum(
+                sum(1 for z in y.Characters if x in z.Styles) for y in players
+            ),
+            STYLES,
+        )
     )
     updateData.append(total)
 
+    # 書式設定
+    # 流派のヘッダー
+    startA1: str = utils.rowcol_to_a1(1, notTotalColumnCount + 1)
+    endA1: str = utils.rowcol_to_a1(1, len(headers))
+    formats.append(
+        {
+            "range": f"{startA1}:{endA1}",
+            "format": {"textRotation": {"vertical": True}},
+        }
+    )
+
     # アクティブ
-    startA1: str = utils.rowcol_to_a1(2, activeCountIndex + 1)
+    activeCountIndex: int = headers.index(ACTIVE_HEADER_TEXT)
+    startA1 = utils.rowcol_to_a1(2, activeCountIndex + 1)
     endA1: str = utils.rowcol_to_a1(len(updateData) - 1, activeCountIndex + 1)
     formats.append(
         {
@@ -209,11 +191,9 @@ def updateBasicSheet(
         }
     )
 
-    # ヴァグランツ
-    startA1 = utils.rowcol_to_a1(2, vagrantsCountIndex + 1)
-    endA1: str = utils.rowcol_to_a1(
-        len(updateData) - 1, vagrantsCountIndex + 1
-    )
+    # ○
+    startA1 = utils.rowcol_to_a1(2, notTotalColumnCount + 1)
+    endA1: str = utils.rowcol_to_a1(len(updateData) - 1, len(headers))
     formats.append(
         {
             "range": f"{startA1}:{endA1}",

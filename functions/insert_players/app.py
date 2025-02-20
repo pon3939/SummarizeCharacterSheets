@@ -84,7 +84,7 @@ def GetMaxId(seasonId: int) -> int:
     return int(maxId["id"])
 
 
-def putPlayers(players: "list[dict]", seasonId: int, maxId: int):
+def putPlayers(players: list[dict], seasonId: int, maxId: int):
     """Playersを挿入する
 
     Args:

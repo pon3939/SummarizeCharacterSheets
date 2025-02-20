@@ -85,10 +85,9 @@ def updateAbilitySheet(
     for skill in SKILLS.values():
         verticalHeaders.append(skill)
 
-    headers.extend(verticalHeaders)
-
     # ヘッダーを縦書き用に変換
-    updateData.append(ConvertToVerticalHeaders(headers))
+    headers.extend(ConvertToVerticalHeaders(verticalHeaders))
+    updateData.append(headers)
 
     formats: list[CellFormat] = []
     no: int = 0
@@ -165,7 +164,7 @@ def updateAbilitySheet(
     total += list(
         map(
             lambda x: sum(
-                len([z for z in y.Characters if z.GetSkillLevel(x) > 0])
+                sum(1 for z in y.Characters if z.GetSkillLevel(x) > 0)
                 for y in players
             ),
             SKILLS.keys(),

@@ -15,7 +15,7 @@ PC
 """
 
 # 自分が開催したときのGM名
-_SELF_GAME_MASTER_NAMES: "list[str]" = [
+_SELF_GAME_MASTER_NAMES: list[str] = [
     "俺",
     "私",
     "自分",
@@ -528,7 +528,7 @@ def _FindStyle(string: str) -> Union[Style, None]:
     return None
 
 
-def _FindAbyssCurses(string: str) -> "list[str]":
+def _FindAbyssCurses(string: str) -> list[str]:
     """
 
     引数に含まれるアビスカースを返却する

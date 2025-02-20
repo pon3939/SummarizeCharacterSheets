@@ -34,6 +34,7 @@ Resources:
         UpdateAbilitySheetFunctionArn: !GetAtt UpdateAbilitySheetFunction.Arn
         UpdateStatusSheetFunctionArn: !GetAtt UpdateStatusSheetFunction.Arn
         UpdateCombatSkillSheetFunctionArn: !GetAtt UpdateCombatSkillSheetFunction.Arn
+        UpdateHonorSheetFunctionArn: !GetAtt UpdateHonorSheetFunction.Arn
         MyBucketName: !Ref MyBucketName
         EnvironmentsTable: !Ref EnvironmentsTable
         LevelCapsTable: !Ref LevelCapsTable
@@ -59,6 +60,8 @@ Resources:
             FunctionName: !Ref UpdateStatusSheetFunction
         - LambdaInvokePolicy:
             FunctionName: !Ref UpdateCombatSkillSheetFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref UpdateHonorSheetFunction
         - DynamoDBReadPolicy:
             TableName: !Ref EnvironmentsTable
         - DynamoDBReadPolicy:
@@ -174,6 +177,26 @@ Resources:
       FunctionName: !Sub ${AWS::StackName}_update_combat_skill_sheet
       Description: 戦闘特技シートを更新する
       CodeUri: functions/update_combat_skill_sheet/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 60
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref MyLayer
+      Policies:
+        - !Ref S3Policy
+      Environment:
+        Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
+
+  # 名誉点・流派シート更新Lambda
+  UpdateHonorSheetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}_update_honor_sheet
+      Description: 名誉点・流派シートを更新する
+      CodeUri: functions/update_honor_sheet/
       Handler: app.lambda_handler
       Runtime: python3.9
       Timeout: 60

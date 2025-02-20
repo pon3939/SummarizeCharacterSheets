@@ -33,7 +33,7 @@ SKILLS: dict[str, str] = {
 }
 
 # 流派
-STYLES: "list[Style]" = [
+STYLES: list[Style] = [
     Style("イーヴァル狂闘術", ["イーヴァル"]),
     Style("ミハウ式流円闘技", ["ミハウ"]),
     Style("カスロット豪砂拳・バタス派", ["カスロット", "バタス"]),
@@ -113,7 +113,7 @@ STYLES: "list[Style]" = [
 ]
 
 # アビスカース
-ABYSS_CURSES: "list[str]" = [
+ABYSS_CURSES: list[str] = [
     "自傷の",
     "嘆きの",
     "優しき",
@@ -281,7 +281,7 @@ OFFICIAL_GENERAL_SKILL_NAMES: list[str] = [
 ]
 
 # ヴァグランツ戦闘特技
-VAGRANTS_COMBAT_SKILLS: "list[str]" = [
+VAGRANTS_COMBAT_SKILLS: list[str] = [
     "追い打ち",
     "抵抗強化",
     "カニングキャスト",
