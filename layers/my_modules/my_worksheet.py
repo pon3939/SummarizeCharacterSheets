@@ -39,14 +39,14 @@ class MyWorksheet:
     def Update(
         self,
         values: list[list],
-        formats: list[CellFormat],
+        additionalFormats: list[CellFormat],
         isContainTotalRow: bool,
     ):
         """更新する
 
         Args:
             values (list[list]): 更新する値
-            formats (list[CellFormat]): 書式
+            additionalFormats (list[CellFormat]): 書式
             isContainTotalRow (bool): 合計行を含むか
         """
         # 初期化
@@ -63,26 +63,31 @@ class MyWorksheet:
         columnCount: int = max(map(lambda x: len(x), values))
         startA1: str = rowcol_to_a1(1, 1)
         endA1: str = rowcol_to_a1(rowCount, columnCount)
-        self.worksheet.format(
-            f"{startA1}:{endA1}",
+        formats: list[CellFormat] = [
             {
-                "verticalAlignment": "MIDDLE",
-                "textFormat": DEFAULT_TEXT_FORMAT,
-            },
-        )
+                "range": f"{startA1}:{endA1}",
+                "format": {
+                    "verticalAlignment": "MIDDLE",
+                    "textFormat": DEFAULT_TEXT_FORMAT,
+                },
+            }
+        ]
 
         # ヘッダーの書式設定
         startA1 = rowcol_to_a1(1, 1)
         endA1 = rowcol_to_a1(1, columnCount)
-        self.worksheet.format(
-            f"{startA1}:{endA1}",
+        formats.append(
             {
-                "horizontalAlignment": "CENTER",
-                "verticalAlignment": "BOTTOM",
-                "textRotation": {"vertical": False},
-            },
+                "range": f"{startA1}:{endA1}",
+                "format": {
+                    "horizontalAlignment": "CENTER",
+                    "verticalAlignment": "BOTTOM",
+                    "textRotation": {"vertical": False},
+                },
+            }
         )
 
+        formats.extend(additionalFormats)
         self.worksheet.batch_format(formats)
 
         # 行列の固定

@@ -367,6 +367,41 @@
                             "End": true
                         }
                     }
+                },
+                {
+                    "StartAt": "update_abyss_curse_sheet_invoke",
+                    "States": {
+                        "update_abyss_curse_sheet_invoke": {
+                            "Type": "Task",
+                            "Resource": "arn:aws:states:::lambda:invoke",
+                            "Output": "{% $states.result.Payload %}",
+                            "Arguments": {
+                                "FunctionName": "${UpdateAbyssCurseSheetFunctionArn}",
+                                "Payload": {
+                                    "BucketName": "${MyBucketName}",
+                                    "Environment": "{% $environment %}",
+                                    "GoogleServiceAccount": "{% $google_service_account %}",
+                                    "LevelCap": "{% $level_cap %}",
+                                    "Players": "{% $players %}"
+                                }
+                            },
+                            "Retry": [
+                                {
+                                    "ErrorEquals": [
+                                        "Lambda.ServiceException",
+                                        "Lambda.AWSLambdaException",
+                                        "Lambda.SdkClientException",
+                                        "Lambda.TooManyRequestsException"
+                                    ],
+                                    "IntervalSeconds": 1,
+                                    "MaxAttempts": 3,
+                                    "BackoffRate": 2,
+                                    "JitterStrategy": "FULL"
+                                }
+                            ],
+                            "End": true
+                        }
+                    }
                 }
             ],
             "End": true

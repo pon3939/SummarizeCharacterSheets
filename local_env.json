@@ -38,5 +38,8 @@
   },
   "UpdateHonorSheetFunction": {
     "MY_AWS_REGION": "ap-northeast-1"
+  },
+  "UpdateAbyssCurseSheetFunction": {
+    "MY_AWS_REGION": "ap-northeast-1"
   }
 }
