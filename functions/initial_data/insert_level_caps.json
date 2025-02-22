@@ -1,0 +1,28 @@
+{
+  "Seasons": [
+    {
+      "SeasonId": 3,
+      "LevelCaps": [
+        { "StartDatetime": "2024/12/8", "MinimumExp": 125000, "MaxExp": 153000 }
+      ]
+    },
+    {
+      "SeasonId": 4,
+      "LevelCaps": [
+        { "StartDatetime": "2025/2/1", "MinimumExp": 3000, "MaxExp": 3000 },
+        { "StartDatetime": "2025/5/1", "MinimumExp": 3000, "MaxExp": 7500 },
+        { "StartDatetime": "2025/5/8", "MinimumExp": 5500, "MaxExp": 7500 },
+        { "StartDatetime": "2025/6/1", "MinimumExp": 7000, "MaxExp": 22000 },
+        { "StartDatetime": "2025/6/8", "MinimumExp": 14500, "MaxExp": 22000 },
+        { "StartDatetime": "2025/7/1", "MinimumExp": 21000, "MaxExp": 39000 },
+        { "StartDatetime": "2025/7/8", "MinimumExp": 33000, "MaxExp": 39000 },
+        { "StartDatetime": "2025/8/1", "MinimumExp": 37500, "MaxExp": 62000 },
+        { "StartDatetime": "2025/8/8", "MinimumExp": 49500, "MaxExp": 62000 },
+        { "StartDatetime": "2025/9/1", "MinimumExp": 60000, "MaxExp": 100000 },
+        { "StartDatetime": "2025/9/8", "MinimumExp": 80000, "MaxExp": 100000 },
+        { "StartDatetime": "2025/10/1", "MinimumExp": 97500, "MaxExp": 153000 },
+        { "StartDatetime": "2025/10/8", "MinimumExp": 125000, "MaxExp": 153000 }
+      ]
+    }
+  ]
+}

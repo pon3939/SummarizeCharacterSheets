@@ -1,0 +1,19 @@
+{
+  "cSpell.words": [
+    "boto",
+    "Cooldown",
+    "gspread",
+    "Meiryo",
+    "mypy",
+    "Nata",
+    "powertools",
+    "rowcol",
+    "statemachine",
+    "venv",
+    "Ytsheet"
+  ],
+  "python.analysis.typeCheckingMode": "standard",
+  "python.autoComplete.extraPaths": ["${workspaceFolder}/layers"],
+  "python.analysis.extraPaths": ["${workspaceFolder}/layers"],
+  "explorer.excludeGitIgnore": true
+}
