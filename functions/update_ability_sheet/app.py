@@ -81,12 +81,13 @@ def updateAbilitySheet(
         LEVEL_HEADER_TEXT,
         EXP_HEADER_TEXT,
     ]
-    verticalHeaders: list[str] = []
-    for skill in SKILLS.values():
-        verticalHeaders.append(skill)
 
     # ヘッダーを縦書き用に変換
-    headers.extend(ConvertToVerticalHeaders(verticalHeaders))
+    headers.extend(
+        ConvertToVerticalHeaders(
+            ConvertToVerticalHeaders(list(map(lambda x: x, SKILLS.values())))
+        )
+    )
     updateData.append(headers)
 
     formats: list[CellFormat] = []

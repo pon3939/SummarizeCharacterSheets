@@ -36,6 +36,7 @@ Resources:
         UpdateCombatSkillSheetFunctionArn: !GetAtt UpdateCombatSkillSheetFunction.Arn
         UpdateHonorSheetFunctionArn: !GetAtt UpdateHonorSheetFunction.Arn
         UpdateAbyssCurseSheetFunctionArn: !GetAtt UpdateAbyssCurseSheetFunction.Arn
+        UpdateGeneralSkillSheetFunctionArn: !GetAtt UpdateGeneralSkillSheetFunction.Arn
         MyBucketName: !Ref MyBucketName
         EnvironmentsTable: !Ref EnvironmentsTable
         LevelCapsTable: !Ref LevelCapsTable
@@ -65,6 +66,8 @@ Resources:
             FunctionName: !Ref UpdateHonorSheetFunction
         - LambdaInvokePolicy:
             FunctionName: !Ref UpdateAbyssCurseSheetFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref UpdateGeneralSkillSheetFunction
         - DynamoDBReadPolicy:
             TableName: !Ref EnvironmentsTable
         - DynamoDBReadPolicy:
@@ -220,6 +223,26 @@ Resources:
       FunctionName: !Sub ${AWS::StackName}_update_abyss_curse_sheet
       Description: アビスカースシートを更新する
       CodeUri: functions/update_abyss_curse_sheet/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 60
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref MyLayer
+      Policies:
+        - !Ref S3Policy
+      Environment:
+        Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
+
+  # 一般技能シート更新Lambda
+  UpdateGeneralSkillSheetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}_update_general_skill_sheet
+      Description: 一般技能シートを更新する
+      CodeUri: functions/update_general_skill_sheet/
       Handler: app.lambda_handler
       Runtime: python3.9
       Timeout: 60

@@ -12,6 +12,7 @@ from my_modules.constants.spread_sheet import (
     DEFAULT_TEXT_FORMAT,
     NO_HEADER_TEXT,
     PLAYER_CHARACTER_NAME_HEADER_TEXT,
+    TOTAL_TEXT,
     TRUE_STRING,
 )
 from my_modules.constants.sword_world import ABYSS_CURSES
@@ -134,7 +135,7 @@ def updateAbyssCurseSheet(
 
     # 合計行
     total: list = [None] * 3
-    total[-1] = "合計"
+    total[-1] = TOTAL_TEXT
 
     # アビスカースの数
     total.append(
@@ -156,7 +157,7 @@ def updateAbyssCurseSheet(
     # 書式設定
     # アクティブ
     activeCountIndex: int = headers.index(ACTIVE_HEADER_TEXT)
-    startA1 = utils.rowcol_to_a1(2, activeCountIndex + 1)
+    startA1: str = utils.rowcol_to_a1(2, activeCountIndex + 1)
     endA1: str = utils.rowcol_to_a1(len(updateData) - 1, activeCountIndex + 1)
     formats.append(
         {
@@ -166,15 +167,11 @@ def updateAbyssCurseSheet(
     )
 
     # ○
-    markFormatStartA1: str = utils.rowcol_to_a1(
-        2, len(headers) - len(ABYSS_CURSES) + 1
-    )
-    markFormatEndA1: str = utils.rowcol_to_a1(
-        len(updateData) - 1, len(headers)
-    )
+    startA1 = utils.rowcol_to_a1(2, len(headers) - len(ABYSS_CURSES) + 1)
+    endA1 = utils.rowcol_to_a1(len(updateData) - 1, len(headers))
     formats.append(
         {
-            "range": f"{markFormatStartA1}:{markFormatEndA1}",
+            "range": f"{startA1}:{endA1}",
             "format": {"horizontalAlignment": "CENTER"},
         }
     )
