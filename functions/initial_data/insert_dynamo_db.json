@@ -49,7 +49,7 @@
         {
           "id": { "N": "3" },
           "name": { "S": "4期" },
-          "season_id": { "N": "3" },
+          "season_id": { "N": "4" },
           "spreadsheet_id": {
             "S": "1v3qRXJhzPK2vw-5NnDS3nW70bN-YD4p-pGUuOZDORNc"
           }

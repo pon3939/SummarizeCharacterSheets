@@ -125,6 +125,8 @@ class MyDynamoDBClient:
         expressionAttributeValues: dict,
         expressionAttributeNames: dict = {},
         indexName: str = "",
+        scanIndexForward: Union[None, bool] = None,
+        limit: int = 0,
     ) -> QueryOutputTypeDef:
         """
 
@@ -137,6 +139,8 @@ class MyDynamoDBClient:
             expressionAttributeValues (dict): パラメーター
             expressionAttributeNames (dict): エスケープしたパラメーター
             indexName (str): インデックス名
+            scanIndexForward (Union[None, bool]): True: 昇順, False: 降順
+            limit (int): 最大取得件数
         Returns:
             QueryOutputTypeDef: クエリ結果
         """
@@ -152,11 +156,20 @@ class MyDynamoDBClient:
         if indexName != "":
             kwargs["IndexName"] = indexName
 
+        if scanIndexForward is not None:
+            kwargs["ScanIndexForward"] = scanIndexForward
+
+        if limit > 0:
+            kwargs["Limit"] = limit
+
         response: QueryOutputTypeDef = self.Client.query(**kwargs)
 
         # ページ分割分を取得
         currentResponse: QueryOutputTypeDef = response
-        while "LastEvaluatedKey" in currentResponse:
+        while (
+            "LastEvaluatedKey" in currentResponse
+            and len(response["Items"]) < limit
+        ):
             currentResponse = self.Client.query(
                 **kwargs,
                 ExclusiveStartKey=currentResponse["LastEvaluatedKey"],

@@ -90,6 +90,33 @@ class MyS3Client:
         )
         return responseJson[BACKUP_KEY]
 
+    def PutPlayerCharacterObject(
+        self,
+        bucketName: str,
+        seasonId: int,
+        ytsheetId: str,
+        body: str,
+    ) -> None:
+        """
+
+        PCオブジェクトを保存
+
+        Args:
+            bucketName (str): バケット名
+            seasonId (int): シーズンID
+            ytsheetId (str): ファイル名
+            body (list[dict]): ゆとシートのデータ
+        """
+        # バケットからファイルを取得
+        self.Client.put_object(
+            Bucket=bucketName,
+            Key=(
+                f"{self._S3_DIRECTORY_PLAYER_CHARACTERS}/"
+                f"{seasonId}/{ytsheetId}.json"
+            ),
+            Body=body,
+        )
+
     def GetPlayerCharacterObject(
         self, bucketName: str, seasonId: int, ytsheetId: str
     ) -> dict[str, Any]:

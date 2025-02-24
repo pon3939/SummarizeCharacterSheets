@@ -6,7 +6,7 @@ Description: >
   SW2.5 のキャラクターシートをスプレッドシートに集計する StepFunctions
 
 Parameters:
-  PlayersSeasonIdIndexName:
+  PlayersSeasonIdNameIndexName:
     Type: String
     Default: season_id_name_index
     Description: プレイヤーテーブルのシーズンIDと名前のインデックス名
@@ -21,6 +21,36 @@ Parameters:
 
 Resources:
   # Step Functions
+  # メイン処理
+  SummarizeCharacterSheetsStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      Name: !Sub ${AWS::StackName}_summarize_character_sheets
+      DefinitionUri: statemachine/summarize_character_sheets.asl.json
+      DefinitionSubstitutions:
+        UpdateSpreadSheetStateMachineArn: !GetAtt UpdateSpreadSheetStateMachine.Arn
+        GetYtsheetDataFunctionArn: !GetAtt GetYtsheetDataFunction.Arn
+        MyBucketName: !Ref MyBucketName
+        EnvironmentsTable: !Ref EnvironmentsTable
+        PlayersTable: !Ref PlayersTable
+      Events:
+        HourlyTradingSchedule:
+          Type: Schedule
+          Properties:
+            Description: 8時間ごとに定期実行
+            Input: '{"environment_id" : 3}'
+            Schedule: cron(0 1/8 ? * * *)
+      Policies:
+        - StepFunctionsExecutionPolicy:
+            StateMachineName: !GetAtt UpdateSpreadSheetStateMachine.Name
+        - LambdaInvokePolicy:
+            FunctionName: !Ref GetYtsheetDataFunction
+        - DynamoDBReadPolicy:
+            TableName: !Ref EnvironmentsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref PlayersTable
+        - !Ref ExecutionChildStepFunctionsPolicy
+
   # スプレッドシート更新
   UpdateSpreadSheetStateMachine:
     Type: AWS::Serverless::StateMachine
@@ -42,13 +72,6 @@ Resources:
         LevelCapsTable: !Ref LevelCapsTable
         GoogleServiceAccountsTable: !Ref GoogleServiceAccountsTable
         PlayersTable: !Ref PlayersTable
-      Events:
-        HourlyTradingSchedule:
-          Type: Schedule
-          Properties:
-            Description: 8時間ごとに定期実行
-            Input: '{"environment_id" : 3}'
-            Schedule: cron(0 1/8 ? * * *)
       Policies:
         - LambdaInvokePolicy:
             FunctionName: !Ref ReorderWorksheetsFunction
@@ -78,6 +101,27 @@ Resources:
             TableName: !Ref PlayersTable
 
   # Lambda
+  # ゆとシートデータ取得Lambda
+  GetYtsheetDataFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}_get_ytsheet_data
+      Description: ゆとシータからデータを取得し、S3に出力する
+      CodeUri: functions/get_ytsheet_data/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 60
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref MyLayer
+      Policies:
+        - !Ref S3Policy
+      Environment:
+        Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
+          MY_BUCKET_NAME: !Ref MyBucketName
+
   # ワークシート並べ替えLambda
   ReorderWorksheetsFunction:
     Type: AWS::Serverless::Function
@@ -297,7 +341,7 @@ Resources:
         Variables:
           MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
           PLAYERS_TABLE_NAME: !Ref PlayersTable
-          PLAYERS_SEASON_ID_INDEX_NAME: !Ref PlayersSeasonIdIndexName
+          PLAYERS_SEASON_ID_NAME_INDEX_NAME: !Ref PlayersSeasonIdNameIndexName
 
   # DynamoDBバックアップLambda
   BackupDynamoDbFunction:
@@ -412,7 +456,7 @@ Resources:
         - AttributeName: id
           KeyType: RANGE
       GlobalSecondaryIndexes:
-        - IndexName: !Ref PlayersSeasonIdIndexName
+        - IndexName: !Ref PlayersSeasonIdNameIndexName
           KeySchema:
             - AttributeName: season_id
               KeyType: HASH
@@ -485,7 +529,7 @@ Resources:
     Properties:
       MaxCapacity: 10
       MinCapacity: 1
-      ResourceId: !Sub table/${PlayersTable}/index/${PlayersSeasonIdIndexName}
+      ResourceId: !Sub table/${PlayersTable}/index/${PlayersSeasonIdNameIndexName}
       RoleARN: !Sub arn:aws:iam::${AWS::AccountId}:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable
       ScalableDimension: dynamodb:index:WriteCapacityUnits
       ServiceNamespace: dynamodb
@@ -519,7 +563,7 @@ Resources:
   PlayersSeasonIdIndexWriteScalingPolicy:
     Type: AWS::ApplicationAutoScaling::ScalingPolicy
     Properties:
-      PolicyName: !Sub ${PlayersTable}_${PlayersSeasonIdIndexName}_write_scaling_policy
+      PolicyName: !Sub ${PlayersTable}_${PlayersSeasonIdNameIndexName}_write_scaling_policy
       PolicyType: TargetTrackingScaling
       ScalingTargetId: !Ref PlayersSeasonIdIndexWriteCapacityScalableTarget
       TargetTrackingScalingPolicyConfiguration:
@@ -587,6 +631,21 @@ Resources:
             Condition:
               StringLike:
                 dynamodb:TableName: !Sub ${AWS::StackName}_*
+
+  # 入れ子のStep Functions実行用ポリシー
+  ExecutionChildStepFunctionsPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - events:PutTargets
+              - events:PutRule
+              - events:DescribeRule
+            Resource:
+              - !Sub arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:rule/StepFunctionsGetEventsForStepFunctionsExecutionRule
 
   # Custom Resource
   # レベルキャップの初期データ登録

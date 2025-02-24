@@ -5,7 +5,7 @@ from typing import Union
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from my_modules.constants.env_keys import (
-    PLAYERS_SEASON_ID_INDEX_NAME,
+    PLAYERS_SEASON_ID_NAME_INDEX_NAME,
     PLAYERS_TABLE_NAME,
 )
 from my_modules.my_dynamo_db_client import (
@@ -71,17 +71,16 @@ def GetMaxId(seasonId: int) -> int:
         projectionExpression,
         KeyConditionExpression,
         expressionAttributeValues,
+        scanIndexForward=False,
+        limit=1,
     )
 
-    # ページ分割分を取得
     dynamoDbPlayers: list[dict] = response["Items"]
     if len(dynamoDbPlayers) == 0:
         return 0
 
-    players: list = ConvertDynamoDBToJson(dynamoDbPlayers)
-    maxId: dict = max(players, key=(lambda player: player["id"]))
-
-    return int(maxId["id"])
+    player: dict = ConvertDynamoDBToJson(dynamoDbPlayers[0])
+    return int(player["id"])
 
 
 def putPlayers(players: list[dict], seasonId: int, maxId: int):
@@ -109,7 +108,7 @@ def putPlayers(players: list[dict], seasonId: int, maxId: int):
                 {":season_id": seasonId, ":name": player["Name"]}
             ),
             {"#name": "name"},
-            getenv(PLAYERS_SEASON_ID_INDEX_NAME, ""),
+            getenv(PLAYERS_SEASON_ID_NAME_INDEX_NAME, ""),
         )
         existsPlayers: list[dict] = ConvertDynamoDBToJson(queryResult["Items"])
 
@@ -139,7 +138,6 @@ def putPlayers(players: list[dict], seasonId: int, maxId: int):
             "id": id,
             "name": player["Name"],
             "ytsheet_ids": [player["YtsheetId"]],
-            "characters": [],
             "update_time": GetCurrentDateTimeForDynamoDB(),
         }
         requestItem: WriteRequestTypeDef = {}

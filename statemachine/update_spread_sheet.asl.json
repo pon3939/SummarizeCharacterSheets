@@ -85,7 +85,8 @@
             "Type": "Pass",
             "Next": "players_query",
             "Output": {
-                "last_evaluated_key": "{% null %}"
+                "last_evaluated_key": "{% null %}",
+                "players": []
             }
         },
         "players_query": {
@@ -106,7 +107,7 @@
             },
             "Resource": "arn:aws:states:::aws-sdk:dynamodb:query",
             "Assign": {
-                "players": "{% $states.result.Items %}"
+                "players": "{% $append($players, $states.result.Items) %}"
             },
             "Next": "players_query_choice"
         },
@@ -127,9 +128,9 @@
             "Type": "Parallel",
             "Branches": [
                 {
-                    "StartAt": "reorder_worksheets",
+                    "StartAt": "reorder_worksheets_invoke",
                     "States": {
-                        "reorder_worksheets": {
+                        "reorder_worksheets_invoke": {
                             "Type": "Task",
                             "Resource": "arn:aws:states:::lambda:invoke",
                             "Output": "{% $states.result.Payload %}",

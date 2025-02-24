@@ -44,5 +44,9 @@
   },
   "UpdateGeneralSkillSheetFunction": {
     "MY_AWS_REGION": "ap-northeast-1"
+  },
+  "GetYtsheetDataFunction": {
+    "MY_AWS_REGION": "ap-northeast-1",
+    "MY_BUCKET_NAME": "summarize-character-sheets-bucket"
   }
 }
