@@ -1,0 +1,45 @@
+{
+  "Environment": {
+    "spreadsheet_id": {
+      "S": ""
+    },
+    "season_id": {
+      "N": "3"
+    }
+  },
+  "GoogleServiceAccount": {
+    "token_uri": {
+      "S": ""
+    },
+    "private_key_id": {
+      "S": ""
+    },
+    "client_x509_cert_url": {
+      "S": ""
+    },
+    "universe_domain": {
+      "S": ""
+    },
+    "project_id": {
+      "S": ""
+    },
+    "auth_provider_x509_cert_url": {
+      "S": ""
+    },
+    "auth_uri": {
+      "S": ""
+    },
+    "client_email": {
+      "S": ""
+    },
+    "private_key": {
+      "S": ""
+    },
+    "type": {
+      "S": ""
+    },
+    "client_id": {
+      "S": ""
+    }
+  }
+}

@@ -1,82 +1,689 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
 Description: >
   SummarizeCharacterSheets
 
-  Sample SAM Template for SummarizeCharacterSheets
+  SW2.5 のキャラクターシートをスプレッドシートに集計する StepFunctions
+
+Parameters:
+  PlayersSeasonIdNameIndexName:
+    Type: String
+    Default: season_id_name_index
+    Description: プレイヤーテーブルのシーズンIDと名前のインデックス名
+  MyBucketName:
+    Type: String
+    Default: summarize-character-sheets-bucket
+    Description: バケット名
+  BackupVaultName:
+    Type: String
+    Default: summarize_character_sheets_vault
+    Description: バックアップ用のボールト名
 
 Resources:
-  StockTradingStateMachine:
-    Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
+  # Step Functions
+  # メイン処理
+  SummarizeCharacterSheetsStateMachine:
+    Type: AWS::Serverless::StateMachine
     Properties:
-      DefinitionUri: statemachine/stock_trader.asl.json
+      Name: !Sub ${AWS::StackName}_summarize_character_sheets
+      DefinitionUri: statemachine/summarize_character_sheets.asl.json
       DefinitionSubstitutions:
-        StockCheckerFunctionArn: !GetAtt StockCheckerFunction.Arn
-        StockSellerFunctionArn: !GetAtt StockSellerFunction.Arn
-        StockBuyerFunctionArn: !GetAtt StockBuyerFunction.Arn
-        DDBPutItem: !Sub arn:${AWS::Partition}:states:::dynamodb:putItem
-        DDBTable: !Ref TransactionTable
+        UpdateSpreadSheetStateMachineArn: !GetAtt UpdateSpreadSheetStateMachine.Arn
+        GetYtsheetDataFunctionArn: !GetAtt GetYtsheetDataFunction.Arn
+        MyBucketName: !Ref MyBucketName
+        EnvironmentsTable: !Ref EnvironmentsTable
+        PlayersTable: !Ref PlayersTable
       Events:
         HourlyTradingSchedule:
-          Type: Schedule # More info about Schedule Event Source: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-statemachine-schedule.html
+          Type: Schedule
           Properties:
-            Description: Schedule to run the stock trading state machine every hour
-            Enabled: False # This schedule is disabled by default to avoid incurring charges.
-            Schedule: "rate(1 hour)"
-      Policies: # Find out more about SAM policy templates: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-templates.html
+            Description: 8時間ごとに定期実行
+            Input: '{"environment_id" : 3}'
+            Schedule: cron(0 1/8 ? * * *)
+      Policies:
+        - StepFunctionsExecutionPolicy:
+            StateMachineName: !GetAtt UpdateSpreadSheetStateMachine.Name
         - LambdaInvokePolicy:
-            FunctionName: !Ref StockCheckerFunction
-        - LambdaInvokePolicy:
-            FunctionName: !Ref StockSellerFunction
-        - LambdaInvokePolicy:
-            FunctionName: !Ref StockBuyerFunction
-        - DynamoDBWritePolicy:
-            TableName: !Ref TransactionTable
+            FunctionName: !Ref GetYtsheetDataFunction
+        - DynamoDBReadPolicy:
+            TableName: !Ref EnvironmentsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref PlayersTable
+        - !Ref ExecutionChildStepFunctionsPolicy
 
-  StockCheckerFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
+  # スプレッドシート更新
+  UpdateSpreadSheetStateMachine:
+    Type: AWS::Serverless::StateMachine
     Properties:
-      CodeUri: functions/stock_checker/
-      Handler: app.lambda_handler
-      Runtime: python3.9
-      Architectures:
-        - x86_64
+      Name: !Sub ${AWS::StackName}_update_spread_sheet
+      DefinitionUri: statemachine/update_spread_sheet.asl.json
+      DefinitionSubstitutions:
+        ReorderWorksheetsFunctionArn: !GetAtt ReorderWorksheetsFunction.Arn
+        UpdatePlayerSheetFunctionArn: !GetAtt UpdatePlayerSheetFunction.Arn
+        UpdateBasicSheetFunctionArn: !GetAtt UpdateBasicSheetFunction.Arn
+        UpdateAbilitySheetFunctionArn: !GetAtt UpdateAbilitySheetFunction.Arn
+        UpdateStatusSheetFunctionArn: !GetAtt UpdateStatusSheetFunction.Arn
+        UpdateCombatSkillSheetFunctionArn: !GetAtt UpdateCombatSkillSheetFunction.Arn
+        UpdateHonorSheetFunctionArn: !GetAtt UpdateHonorSheetFunction.Arn
+        UpdateAbyssCurseSheetFunctionArn: !GetAtt UpdateAbyssCurseSheetFunction.Arn
+        UpdateGeneralSkillSheetFunctionArn: !GetAtt UpdateGeneralSkillSheetFunction.Arn
+        MyBucketName: !Ref MyBucketName
+        EnvironmentsTable: !Ref EnvironmentsTable
+        LevelCapsTable: !Ref LevelCapsTable
+        GoogleServiceAccountsTable: !Ref GoogleServiceAccountsTable
+        PlayersTable: !Ref PlayersTable
+      Policies:
+        - LambdaInvokePolicy:
+            FunctionName: !Ref ReorderWorksheetsFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref UpdatePlayerSheetFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref UpdateBasicSheetFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref UpdateAbilitySheetFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref UpdateStatusSheetFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref UpdateCombatSkillSheetFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref UpdateHonorSheetFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref UpdateAbyssCurseSheetFunction
+        - LambdaInvokePolicy:
+            FunctionName: !Ref UpdateGeneralSkillSheetFunction
+        - DynamoDBReadPolicy:
+            TableName: !Ref EnvironmentsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref LevelCapsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref GoogleServiceAccountsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref PlayersTable
 
-  StockSellerFunction:
+  # Lambda
+  # ゆとシートデータ取得Lambda
+  GetYtsheetDataFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: functions/stock_seller/
+      FunctionName: !Sub ${AWS::StackName}_get_ytsheet_data
+      Description: ゆとシータからデータを取得し、S3に出力する
+      CodeUri: functions/get_ytsheet_data/
       Handler: app.lambda_handler
       Runtime: python3.9
+      Timeout: 60
       Architectures:
         - x86_64
+      Layers:
+        - !Ref MyLayer
+      Policies:
+        - !Ref S3Policy
+      Environment:
+        Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
+          MY_BUCKET_NAME: !Ref MyBucketName
 
-  StockBuyerFunction:
+  # ワークシート並べ替えLambda
+  ReorderWorksheetsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: functions/stock_buyer/
+      FunctionName: !Sub ${AWS::StackName}_reorder_worksheets
+      Description: ワークシートを並べ変える
+      CodeUri: functions/reorder_worksheets/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 60
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref MyLayer
+      Environment:
+        Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
+
+  # PLシート更新Lambda
+  UpdatePlayerSheetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}_update_player_sheet
+      Description: PL シートを更新する
+      CodeUri: functions/update_player_sheet/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 60
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref MyLayer
+      Policies:
+        - !Ref S3Policy
+      Environment:
+        Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
+
+  # 基本シート更新Lambda
+  UpdateBasicSheetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}_update_basic_sheet
+      Description: 基本シートを更新する
+      CodeUri: functions/update_basic_sheet/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 60
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref MyLayer
+      Policies:
+        - !Ref S3Policy
+      Environment:
+        Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
+
+  # 技能シート更新Lambda
+  UpdateAbilitySheetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}_update_ability_sheet
+      Description: 技能シートを更新する
+      CodeUri: functions/update_ability_sheet/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 60
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref MyLayer
+      Policies:
+        - !Ref S3Policy
+      Environment:
+        Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
+
+  # 能力値シート更新Lambda
+  UpdateStatusSheetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}_update_status_sheet
+      Description: 能力値シートを更新する
+      CodeUri: functions/update_status_sheet/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 60
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref MyLayer
+      Policies:
+        - !Ref S3Policy
+      Environment:
+        Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
+
+  # 戦闘特技シート更新Lambda
+  UpdateCombatSkillSheetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}_update_combat_skill_sheet
+      Description: 戦闘特技シートを更新する
+      CodeUri: functions/update_combat_skill_sheet/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 60
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref MyLayer
+      Policies:
+        - !Ref S3Policy
+      Environment:
+        Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
+
+  # 名誉点・流派シート更新Lambda
+  UpdateHonorSheetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}_update_honor_sheet
+      Description: 名誉点・流派シートを更新する
+      CodeUri: functions/update_honor_sheet/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 60
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref MyLayer
+      Policies:
+        - !Ref S3Policy
+      Environment:
+        Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
+
+  # アビスカースシート更新Lambda
+  UpdateAbyssCurseSheetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}_update_abyss_curse_sheet
+      Description: アビスカースシートを更新する
+      CodeUri: functions/update_abyss_curse_sheet/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 60
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref MyLayer
+      Policies:
+        - !Ref S3Policy
+      Environment:
+        Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
+
+  # 一般技能シート更新Lambda
+  UpdateGeneralSkillSheetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}_update_general_skill_sheet
+      Description: 一般技能シートを更新する
+      CodeUri: functions/update_general_skill_sheet/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 60
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref MyLayer
+      Policies:
+        - !Ref S3Policy
+      Environment:
+        Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
+
+  # レベルキャップ登録Lambda
+  InsertLevelCapsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}_insert_level_caps
+      Description: レベルキャップテーブルにレコードを追加する
+      CodeUri: functions/insert_level_caps/
       Handler: app.lambda_handler
       Runtime: python3.9
       Architectures:
         - x86_64
+      Layers:
+        - !Ref MyLayer
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LevelCapsTable
+      Environment:
+        Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
+          LEVEL_CAPS_TABLE_NAME: !Ref LevelCapsTable
 
-  TransactionTable:
-    Type: AWS::Serverless::SimpleTable # More info about SimpleTable Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-simpletable.html
+  # PL登録Lambda
+  InsertPlayersFunction:
+    Type: AWS::Serverless::Function
     Properties:
-      PrimaryKey:
-        Name: Id
-        Type: String
+      FunctionName: !Sub ${AWS::StackName}_insert_players
+      Description: PLテーブルにレコードを追加する
+      CodeUri: functions/insert_players/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref MyLayer
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref PlayersTable
+      Environment:
+        Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
+          PLAYERS_TABLE_NAME: !Ref PlayersTable
+          PLAYERS_SEASON_ID_NAME_INDEX_NAME: !Ref PlayersSeasonIdNameIndexName
+
+  # DynamoDBバックアップLambda
+  BackupDynamoDbFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}_backup_dynamo_db
+      Description: DynamoDB のバックアップを取る
+      CodeUri: functions/backup_dynamo_db/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 60
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref MyLayer
+      Policies:
+        - !Ref DynamoDbPolicy
+        - !Ref S3Policy
+      Environment:
+        Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
+
+  # DynamoDBリストアLambda
+  RestoreDynamoDbFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}_restore_dynamo_db
+      Description: DynamoDB をリストアする
+      CodeUri: functions/restore_dynamo_db/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Timeout: 60
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref MyLayer
+      Policies:
+        - !Ref DynamoDbPolicy
+        - !Ref S3Policy
+      Environment:
+        Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
+
+  # DynamoDBレコード登録Lambda
+  InsertDynamoDbFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}_insert_dynamo_db
+      Description: DynamoDB にレコードを登録する
+      CodeUri: functions/insert_dynamo_db/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref MyLayer
+      Policies:
+        - !Ref DynamoDbPolicy
+      Environment:
+        Variables:
+          MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
+          PREFIX: !Ref AWS::StackName
+
+  # Layer
+  MyLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: !Sub ${AWS::StackName}_my_layer
+      ContentUri: layers/
+      Description: SummarizeCharacterSheets 用のレイヤー
+      CompatibleRuntimes:
+        - python3.9
+    Metadata:
+      BuildMethod: python3.9
+      BuildArchitecture: x86_64
+
+  # DynamoDB
+  # レベルキャップ
+  LevelCapsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${AWS::StackName}_level_caps
+      AttributeDefinitions:
+        - AttributeName: season_id
+          AttributeType: N
+        - AttributeName: start_datetime
+          AttributeType: S
+      KeySchema:
+        - AttributeName: season_id
+          KeyType: HASH
+        - AttributeName: start_datetime
+          KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
 
-Outputs:
-  # StockTradingStateMachineHourlyTradingSchedule is an implicit Schedule event rule created out of Events key under Serverless::StateMachine
-  # Find out more about other implicit resources you can reference within SAM
-  # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-specification-generated-resources.html
-  StockTradingStateMachineArn:
-    Description: "Stock Trading State machine ARN"
-    Value: !Ref StockTradingStateMachine
-  StockTradingStateMachineRoleArn:
-    Description: "IAM Role created for Stock Trading State machine based on the specified SAM Policy Templates"
-    Value: !GetAtt StockTradingStateMachineRole.Arn
+  # PL
+  PlayersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${AWS::StackName}_players
+      AttributeDefinitions:
+        - AttributeName: season_id
+          AttributeType: N
+        - AttributeName: id
+          AttributeType: N
+        - AttributeName: name
+          AttributeType: S
+      KeySchema:
+        - AttributeName: season_id
+          KeyType: HASH
+        - AttributeName: id
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: !Ref PlayersSeasonIdNameIndexName
+          KeySchema:
+            - AttributeName: season_id
+              KeyType: HASH
+            - AttributeName: name
+              KeyType: RANGE
+          Projection: { ProjectionType: ALL }
+          ProvisionedThroughput:
+            ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+  # Googleサービスアカウント
+  GoogleServiceAccountsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${AWS::StackName}_google_service_accounts
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: N
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+  # 環境情報
+  EnvironmentsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${AWS::StackName}_environments
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: N
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+  # DynamoDB Auto Scaling
+  # PL 読み込み
+  PlayersReadCapacityScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: 20
+      MinCapacity: 1
+      ResourceId: !Sub table/${PlayersTable}
+      RoleARN: !Sub arn:aws:iam::${AWS::AccountId}:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable
+      ScalableDimension: dynamodb:table:ReadCapacityUnits
+      ServiceNamespace: dynamodb
+
+  # PL 書き込み
+  PlayersWriteCapacityScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: 10
+      MinCapacity: 1
+      ResourceId: !Sub table/${PlayersTable}
+      RoleARN: !Sub arn:aws:iam::${AWS::AccountId}:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable
+      ScalableDimension: dynamodb:table:WriteCapacityUnits
+      ServiceNamespace: dynamodb
+
+  # PL インデックス書き込み
+  PlayersSeasonIdIndexWriteCapacityScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: 10
+      MinCapacity: 1
+      ResourceId: !Sub table/${PlayersTable}/index/${PlayersSeasonIdNameIndexName}
+      RoleARN: !Sub arn:aws:iam::${AWS::AccountId}:role/aws-service-role/dynamodb.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_DynamoDBTable
+      ScalableDimension: dynamodb:index:WriteCapacityUnits
+      ServiceNamespace: dynamodb
+
+  # DynamoDB Auto Scaling Policy
+  # PL 読み込み
+  PlayersReadScalingPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: !Sub ${PlayersTable}_read_scaling_policy
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref PlayersReadCapacityScalableTarget
+      TargetTrackingScalingPolicyConfiguration:
+        TargetValue: 70.0
+        PredefinedMetricSpecification:
+          PredefinedMetricType: DynamoDBReadCapacityUtilization
+
+  # PL 書き込み
+  PlayersWriteScalingPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: !Sub ${PlayersTable}_write_scaling_policy
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref PlayersWriteCapacityScalableTarget
+      TargetTrackingScalingPolicyConfiguration:
+        TargetValue: 70.0
+        PredefinedMetricSpecification:
+          PredefinedMetricType: DynamoDBWriteCapacityUtilization
+
+  # PL インデックス書き込み
+  PlayersSeasonIdIndexWriteScalingPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: !Sub ${PlayersTable}_${PlayersSeasonIdNameIndexName}_write_scaling_policy
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref PlayersSeasonIdIndexWriteCapacityScalableTarget
+      TargetTrackingScalingPolicyConfiguration:
+        TargetValue: 70.0
+        PredefinedMetricSpecification:
+          PredefinedMetricType: DynamoDBWriteCapacityUtilization
+
+  # バックアッププラン
+  BackupPlan:
+    Type: AWS::Backup::BackupPlan
+    Properties:
+      BackupPlan:
+        BackupPlanName: !Sub ${AWS::StackName}_backup_plan
+        BackupPlanRule:
+          - RuleName: !Sub ${AWS::StackName}_backup_rule
+            TargetBackupVault: !Ref BackupVaultName
+            ScheduleExpression: cron(0 19 * * ? *)
+            StartWindowMinutes: 60
+            CompletionWindowMinutes: 120
+            Lifecycle:
+              DeleteAfterDays: 7
+
+  # バックアップ対象
+  BackupSelection:
+    Type: AWS::Backup::BackupSelection
+    Properties:
+      BackupPlanId: !Ref BackupPlan
+      BackupSelection:
+        SelectionName: !Sub ${AWS::StackName}_backup_selection
+        IamRoleArn: !Sub arn:aws:iam::${AWS::AccountId}:role/service-role/AWSBackupDefaultServiceRole
+        Resources:
+          - !GetAtt PlayersTable.Arn
+
+  # ポリシー
+  # S3アクセスポリシー
+  S3Policy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:ListBucket
+              - s3:GetObject
+              - s3:PutObject
+            Resource:
+              - !Sub arn:aws:s3:::${MyBucketName}
+              - !Sub arn:aws:s3:::${MyBucketName}/*
+
+  # DynamoDB汎用アクセスポリシー
+  DynamoDbPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - dynamodb:BatchWriteItem
+              - dynamodb:Scan
+              - dynamodb:DescribeTable
+              - dynamodb:UpdateTable
+            Resource: "*"
+            Condition:
+              StringLike:
+                dynamodb:TableName: !Sub ${AWS::StackName}_*
+
+  # 入れ子のStep Functions実行用ポリシー
+  ExecutionChildStepFunctionsPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - events:PutTargets
+              - events:PutRule
+              - events:DescribeRule
+            Resource:
+              - !Sub arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:rule/StepFunctionsGetEventsForStepFunctionsExecutionRule
+
+  # Custom Resource
+  # レベルキャップの初期データ登録
+  InitialLevelCapsCustomResource:
+    Type: Custom::InitialLevelCaps
+    Properties:
+      ServiceToken: !GetAtt InsertLevelCapsFunction.Arn
+      InputData:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: functions/initial_data/insert_level_caps.json
+
+  # sam delete時のDynamoDBバックアップ
+  BackupDynamoDbCustomResource:
+    Type: Custom::BackupDynamoDb
+    Properties:
+      ServiceToken: !GetAtt BackupDynamoDbFunction.Arn
+      TableNames:
+        - !Ref PlayersTable
+      BucketName: !Ref MyBucketName
+
+  # デプロイ時のDynamoDBリストア
+  RestoreDynamoDbCustomResource:
+    Type: Custom::RestoreDynamoDb
+    Properties:
+      ServiceToken: !GetAtt RestoreDynamoDbFunction.Arn
+      TableNames:
+        - !Ref PlayersTable
+      BucketName: !Ref MyBucketName
+
+  # その他テーブルの初期データ登録
+  InitialDynamoDbCustomResource:
+    Type: Custom::InitialDynamoDb
+    Properties:
+      ServiceToken: !GetAtt InsertDynamoDbFunction.Arn
+      InputData:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: functions/initial_data/insert_dynamo_db.json
