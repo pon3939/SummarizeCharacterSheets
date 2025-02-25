@@ -1,4 +1,18 @@
 {
   "SeasonId": 4,
-  "Players": []
+  "Player": {
+    "id": {
+      "N": "1"
+    },
+    "ytsheet_ids": {
+      "L": [
+        {
+          "S": "3QkdlI"
+        },
+        {
+          "S": "EyaOnh"
+        }
+      ]
+    }
+  }
 }

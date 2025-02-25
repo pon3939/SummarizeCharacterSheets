@@ -125,7 +125,7 @@ def putPlayers(players: list[dict], seasonId: int, maxId: int):
                 ConvertJsonToDynamoDB(
                     {
                         ":new_ytsheet_id": [player["YtsheetId"]],
-                        ":update_time": (GetCurrentDateTimeForDynamoDB()),
+                        ":update_time": GetCurrentDateTimeForDynamoDB(),
                     }
                 ),
             )
