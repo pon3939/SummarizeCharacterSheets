@@ -13,6 +13,7 @@ from .constants.aws import (
 )
 from .my_s3_client import MyS3Client
 from .player import Player
+from .player_character import PlayerCharacter
 
 """
 汎用関数
@@ -93,24 +94,26 @@ def initializePlayers(
     s3: MyS3Client = MyS3Client()
     players: list[Player] = []
     for playerJson in playerJsons:
-        characters: list[dict[str, Any]] = []
-        for ytsheetId in playerJson["ytsheet_ids"]:
+        characters: list[PlayerCharacter] = []
+        playerName: str = playerJson["name"]
+        for character in playerJson["characters"]:
             # S3から取得
-            characters.append(
-                s3.GetPlayerCharacterObject(bucketName, seasonId, ytsheetId)
+            playerCharacterJson: dict[str, Any] = s3.GetPlayerCharacterObject(
+                bucketName, seasonId, character["ytsheet_id"]
             )
-
-        playerName: Any = playerJson["name"]
-        updateTime: Any = playerJson["update_time"]
-        if not isinstance(playerName, str) or not isinstance(playerName, str):
-            raise Exception("playersのフォーマットが不正です")
+            characters.append(
+                PlayerCharacter(
+                    playerCharacterJson,
+                    playerName,
+                    levelCap["max_exp"],
+                    levelCap["minimum_exp"],
+                    character["update_datetime"],
+                )
+            )
 
         players.append(
             Player(
                 playerName,
-                updateTime,
-                levelCap["max_exp"],
-                levelCap["minimum_exp"],
                 characters,
             )
         )

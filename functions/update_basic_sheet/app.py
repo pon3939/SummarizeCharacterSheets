@@ -21,6 +21,7 @@ from my_modules.constants.spread_sheet import (
     TOTAL_GAME_COUNT_HEADER_TEXT,
     TOTAL_TEXT,
     TRUE_STRING,
+    UPDATE_DATETIME_HEADER_TEXT,
     VAGRANTS_HEADER_TEXT,
 )
 from my_modules.my_dynamo_db_client import ConvertDynamoDBToJson
@@ -96,6 +97,7 @@ def updateBasicSheet(
         TOTAL_GAME_COUNT_HEADER_TEXT,
         "累計ガメル",
         DIED_TIMES_HEADER_TEXT,
+        UPDATE_DATETIME_HEADER_TEXT,
     ]
     updateData.append(header)
 
@@ -161,6 +163,9 @@ def updateBasicSheet(
 
             # 死亡
             row.append(character.DiedTimes)
+
+            # 更新日時
+            row.append(character.UpdateDatetime.strftime("%Y/%m/%d %H:%M:%S"))
 
             updateData.append(row)
 

@@ -38,8 +38,10 @@ def lambda_handler(event: dict, context: LambdaContext):
     seasonId: int = int(event["SeasonId"])
     player: dict = ConvertDynamoDBToJson(event["Player"])
     playerId: int = int(player["id"])
-    ytsheetIds: list[str] = player["ytsheet_ids"]
-    getYtsheetData(seasonId, playerId, ytsheetIds)
+    characters: list[dict] = player["characters"]
+    getYtsheetData(
+        seasonId, playerId, list(map(lambda x: x["ytsheet_id"], characters))
+    )
 
 
 def getYtsheetData(
@@ -57,6 +59,7 @@ def getYtsheetData(
 
     s3: MyS3Client = MyS3Client()
     dynamoDb: MyDynamoDBClient = MyDynamoDBClient()
+    updateCharacters: list[dict[str, str]] = []
     for ytsheetId in ytsheetIds:
         # ゆとシートにアクセス
         response: Response = get(f"{MakeYtsheetUrl(ytsheetId)}&mode=json")
@@ -73,6 +76,14 @@ def getYtsheetData(
             getenv(MY_BUCKET_NAME, ""), seasonId, ytsheetId, responseText
         )
 
+        # 更新情報を追加
+        updateCharacters.append(
+            {
+                "ytsheet_id": ytsheetId,
+                "update_datetime": GetCurrentDateTimeForDynamoDB(),
+            }
+        )
+
         if ytsheetIds.index(ytsheetId) != len(ytsheetIds) - 1:
             # 連続アクセスを避けるために待機
             sleep(int(getenv(GET_YTSHEET_INTERVAL_SECONDS, "5")))
@@ -81,10 +92,10 @@ def getYtsheetData(
     dynamoDb.UpdateItem(
         getenv(PLAYERS_TABLE_NAME, ""),
         ConvertJsonToDynamoDB({"season_id": seasonId, "id": playerId}),
-        "SET update_time = :update_time",
+        "SET characters = :characters",
         ConvertJsonToDynamoDB(
             {
-                ":update_time": GetCurrentDateTimeForDynamoDB(),
+                ":characters": updateCharacters,
             }
         ),
     )

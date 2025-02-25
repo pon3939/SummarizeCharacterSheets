@@ -109,9 +109,19 @@ def putPlayers(players: list[dict], seasonId: int, maxId: int):
             ),
             {"#name": "name"},
             getenv(PLAYERS_SEASON_ID_NAME_INDEX_NAME, ""),
+            limit=1,
+        )
+
+        newCharacters: list[dict[str, str]] = list(
+            map(
+                lambda x: {
+                    "ytsheet_id": x,
+                    "update_datetime": GetCurrentDateTimeForDynamoDB(),
+                },
+                player["YtsheetIds"],
+            )
         )
         existsPlayers: list[dict] = ConvertDynamoDBToJson(queryResult["Items"])
-
         if len(existsPlayers) > 0:
             # 更新
             DynamoDb.UpdateItem(
@@ -119,15 +129,8 @@ def putPlayers(players: list[dict], seasonId: int, maxId: int):
                 ConvertJsonToDynamoDB(
                     {"season_id": seasonId, "id": existsPlayers[0]["id"]}
                 ),
-                "SET ytsheet_ids = "
-                " list_append(ytsheet_ids, :new_ytsheet_id), "
-                " update_time = :update_time",
-                ConvertJsonToDynamoDB(
-                    {
-                        ":new_ytsheet_id": [player["YtsheetId"]],
-                        ":update_time": GetCurrentDateTimeForDynamoDB(),
-                    }
-                ),
+                "SET characters = list_append(characters, :new_characters) ",
+                ConvertJsonToDynamoDB({":new_characters": newCharacters}),
             )
             continue
 
@@ -137,8 +140,7 @@ def putPlayers(players: list[dict], seasonId: int, maxId: int):
             "season_id": seasonId,
             "id": id,
             "name": player["Name"],
-            "ytsheet_ids": [player["YtsheetId"]],
-            "update_time": GetCurrentDateTimeForDynamoDB(),
+            "characters": newCharacters,
         }
         requestItem: WriteRequestTypeDef = {}
         requestItem["PutRequest"] = {"Item": {}}
