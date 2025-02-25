@@ -11,7 +11,7 @@ from my_modules.constants.env_keys import (
 from my_modules.my_dynamo_db_client import (
     ConvertDynamoDBToJson,
     ConvertJsonToDynamoDB,
-    GetCurrentDateTimeForDynamoDB,
+    CreatePlayerCharacterForDynamoDb,
     MyDynamoDBClient,
 )
 from mypy_boto3_dynamodb.type_defs import (
@@ -114,10 +114,7 @@ def putPlayers(players: list[dict], seasonId: int, maxId: int):
 
         newCharacters: list[dict[str, str]] = list(
             map(
-                lambda x: {
-                    "ytsheet_id": x,
-                    "update_datetime": GetCurrentDateTimeForDynamoDB(),
-                },
+                lambda x: CreatePlayerCharacterForDynamoDb(x),
                 player["YtsheetIds"],
             )
         )
