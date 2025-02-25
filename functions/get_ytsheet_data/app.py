@@ -59,6 +59,7 @@ def getYtsheetData(
     s3: MyS3Client = MyS3Client()
     dynamoDb: MyDynamoDBClient = MyDynamoDBClient()
     updateCharacters: list[dict[str, str]] = []
+    isAccessedYtsheet: bool = False
     for character in characters:
         ytsheetId: str = character["ytsheet_id"]
         updateCharacter: dict[str, Any] = {}
@@ -67,6 +68,12 @@ def getYtsheetData(
                 ytsheetId, character["update_datetime"], True
             )
         else:
+            if isAccessedYtsheet:
+                # 連続アクセスを避けるために待機
+                sleep(int(getenv(GET_YTSHEET_INTERVAL_SECONDS, "5")))
+
+            isAccessedYtsheet = True
+
             # ゆとシートにアクセス
             response: Response = get(f"{MakeYtsheetUrl(ytsheetId)}&mode=json")
 
@@ -86,10 +93,6 @@ def getYtsheetData(
 
         # 更新情報を追加
         updateCharacters.append(updateCharacter)
-
-        if characters.index(character) != len(characters) - 1:
-            # 連続アクセスを避けるために待機
-            sleep(int(getenv(GET_YTSHEET_INTERVAL_SECONDS, "5")))
 
     # 最終更新日時を更新
     dynamoDb.UpdateItem(
