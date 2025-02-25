@@ -18,6 +18,10 @@ Parameters:
     Type: String
     Default: summarize_character_sheets_vault
     Description: バックアップ用のボールト名
+  GetYtsheetIntervalSeconds:
+    Type: String
+    Default: "5"
+    Description: ゆとシートにアクセスする間隔
 
 Resources:
   # Step Functions
@@ -33,6 +37,7 @@ Resources:
         MyBucketName: !Ref MyBucketName
         EnvironmentsTable: !Ref EnvironmentsTable
         PlayersTable: !Ref PlayersTable
+        GetYtsheetIntervalSeconds: !Ref GetYtsheetIntervalSeconds
       Events:
         HourlyTradingSchedule:
           Type: Schedule
@@ -117,10 +122,14 @@ Resources:
         - !Ref MyLayer
       Policies:
         - !Ref S3Policy
+        - DynamoDBCrudPolicy:
+            TableName: !Ref PlayersTable
       Environment:
         Variables:
           MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
           MY_BUCKET_NAME: !Ref MyBucketName
+          PLAYERS_TABLE_NAME: !Ref PlayersTable
+          GET_YTSHEET_INTERVAL_SECONDS: !Ref GetYtsheetIntervalSeconds
 
   # ワークシート並べ替えLambda
   ReorderWorksheetsFunction:

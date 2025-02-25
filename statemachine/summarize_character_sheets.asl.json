@@ -7,7 +7,8 @@
             "Type": "Pass",
             "Next": "environments_query",
             "Assign": {
-                "environment_id": "{% $states.input.environment_id %}"
+                "environment_id": "{% $states.input.environment_id %}",
+                "get_ytsheet_interval_seconds": "${GetYtsheetIntervalSeconds}"
             }
         },
         "environments_query": {
@@ -32,7 +33,7 @@
             "Type": "Task",
             "Arguments": {
                 "TableName": "${PlayersTable}",
-                "ProjectionExpression": "ytsheet_ids",
+                "ProjectionExpression": "id, ytsheet_ids",
                 "KeyConditionExpression": "season_id = :season_id",
                 "ExpressionAttributeValues": {
                     ":season_id": {
@@ -84,7 +85,7 @@
                             "FunctionName": "${GetYtsheetDataFunctionArn}",
                             "Payload": {
                                 "SeasonId": "{% $season_id %}",
-                                "Players": "{% $players %}"
+                                "Player": "{% $states.input %}"
                             }
                         },
                         "Retry": [
@@ -105,7 +106,7 @@
                     },
                     "get_ytsheet_wait": {
                         "Type": "Wait",
-                        "Seconds": 5,
+                        "Seconds": "{% $number($get_ytsheet_interval_seconds) %}",
                         "End": true
                     }
                 }

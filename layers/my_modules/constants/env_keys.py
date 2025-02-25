@@ -10,6 +10,9 @@ MY_AWS_REGION: str = "MY_AWS_REGION"
 # リソース名のプレフィックス
 PREFIX: str = "PREFIX"
 
+# ゆとシートにアクセスする感覚
+GET_YTSHEET_INTERVAL_SECONDS: str = "GET_YTSHEET_INTERVAL_SECONDS"
+
 # バケット名
 MY_BUCKET_NAME: str = "MY_BUCKET_NAME"
 
