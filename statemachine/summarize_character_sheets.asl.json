@@ -33,7 +33,7 @@
             "Type": "Task",
             "Arguments": {
                 "TableName": "${PlayersTable}",
-                "ProjectionExpression": "id, ytsheet_ids",
+                "ProjectionExpression": "id, characters",
                 "KeyConditionExpression": "season_id = :season_id",
                 "ExpressionAttributeValues": {
                     ":season_id": {

@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from dataclasses import dataclass
+from datetime import datetime
 from re import Match, findall, search, sub
 from typing import Union
 
 from .constants import sword_world
 from .exp_status import ExpStatus
 from .general_skill import GeneralSkill
+from .my_dynamo_db_client import StrForDynamoDBToDateTime
 from .status import Status
 from .style import Style
 
@@ -37,6 +39,7 @@ class PlayerCharacter:
         playerName: str,
         maxExp: int,
         minimumExp: int,
+        strUpdateTime: str,
     ):
         """
         コンストラクタ
@@ -46,7 +49,10 @@ class PlayerCharacter:
             playerName str: 最終更新日時
             maxExp int: 最大経験点
             minimumExp int: 最小経験点
+            strUpdateTime str: 最終更新日時
         """
+        self.UpdateDatetime: datetime = StrForDynamoDBToDateTime(strUpdateTime)
+
         # 文字列
         self.YtsheetId: str = characterJson["id"]
         self.Race: str = characterJson.get("race", "")

@@ -139,7 +139,7 @@ def updatePlayerSheet(
         row.append(playerTimes + gameMasterTimes)
 
         # 更新日時
-        row.append(player.UpdateTime)
+        row.append(player.GetUpdateDatetime().strftime("%Y/%m/%d %H:%M:%S"))
 
         updateData.append(row)
 

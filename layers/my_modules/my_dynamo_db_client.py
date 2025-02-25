@@ -286,6 +286,9 @@ def _ConvertDynamoDBToJsonByTypeKey(
     if key == "S":
         # 文字列
         return value
+    elif key == "Bool":
+        # 真偽
+        return value
     elif key == "N":
         # 数値
         return float(value)
@@ -332,6 +335,9 @@ def _ConvertJsonToDynamoDBByTypeKey(
     if isinstance(value, str):
         # 文字列
         return {"S": value}
+    elif isinstance(value, bool):
+        # 真偽
+        return {"BOOL": value}
     elif isinstance(value, (int, float)):
         # 数値
         return {"N": str(value)}
@@ -345,18 +351,6 @@ def _ConvertJsonToDynamoDBByTypeKey(
         }
     else:
         raise Exception("未対応の型です")
-
-
-def GetCurrentDateTimeForDynamoDB() -> str:
-    """
-
-    DynamoDBに登録するための現在日時文字列を取得
-
-    Returns:
-        str: 現在日時文字列
-    """
-
-    return DateTimeToStrForDynamoDB(datetime.now())
 
 
 def DateTimeToStrForDynamoDB(target: datetime) -> str:
@@ -374,3 +368,30 @@ def DateTimeToStrForDynamoDB(target: datetime) -> str:
         gmt = target.astimezone(None).replace(tzinfo=None)
 
     return f"{gmt.isoformat(timespec='milliseconds')}Z"
+
+
+def CreatePlayerCharacterForDynamoDb(
+    ytsheetId: str,
+    updateDatetime: str = "",
+    isDeleted: bool = False,
+) -> dict[str, Any]:
+    """
+
+    DynamoDBに登録するためのプレイヤーキャラクター情報を作成
+
+    Args:
+        ytsheetId (str): ゆとシートのID
+        updateDatetime (str): 更新日時
+        isDeleted (str): 論理削除フラグ
+    Returns:
+        dict: プレイヤーキャラクター情報
+    """
+    return {
+        "ytsheet_id": ytsheetId,
+        "update_datetime": (
+            DateTimeToStrForDynamoDB(datetime.now())
+            if updateDatetime == ""
+            else updateDatetime
+        ),
+        "is_deleted": isDeleted,
+    }

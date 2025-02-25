@@ -4,13 +4,20 @@
     "id": {
       "N": "1"
     },
-    "ytsheet_ids": {
+    "characters": {
       "L": [
         {
-          "S": "3QkdlI"
-        },
-        {
-          "S": "EyaOnh"
+          "M": {
+            "ytsheet_id": {
+              "S": "3QkdlI"
+            },
+            "update_datetime": {
+              "S": "2025-02-25T12:48:59.712Z"
+            },
+            "is_deleted": {
+              "Bool": false
+            }
+          }
         }
       ]
     }
