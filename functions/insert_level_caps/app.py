@@ -13,6 +13,7 @@ from my_modules.constants.aws import (
     CLOUD_FORMATION_REQUEST_TYPE_MANUAL,
     CLOUD_FORMATION_STATUS_FAILED,
 )
+from my_modules.constants.common import TIMEZONE
 from my_modules.constants.env_keys import LEVEL_CAPS_TABLE_NAME
 from my_modules.my_dynamo_db_client import (
     ConvertJsonToDynamoDB,
@@ -78,7 +79,7 @@ def insertLevelCaps(
             # JSTをGMTに変換
             startDatetimeInJst: datetime = datetime.strptime(
                 levelCap["StartDatetime"], r"%Y/%m/%d"
-            ).replace(tzinfo=ZoneInfo("Asia/Tokyo"))
+            ).replace(tzinfo=ZoneInfo(TIMEZONE))
 
             requestItem: WriteRequestTypeDef = {}
             requestItem["PutRequest"] = {"Item": {}}

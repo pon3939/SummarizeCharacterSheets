@@ -9,8 +9,9 @@ from botocore.exceptions import ClientError
 from mypy_boto3_dynamodb.type_defs import AttributeValueTypeDef
 from mypy_boto3_s3.client import S3Client
 from mypy_boto3_s3.type_defs import GetObjectOutputTypeDef
+from pytz import timezone
 
-from .constants.common import BACKUP_KEY
+from .constants.common import BACKUP_KEY, TIMEZONE
 from .constants.env_keys import MY_AWS_REGION, MY_BUCKET_NAME
 
 """
@@ -135,6 +136,11 @@ class MyS3Client:
             ),
         )
 
-        return loads(
-            response["Body"].read().decode("utf-8"),
-        )
+        return {
+            "Body": loads(
+                response["Body"].read().decode("utf-8"),
+            ),
+            "LastModified": response["LastModified"].astimezone(
+                timezone(TIMEZONE)
+            ),
+        }
