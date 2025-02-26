@@ -41,8 +41,7 @@ def lambda_handler(event: dict, context: LambdaContext):
             return
 
         tableNames: list[str] = event["ResourceProperties"]["TableNames"]
-        bucketName: str = event["ResourceProperties"]["BucketName"]
-        backupDynamoDb(tableNames, bucketName)
+        backupDynamoDb(tableNames)
         putCloudFormationResponse(cloudFormationResponse)
     except Exception as e:
         putCloudFormationResponse(
@@ -52,12 +51,11 @@ def lambda_handler(event: dict, context: LambdaContext):
         )
 
 
-def backupDynamoDb(tableNames: list[str], bucketName: str):
+def backupDynamoDb(tableNames: list[str]):
     """Dynamo DBをバックアップする
 
     Args:
         tableNames: list[str]: バックアップ対象のテーブル名
-        bucketName: str: バックアップ先のバケット名
     """
     dynamoDb: MyDynamoDBClient = MyDynamoDBClient()
     s3: MyS3Client = MyS3Client()
@@ -69,7 +67,6 @@ def backupDynamoDb(tableNames: list[str], bucketName: str):
 
         # S3に保存
         s3.PutBackupObject(
-            bucketName,
             tableName,
             response["Items"],
         )

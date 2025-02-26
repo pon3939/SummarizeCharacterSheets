@@ -9,7 +9,6 @@ from aws_lambda_powertools.utilities.typing import LambdaContext
 from my_modules.common_functions import MakeYtsheetUrl
 from my_modules.constants.env_keys import (
     GET_YTSHEET_INTERVAL_SECONDS,
-    MY_BUCKET_NAME,
     PLAYERS_TABLE_NAME,
 )
 from my_modules.my_dynamo_db_client import (
@@ -85,9 +84,7 @@ def getYtsheetData(
             loads(responseText)
 
             # S3に保存
-            s3.PutPlayerCharacterObject(
-                getenv(MY_BUCKET_NAME, ""), seasonId, ytsheetId, responseText
-            )
+            s3.PutPlayerCharacterObject(seasonId, ytsheetId, responseText)
 
             updateCharacter = CreatePlayerCharacterForDynamoDb(ytsheetId)
 

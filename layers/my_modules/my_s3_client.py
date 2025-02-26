@@ -11,7 +11,7 @@ from mypy_boto3_s3.client import S3Client
 from mypy_boto3_s3.type_defs import GetObjectOutputTypeDef
 
 from .constants.common import BACKUP_KEY
-from .constants.env_keys import MY_AWS_REGION
+from .constants.env_keys import MY_AWS_REGION, MY_BUCKET_NAME
 
 """
 S3Client拡張クラス
@@ -38,7 +38,6 @@ class MyS3Client:
 
     def PutBackupObject(
         self,
-        bucketName: str,
         tableName: str,
         body: list[dict[str, AttributeValueTypeDef]],
     ) -> None:
@@ -47,26 +46,24 @@ class MyS3Client:
         バックアップオブジェクトを保存
 
         Args:
-            bucketName (str): バケット名
             tableName (str): テーブル名
             body (list[dict[str, AttributeValueTypeDef]]): バックアップデータ
         """
 
         self.Client.put_object(
-            Bucket=bucketName,
+            Bucket=getenv(MY_BUCKET_NAME, ""),
             Key=f"{self._S3_DIRECTORY_BACKUPS}/{tableName}.json",
             Body=dumps({BACKUP_KEY: body}, ensure_ascii=False),
         )
 
     def GetBackupObject(
-        self, bucketName: str, tableName: str
+        self, tableName: str
     ) -> list[dict[str, AttributeValueTypeDef]]:
         """
 
         バックアップオブジェクトを取得
 
         Args:
-            bucketName (str): バケット名
             tableName (str): ファイル名
 
         Returns:
@@ -75,7 +72,7 @@ class MyS3Client:
         try:
             # バケットからファイルを取得
             response: GetObjectOutputTypeDef = self.Client.get_object(
-                Bucket=bucketName,
+                Bucket=getenv(MY_BUCKET_NAME, ""),
                 Key=f"{self._S3_DIRECTORY_BACKUPS}/{tableName}.json",
             )
         except ClientError as e:
@@ -92,7 +89,6 @@ class MyS3Client:
 
     def PutPlayerCharacterObject(
         self,
-        bucketName: str,
         seasonId: int,
         ytsheetId: str,
         body: str,
@@ -102,14 +98,13 @@ class MyS3Client:
         PCオブジェクトを保存
 
         Args:
-            bucketName (str): バケット名
             seasonId (int): シーズンID
             ytsheetId (str): ファイル名
             body (list[dict]): ゆとシートのデータ
         """
         # バケットからファイルを取得
         self.Client.put_object(
-            Bucket=bucketName,
+            Bucket=getenv(MY_BUCKET_NAME, ""),
             Key=(
                 f"{self._S3_DIRECTORY_PLAYER_CHARACTERS}/"
                 f"{seasonId}/{ytsheetId}.json"
@@ -118,14 +113,13 @@ class MyS3Client:
         )
 
     def GetPlayerCharacterObject(
-        self, bucketName: str, seasonId: int, ytsheetId: str
+        self, seasonId: int, ytsheetId: str
     ) -> dict[str, Any]:
         """
 
         PCオブジェクトを取得
 
         Args:
-            bucketName (str): バケット名
             seasonId (int): シーズンID
             ytsheetId (str): ファイル名
 
@@ -134,7 +128,7 @@ class MyS3Client:
         """
         # バケットからファイルを取得
         response: GetObjectOutputTypeDef = self.Client.get_object(
-            Bucket=bucketName,
+            Bucket=getenv(MY_BUCKET_NAME, ""),
             Key=(
                 f"{self._S3_DIRECTORY_PLAYER_CHARACTERS}/"
                 f"{seasonId}/{ytsheetId}.json"

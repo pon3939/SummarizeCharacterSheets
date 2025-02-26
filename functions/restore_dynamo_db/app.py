@@ -44,8 +44,7 @@ def lambda_handler(event: dict, context: LambdaContext):
             return
 
         tableNames: list[str] = event["ResourceProperties"]["TableNames"]
-        bucketName: str = event["ResourceProperties"]["BucketName"]
-        restoreDynamoDb(tableNames, bucketName)
+        restoreDynamoDb(tableNames)
         putCloudFormationResponse(cloudFormationResponse)
     except Exception as e:
         putCloudFormationResponse(
@@ -55,12 +54,11 @@ def lambda_handler(event: dict, context: LambdaContext):
         )
 
 
-def restoreDynamoDb(tableNames: list[str], bucketName: str):
+def restoreDynamoDb(tableNames: list[str]):
     """Dynamo DBをリストアする
 
     Args:
         tableNames: list[str]: リストア対象のテーブル名
-        bucketName: str: リストア先のバケット名
     """
 
     dynamoDb: MyDynamoDBClient = MyDynamoDBClient()
@@ -68,7 +66,6 @@ def restoreDynamoDb(tableNames: list[str], bucketName: str):
     requestItems: dict[str, list[WriteRequestTypeDef]] = {}
     for tableName in tableNames:
         items: list[dict[str, AttributeValueTypeDef]] = s3.GetBackupObject(
-            bucketName,
             tableName,
         )
         if len(items) == 0:

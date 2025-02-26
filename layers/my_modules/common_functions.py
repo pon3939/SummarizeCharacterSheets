@@ -74,7 +74,6 @@ def putCloudFormationResponse(
 def initializePlayers(
     playerJsons: list[dict[str, Any]],
     levelCap: dict[str, Any],
-    bucketName: str,
     seasonId: int,
 ) -> list[Player]:
     """プレイヤー情報初期化
@@ -82,7 +81,6 @@ def initializePlayers(
     Args:
         playerJsons (list[dict[str, Any]]): プレイヤー情報のJSON
         levelCap (dict[str, Any]): レベルキャップ
-        bucketName (str): プレイヤー情報が保存されているバケット名
         seasonId (int): シーズンID
 
     Raises:
@@ -99,7 +97,7 @@ def initializePlayers(
         for character in playerJson["characters"]:
             # S3から取得
             playerCharacterJson: dict[str, Any] = s3.GetPlayerCharacterObject(
-                bucketName, seasonId, character["ytsheet_id"]
+                seasonId, character["ytsheet_id"]
             )
             characters.append(
                 PlayerCharacter(
