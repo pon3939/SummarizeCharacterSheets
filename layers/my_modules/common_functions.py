@@ -96,16 +96,16 @@ def initializePlayers(
         playerName: str = playerJson["name"]
         for character in playerJson["characters"]:
             # S3から取得
-            playerCharacterJson: dict[str, Any] = s3.GetPlayerCharacterObject(
-                seasonId, character["ytsheet_id"]
+            playerCharacterObject: dict[str, Any] = (
+                s3.GetPlayerCharacterObject(seasonId, character["ytsheet_id"])
             )
             characters.append(
                 PlayerCharacter(
-                    playerCharacterJson,
+                    playerCharacterObject["Body"],
                     playerName,
                     levelCap["max_exp"],
                     levelCap["minimum_exp"],
-                    character["update_datetime"],
+                    playerCharacterObject["LastModified"],
                 )
             )
 

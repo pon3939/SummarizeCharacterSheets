@@ -12,7 +12,6 @@ from mypy_boto3_dynamodb.type_defs import (
     ScanOutputTypeDef,
     WriteRequestTypeDef,
 )
-from pytz import timezone
 
 from .constants.env_keys import MY_AWS_REGION
 
@@ -203,21 +202,6 @@ class MyDynamoDBClient:
         )
 
 
-def StrForDynamoDBToDateTime(target: str) -> datetime:
-    """
-
-    DynamoDBに登録された日時文字列からdatetimeを取得
-
-    Args:
-        target str: 日時文字列
-    Returns:
-        datetime: 日時
-    """
-    isoStr = target.removesuffix("Z")
-    utc: datetime = datetime.fromisoformat(isoStr)
-    return utc.astimezone(timezone("Asia/Tokyo"))
-
-
 @singledispatch
 def ConvertDynamoDBToJson(dynamoDBData) -> Any:
     """
@@ -368,30 +352,3 @@ def DateTimeToStrForDynamoDB(target: datetime) -> str:
         gmt = target.astimezone(None).replace(tzinfo=None)
 
     return f"{gmt.isoformat(timespec='milliseconds')}Z"
-
-
-def CreatePlayerCharacterForDynamoDb(
-    ytsheetId: str,
-    updateDatetime: str = "",
-    isDeleted: bool = False,
-) -> dict[str, Any]:
-    """
-
-    DynamoDBに登録するためのプレイヤーキャラクター情報を作成
-
-    Args:
-        ytsheetId (str): ゆとシートのID
-        updateDatetime (str): 更新日時
-        isDeleted (str): 論理削除フラグ
-    Returns:
-        dict: プレイヤーキャラクター情報
-    """
-    return {
-        "ytsheet_id": ytsheetId,
-        "update_datetime": (
-            DateTimeToStrForDynamoDB(datetime.now())
-            if updateDatetime == ""
-            else updateDatetime
-        ),
-        "is_deleted": isDeleted,
-    }

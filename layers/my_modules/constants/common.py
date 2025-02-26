@@ -7,3 +7,6 @@
 
 # バックアップデータのキー
 BACKUP_KEY: str = "data"
+
+# タイムゾーン
+TIMEZONE: str = "Asia/Tokyo"

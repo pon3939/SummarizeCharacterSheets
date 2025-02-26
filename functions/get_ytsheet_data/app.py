@@ -7,16 +7,8 @@ from typing import Any
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from my_modules.common_functions import MakeYtsheetUrl
-from my_modules.constants.env_keys import (
-    GET_YTSHEET_INTERVAL_SECONDS,
-    PLAYERS_TABLE_NAME,
-)
-from my_modules.my_dynamo_db_client import (
-    ConvertDynamoDBToJson,
-    ConvertJsonToDynamoDB,
-    CreatePlayerCharacterForDynamoDb,
-    MyDynamoDBClient,
-)
+from my_modules.constants.env_keys import GET_YTSHEET_INTERVAL_SECONDS
+from my_modules.my_dynamo_db_client import ConvertDynamoDBToJson
 from my_modules.my_s3_client import MyS3Client
 from requests import Response, get
 
@@ -56,49 +48,28 @@ def getYtsheetData(
     """
 
     s3: MyS3Client = MyS3Client()
-    dynamoDb: MyDynamoDBClient = MyDynamoDBClient()
-    updateCharacters: list[dict[str, str]] = []
     isAccessedYtsheet: bool = False
     for character in characters:
-        ytsheetId: str = character["ytsheet_id"]
-        updateCharacter: dict[str, Any] = {}
         if character["is_deleted"]:
-            updateCharacter = CreatePlayerCharacterForDynamoDb(
-                ytsheetId, character["update_datetime"], True
-            )
-        else:
-            if isAccessedYtsheet:
-                # 連続アクセスを避けるために待機
-                sleep(int(getenv(GET_YTSHEET_INTERVAL_SECONDS, "5")))
+            # 削除済みの場合はスキップ
+            continue
 
-            isAccessedYtsheet = True
+        if isAccessedYtsheet:
+            # 連続アクセスを避けるために待機
+            sleep(int(getenv(GET_YTSHEET_INTERVAL_SECONDS, "5")))
 
-            # ゆとシートにアクセス
-            response: Response = get(f"{MakeYtsheetUrl(ytsheetId)}&mode=json")
+        isAccessedYtsheet = True
 
-            # ステータスコード200以外は例外発生
-            response.raise_for_status()
+        # ゆとシートにアクセス
+        ytsheetId: str = character["ytsheet_id"]
+        response: Response = get(f"{MakeYtsheetUrl(ytsheetId)}&mode=json")
 
-            # JSON形式でなければエラー
-            responseText: str = response.text
-            loads(responseText)
+        # ステータスコード200以外は例外発生
+        response.raise_for_status()
 
-            # S3に保存
-            s3.PutPlayerCharacterObject(seasonId, ytsheetId, responseText)
+        # JSON形式でなければエラー
+        responseText: str = response.text
+        loads(responseText)
 
-            updateCharacter = CreatePlayerCharacterForDynamoDb(ytsheetId)
-
-        # 更新情報を追加
-        updateCharacters.append(updateCharacter)
-
-    # 最終更新日時を更新
-    dynamoDb.UpdateItem(
-        getenv(PLAYERS_TABLE_NAME, ""),
-        ConvertJsonToDynamoDB({"season_id": seasonId, "id": playerId}),
-        "SET characters = :characters",
-        ConvertJsonToDynamoDB(
-            {
-                ":characters": updateCharacters,
-            }
-        ),
-    )
+        # S3に保存
+        s3.PutPlayerCharacterObject(seasonId, ytsheetId, responseText)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from os import getenv
-from typing import Union
+from typing import Any, Union
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from my_modules.constants.env_keys import (
@@ -11,7 +11,6 @@ from my_modules.constants.env_keys import (
 from my_modules.my_dynamo_db_client import (
     ConvertDynamoDBToJson,
     ConvertJsonToDynamoDB,
-    CreatePlayerCharacterForDynamoDb,
     MyDynamoDBClient,
 )
 from mypy_boto3_dynamodb.type_defs import (
@@ -112,9 +111,12 @@ def putPlayers(players: list[dict], seasonId: int, maxId: int):
             limit=1,
         )
 
-        newCharacters: list[dict[str, str]] = list(
+        newCharacters: list[dict[str, Any]] = list(
             map(
-                lambda x: CreatePlayerCharacterForDynamoDb(x),
+                lambda x: {
+                    "ytsheet_id": x,
+                    "is_deleted": False,
+                },
                 player["YtsheetIds"],
             )
         )
