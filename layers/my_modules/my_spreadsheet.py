@@ -3,12 +3,22 @@
 from google.oauth2 import service_account
 from gspread.auth import authorize
 from gspread.client import Client
+from gspread.exceptions import APIError
 from gspread.spreadsheet import Spreadsheet
 from gspread.worksheet import Worksheet
+from tenacity import (
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_fixed,
+)
 
 """
 Spreadsheet拡張クラス
 """
+
+_RETRY_COUNT = 3
+_RETRY_WAIT_SECOND = 5
 
 
 class MySpreadsheet:
@@ -36,6 +46,11 @@ class MySpreadsheet:
         client: Client = authorize(credentials)
         self.spreadsheet: Spreadsheet = client.open_by_key(spreadsheetId)
 
+    @retry(
+        stop=stop_after_attempt(_RETRY_COUNT),
+        wait=wait_fixed(_RETRY_WAIT_SECOND),
+        retry=retry_if_exception_type(APIError),
+    )
     def getWorksheet(self, title: str) -> Worksheet:
         """ワークシート取得
 
@@ -47,6 +62,11 @@ class MySpreadsheet:
         """
         return self.spreadsheet.worksheet(title)
 
+    @retry(
+        stop=stop_after_attempt(_RETRY_COUNT),
+        wait=wait_fixed(_RETRY_WAIT_SECOND),
+        retry=retry_if_exception_type(APIError),
+    )
     def reorderWorksheets(self, titles: list[str]):
         """シートを並び替える
 
