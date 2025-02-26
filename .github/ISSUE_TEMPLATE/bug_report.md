@@ -1,5 +1,5 @@
 ---
-name: バグ
+name: バグ報告
 about: バグ報告用テンプレート
 title: "[Bug]: "
 labels: ["bug"]
