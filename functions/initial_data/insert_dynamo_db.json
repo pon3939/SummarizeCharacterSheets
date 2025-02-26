@@ -31,14 +31,6 @@
       "Name": "environments",
       "Records": [
         {
-          "id": { "N": "1" },
-          "name": { "S": "3期" },
-          "season_id": { "N": "3" },
-          "spreadsheet_id": {
-            "S": "1jRYKwNmSDB4cfXAaMR_CaxerQeHUBsF7oNp3SsuprOc"
-          }
-        },
-        {
           "id": { "N": "2" },
           "name": { "S": "テスト" },
           "season_id": { "N": "3" },
@@ -49,7 +41,7 @@
         {
           "id": { "N": "3" },
           "name": { "S": "4期" },
-          "season_id": { "N": "4" },
+          "season_id": { "N": "3" },
           "spreadsheet_id": {
             "S": "1v3qRXJhzPK2vw-5NnDS3nW70bN-YD4p-pGUuOZDORNc"
           }

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from json import loads
 from os import getenv
 from time import sleep
 from typing import Any
@@ -29,21 +28,18 @@ def lambda_handler(event: dict, context: LambdaContext):
 
     seasonId: int = int(event["SeasonId"])
     player: dict = ConvertDynamoDBToJson(event["Player"])
-    playerId: int = int(player["id"])
     characters: list[dict] = player["characters"]
-    getYtsheetData(seasonId, playerId, characters)
+    getYtsheetData(seasonId, characters)
 
 
 def getYtsheetData(
     seasonId: int,
-    playerId: int,
     characters: list[dict[str, Any]],
 ):
     """ゆとシートデータを取得
 
     Args:
         seasonId: (int): シーズンID
-        playerId: (int): プレイヤーID
         characters: (list[dict[str, Any]]): キャラクター情報
     """
 
@@ -68,8 +64,11 @@ def getYtsheetData(
         response.raise_for_status()
 
         # JSON形式でなければエラー
-        responseText: str = response.text
-        loads(responseText)
+        if response.headers["Content-Type"] != "application/json":
+            raise Exception(
+                f"ytsheet_id={character['ytsheet_id']} : "
+                "Content-Type が application/json ではありません"
+            )
 
         # S3に保存
-        s3.PutPlayerCharacterObject(seasonId, ytsheetId, responseText)
+        s3.PutPlayerCharacterObject(seasonId, ytsheetId, response.text)
