@@ -167,6 +167,7 @@ Resources:
         - !Ref S3Policy
       Environment:
         Variables:
+          MY_BUCKET_NAME: !Ref MyBucketName
           MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
 
   # 基本シート更新Lambda
@@ -187,6 +188,7 @@ Resources:
         - !Ref S3Policy
       Environment:
         Variables:
+          MY_BUCKET_NAME: !Ref MyBucketName
           MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
 
   # 技能シート更新Lambda
@@ -207,6 +209,7 @@ Resources:
         - !Ref S3Policy
       Environment:
         Variables:
+          MY_BUCKET_NAME: !Ref MyBucketName
           MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
 
   # 能力値シート更新Lambda
@@ -227,6 +230,7 @@ Resources:
         - !Ref S3Policy
       Environment:
         Variables:
+          MY_BUCKET_NAME: !Ref MyBucketName
           MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
 
   # 戦闘特技シート更新Lambda
@@ -247,6 +251,7 @@ Resources:
         - !Ref S3Policy
       Environment:
         Variables:
+          MY_BUCKET_NAME: !Ref MyBucketName
           MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
 
   # 名誉点・流派シート更新Lambda
@@ -267,6 +272,7 @@ Resources:
         - !Ref S3Policy
       Environment:
         Variables:
+          MY_BUCKET_NAME: !Ref MyBucketName
           MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
 
   # アビスカースシート更新Lambda
@@ -287,6 +293,7 @@ Resources:
         - !Ref S3Policy
       Environment:
         Variables:
+          MY_BUCKET_NAME: !Ref MyBucketName
           MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
 
   # 一般技能シート更新Lambda
@@ -307,6 +314,7 @@ Resources:
         - !Ref S3Policy
       Environment:
         Variables:
+          MY_BUCKET_NAME: !Ref MyBucketName
           MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
 
   # レベルキャップ登録Lambda
@@ -371,6 +379,7 @@ Resources:
         - !Ref S3Policy
       Environment:
         Variables:
+          MY_BUCKET_NAME: !Ref MyBucketName
           MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
 
   # DynamoDBリストアLambda
@@ -392,6 +401,7 @@ Resources:
         - !Ref S3Policy
       Environment:
         Variables:
+          MY_BUCKET_NAME: !Ref MyBucketName
           MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
 
   # DynamoDBレコード登録Lambda
@@ -675,7 +685,6 @@ Resources:
       ServiceToken: !GetAtt BackupDynamoDbFunction.Arn
       TableNames:
         - !Ref PlayersTable
-      BucketName: !Ref MyBucketName
 
   # デプロイ時のDynamoDBリストア
   RestoreDynamoDbCustomResource:
@@ -684,7 +693,6 @@ Resources:
       ServiceToken: !GetAtt RestoreDynamoDbFunction.Arn
       TableNames:
         - !Ref PlayersTable
-      BucketName: !Ref MyBucketName
 
   # その他テーブルの初期データ登録
   InitialDynamoDbCustomResource:

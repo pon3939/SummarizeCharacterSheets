@@ -169,7 +169,6 @@
                             "Arguments": {
                                 "FunctionName": "${UpdatePlayerSheetFunctionArn}",
                                 "Payload": {
-                                    "BucketName": "${MyBucketName}",
                                     "Environment": "{% $environment %}",
                                     "GoogleServiceAccount": "{% $google_service_account %}",
                                     "LevelCap": "{% $level_cap %}",
@@ -204,7 +203,6 @@
                             "Arguments": {
                                 "FunctionName": "${UpdateBasicSheetFunctionArn}",
                                 "Payload": {
-                                    "BucketName": "${MyBucketName}",
                                     "Environment": "{% $environment %}",
                                     "GoogleServiceAccount": "{% $google_service_account %}",
                                     "LevelCap": "{% $level_cap %}",
@@ -239,7 +237,6 @@
                             "Arguments": {
                                 "FunctionName": "${UpdateAbilitySheetFunctionArn}",
                                 "Payload": {
-                                    "BucketName": "${MyBucketName}",
                                     "Environment": "{% $environment %}",
                                     "GoogleServiceAccount": "{% $google_service_account %}",
                                     "LevelCap": "{% $level_cap %}",
@@ -274,7 +271,6 @@
                             "Arguments": {
                                 "FunctionName": "${UpdateStatusSheetFunctionArn}",
                                 "Payload": {
-                                    "BucketName": "${MyBucketName}",
                                     "Environment": "{% $environment %}",
                                     "GoogleServiceAccount": "{% $google_service_account %}",
                                     "LevelCap": "{% $level_cap %}",
@@ -309,7 +305,6 @@
                             "Arguments": {
                                 "FunctionName": "${UpdateCombatSkillSheetFunctionArn}",
                                 "Payload": {
-                                    "BucketName": "${MyBucketName}",
                                     "Environment": "{% $environment %}",
                                     "GoogleServiceAccount": "{% $google_service_account %}",
                                     "LevelCap": "{% $level_cap %}",
@@ -344,7 +339,6 @@
                             "Arguments": {
                                 "FunctionName": "${UpdateHonorSheetFunctionArn}",
                                 "Payload": {
-                                    "BucketName": "${MyBucketName}",
                                     "Environment": "{% $environment %}",
                                     "GoogleServiceAccount": "{% $google_service_account %}",
                                     "LevelCap": "{% $level_cap %}",
@@ -379,7 +373,6 @@
                             "Arguments": {
                                 "FunctionName": "${UpdateAbyssCurseSheetFunctionArn}",
                                 "Payload": {
-                                    "BucketName": "${MyBucketName}",
                                     "Environment": "{% $environment %}",
                                     "GoogleServiceAccount": "{% $google_service_account %}",
                                     "LevelCap": "{% $level_cap %}",
@@ -414,7 +407,6 @@
                             "Arguments": {
                                 "FunctionName": "${UpdateGeneralSkillSheetFunctionArn}",
                                 "Payload": {
-                                    "BucketName": "${MyBucketName}",
                                     "Environment": "{% $environment %}",
                                     "GoogleServiceAccount": "{% $google_service_account %}",
                                     "LevelCap": "{% $level_cap %}",

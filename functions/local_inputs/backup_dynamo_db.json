@@ -1,7 +1,6 @@
 {
   "RequestType": "Manual",
   "ResourceProperties": {
-    "TableNames": ["summarize-character-sheets_players"],
-    "BucketName": "summarize-character-sheets-bucket"
+    "TableNames": ["summarize-character-sheets_players"]
   }
 }

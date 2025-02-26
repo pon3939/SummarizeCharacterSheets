@@ -1,6 +1,5 @@
 {
   "Players": [],
-  "BucketName": "summarize-character-sheets-bucket",
   "Environment": {
     "spreadsheet_id": {
       "S": ""

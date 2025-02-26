@@ -40,10 +40,9 @@ def lambda_handler(event: dict, context: LambdaContext):
     )
     levelCap: dict[str, Any] = ConvertDynamoDBToJson(event["LevelCap"])
     playerJsons: list[dict[str, Any]] = ConvertDynamoDBToJson(event["Players"])
-    bucketName: str = event["BucketName"]
 
     players: list[Player] = initializePlayers(
-        playerJsons, levelCap, bucketName, int(environment["season_id"])
+        playerJsons, levelCap, int(environment["season_id"])
     )
 
     updateGeneralSkillSheet(
