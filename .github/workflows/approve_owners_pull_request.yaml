@@ -2,7 +2,7 @@
 # - Repository variablesのREPOSITORY_OWNERにユーザー名を登録する
 # - Workflow permissionsをRead and write permissionsにする
 # - Allow GitHub Actions to create and approve pull requests をTrueにする
-name: Approve Owners Pull Request
+name: approve owners pull request
 on:
   pull_request:
     types:
