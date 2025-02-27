@@ -13,11 +13,12 @@ SW2.5 のキャラクターシートをスプレッドシートに集計する S
 - AWS Backup ボールト
   - summarize_character_sheets_vault
 
-下記の google_service_accounts を編集
+下記を編集
 
 - functions
-  - initial_data/insert_dynamo_db.json
-  - local_inputs/insert_dynamo_db.json
+  - initial_data/insert_dynamo_db.json : google_service_accounts
+  - local_inputs/insert_dynamo_db.json : google_service_accounts
+- template.yaml : MyEmailAddress
 
 ### ローカル環境
 

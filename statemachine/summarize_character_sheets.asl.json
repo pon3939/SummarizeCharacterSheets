@@ -8,7 +8,7 @@
             "Next": "environments_query",
             "Assign": {
                 "environment_id": "{% $states.input.environment_id %}",
-                "get_ytsheet_interval_seconds": "${GetYtsheetIntervalSeconds}"
+                "get_ytsheet_data_interval_seconds": "${GetYtsheetIntervalSeconds}"
             }
         },
         "environments_query": {
@@ -59,7 +59,7 @@
                     }
                 }
             ],
-            "Default": "get_ytsheet_map"
+            "Default": "get_ytsheet_data_map"
         },
         "initialize_players_query_pass": {
             "Type": "Pass",
@@ -69,7 +69,7 @@
                 "players": []
             }
         },
-        "get_ytsheet_map": {
+        "get_ytsheet_data_map": {
             "Type": "Map",
             "ItemProcessor": {
                 "ProcessorConfig": {
@@ -102,11 +102,11 @@
                                 "JitterStrategy": "FULL"
                             }
                         ],
-                        "Next": "get_ytsheet_wait"
+                        "Next": "get_ytsheet_data_wait"
                     },
-                    "get_ytsheet_wait": {
+                    "get_ytsheet_data_wait": {
                         "Type": "Wait",
-                        "Seconds": "{% $number($get_ytsheet_interval_seconds) %}",
+                        "Seconds": "{% $number($get_ytsheet_data_interval_seconds) %}",
                         "End": true
                     }
                 }

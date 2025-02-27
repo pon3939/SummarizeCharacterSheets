@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from json import dumps
 from os import getenv
 from time import sleep
 from typing import Any
@@ -9,6 +10,7 @@ from my_modules.common_functions import MakeYtsheetUrl
 from my_modules.constants.env_keys import GET_YTSHEET_INTERVAL_SECONDS
 from my_modules.my_dynamo_db_client import ConvertDynamoDBToJson
 from my_modules.my_s3_client import MyS3Client
+from my_modules.my_sns_client import MySNSClient
 from requests import Response, get
 
 """
@@ -60,15 +62,44 @@ def getYtsheetData(
         ytsheetId: str = character["ytsheet_id"]
         response: Response = get(f"{MakeYtsheetUrl(ytsheetId)}&mode=json")
 
-        # ステータスコード200以外は例外発生
-        response.raise_for_status()
+        # ステータスコード200以外はエラー
+        if response.status_code != 200:
+            publish_error_message(
+                {
+                    "message": "ステータスコードエラー",
+                    "ytsheetId": ytsheetId,
+                    "status_code": response.status_code,
+                }
+            )
+            continue
 
         # JSON形式でなければエラー
         if response.headers["Content-Type"] != "application/json":
-            raise Exception(
-                f"ytsheet_id={character['ytsheet_id']} : "
-                "Content-Type が application/json ではありません"
+            publish_error_message(
+                {
+                    "message": "JSON形式ではありません",
+                    "ytsheetId": ytsheetId,
+                    "response": response.text,
+                }
             )
+            continue
 
         # S3に保存
         s3.PutPlayerCharacterObject(seasonId, ytsheetId, response.text)
+
+
+def publish_error_message(message: dict):
+    """
+    SNSトピックにエラーメッセージを送信
+
+    Args:
+        message (dict): メッセージ
+    """
+    sns: MySNSClient = MySNSClient()
+    sns.Publish(
+        dumps(
+            message,
+            ensure_ascii=False,
+        ),
+        "ゆとシートデータ取得エラー",
+    )
