@@ -141,20 +141,6 @@
                                     "GoogleServiceAccount": "{% $google_service_account %}"
                                 }
                             },
-                            "Retry": [
-                                {
-                                    "ErrorEquals": [
-                                        "Lambda.ServiceException",
-                                        "Lambda.AWSLambdaException",
-                                        "Lambda.SdkClientException",
-                                        "Lambda.TooManyRequestsException"
-                                    ],
-                                    "IntervalSeconds": 1,
-                                    "MaxAttempts": 3,
-                                    "BackoffRate": 2,
-                                    "JitterStrategy": "FULL"
-                                }
-                            ],
                             "End": true
                         }
                     }
@@ -175,20 +161,6 @@
                                     "Players": "{% $players %}"
                                 }
                             },
-                            "Retry": [
-                                {
-                                    "ErrorEquals": [
-                                        "Lambda.ServiceException",
-                                        "Lambda.AWSLambdaException",
-                                        "Lambda.SdkClientException",
-                                        "Lambda.TooManyRequestsException"
-                                    ],
-                                    "IntervalSeconds": 1,
-                                    "MaxAttempts": 3,
-                                    "BackoffRate": 2,
-                                    "JitterStrategy": "FULL"
-                                }
-                            ],
                             "End": true
                         }
                     }
@@ -209,20 +181,6 @@
                                     "Players": "{% $players %}"
                                 }
                             },
-                            "Retry": [
-                                {
-                                    "ErrorEquals": [
-                                        "Lambda.ServiceException",
-                                        "Lambda.AWSLambdaException",
-                                        "Lambda.SdkClientException",
-                                        "Lambda.TooManyRequestsException"
-                                    ],
-                                    "IntervalSeconds": 1,
-                                    "MaxAttempts": 3,
-                                    "BackoffRate": 2,
-                                    "JitterStrategy": "FULL"
-                                }
-                            ],
                             "End": true
                         }
                     }
@@ -243,20 +201,6 @@
                                     "Players": "{% $players %}"
                                 }
                             },
-                            "Retry": [
-                                {
-                                    "ErrorEquals": [
-                                        "Lambda.ServiceException",
-                                        "Lambda.AWSLambdaException",
-                                        "Lambda.SdkClientException",
-                                        "Lambda.TooManyRequestsException"
-                                    ],
-                                    "IntervalSeconds": 1,
-                                    "MaxAttempts": 3,
-                                    "BackoffRate": 2,
-                                    "JitterStrategy": "FULL"
-                                }
-                            ],
                             "End": true
                         }
                     }
@@ -277,20 +221,6 @@
                                     "Players": "{% $players %}"
                                 }
                             },
-                            "Retry": [
-                                {
-                                    "ErrorEquals": [
-                                        "Lambda.ServiceException",
-                                        "Lambda.AWSLambdaException",
-                                        "Lambda.SdkClientException",
-                                        "Lambda.TooManyRequestsException"
-                                    ],
-                                    "IntervalSeconds": 1,
-                                    "MaxAttempts": 3,
-                                    "BackoffRate": 2,
-                                    "JitterStrategy": "FULL"
-                                }
-                            ],
                             "End": true
                         }
                     }
@@ -311,20 +241,6 @@
                                     "Players": "{% $players %}"
                                 }
                             },
-                            "Retry": [
-                                {
-                                    "ErrorEquals": [
-                                        "Lambda.ServiceException",
-                                        "Lambda.AWSLambdaException",
-                                        "Lambda.SdkClientException",
-                                        "Lambda.TooManyRequestsException"
-                                    ],
-                                    "IntervalSeconds": 1,
-                                    "MaxAttempts": 3,
-                                    "BackoffRate": 2,
-                                    "JitterStrategy": "FULL"
-                                }
-                            ],
                             "End": true
                         }
                     }
@@ -345,20 +261,6 @@
                                     "Players": "{% $players %}"
                                 }
                             },
-                            "Retry": [
-                                {
-                                    "ErrorEquals": [
-                                        "Lambda.ServiceException",
-                                        "Lambda.AWSLambdaException",
-                                        "Lambda.SdkClientException",
-                                        "Lambda.TooManyRequestsException"
-                                    ],
-                                    "IntervalSeconds": 1,
-                                    "MaxAttempts": 3,
-                                    "BackoffRate": 2,
-                                    "JitterStrategy": "FULL"
-                                }
-                            ],
                             "End": true
                         }
                     }
@@ -379,20 +281,6 @@
                                     "Players": "{% $players %}"
                                 }
                             },
-                            "Retry": [
-                                {
-                                    "ErrorEquals": [
-                                        "Lambda.ServiceException",
-                                        "Lambda.AWSLambdaException",
-                                        "Lambda.SdkClientException",
-                                        "Lambda.TooManyRequestsException"
-                                    ],
-                                    "IntervalSeconds": 1,
-                                    "MaxAttempts": 3,
-                                    "BackoffRate": 2,
-                                    "JitterStrategy": "FULL"
-                                }
-                            ],
                             "End": true
                         }
                     }
@@ -413,20 +301,6 @@
                                     "Players": "{% $players %}"
                                 }
                             },
-                            "Retry": [
-                                {
-                                    "ErrorEquals": [
-                                        "Lambda.ServiceException",
-                                        "Lambda.AWSLambdaException",
-                                        "Lambda.SdkClientException",
-                                        "Lambda.TooManyRequestsException"
-                                    ],
-                                    "IntervalSeconds": 1,
-                                    "MaxAttempts": 3,
-                                    "BackoffRate": 2,
-                                    "JitterStrategy": "FULL"
-                                }
-                            ],
                             "End": true
                         }
                     }

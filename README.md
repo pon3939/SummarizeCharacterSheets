@@ -25,6 +25,8 @@ SW2.5 のキャラクターシートをスプレッドシートに集計する S
 AWS SAM がセットアップ済みであること
 
 ```bash
+# コミットメッセージのテンプレート設定
+git config --local commit.template .gitmessage.txt
 # Python仮想環境
 python -m venv .venv
 source venv/bin/activate
