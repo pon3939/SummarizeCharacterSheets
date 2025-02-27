@@ -22,6 +22,10 @@ Parameters:
     Type: String
     Default: "5"
     Description: ゆとシートにアクセスする間隔
+  MyEmailAddress:
+    Type: String
+    Default: example@example.com
+    Description: エラー通知用のメールアドレス
 
 Resources:
   # Step Functions
@@ -124,12 +128,15 @@ Resources:
         - !Ref S3Policy
         - DynamoDBCrudPolicy:
             TableName: !Ref PlayersTable
+        - SNSPublishMessagePolicy:
+            TopicName: !GetAtt MySNSTopic.TopicName
       Environment:
         Variables:
           MY_AWS_REGION: !Ref AWS::Region # AWS_REGIONは上書き不能なのでMY_AWS_REGIONを使う
           MY_BUCKET_NAME: !Ref MyBucketName
           PLAYERS_TABLE_NAME: !Ref PlayersTable
           GET_YTSHEET_INTERVAL_SECONDS: !Ref GetYtsheetIntervalSeconds
+          MY_SNS_TOPIC_ARN: !Ref MySNSTopic
 
   # ワークシート並べ替えLambda
   ReorderWorksheetsFunction:
@@ -544,6 +551,20 @@ Resources:
         IamRoleArn: !Sub arn:aws:iam::${AWS::AccountId}:role/service-role/AWSBackupDefaultServiceRole
         Resources:
           - !GetAtt PlayersTable.Arn
+
+  # SNSトピック
+  MySNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: !Sub ${AWS::StackName}_my_sns_topic
+
+  # SNSサブスクリプション
+  MySNSTopicSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Protocol: email
+      Endpoint: !Ref MyEmailAddress
+      TopicArn: !Ref MySNSTopic
 
   # ポリシー
   # S3アクセスポリシー
