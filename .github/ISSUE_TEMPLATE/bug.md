@@ -1,7 +1,7 @@
 ---
 name: バグ報告
 about: バグ報告用テンプレート
-title: "[Bug]: "
+title: ":bug: "
 labels: ["bug"]
 assignees: ""
 ---
