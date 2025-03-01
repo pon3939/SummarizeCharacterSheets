@@ -1,7 +1,7 @@
 ---
 name: 機能追加
 about: 機能追加用テンプレート
-title: "[Feature]: "
+title: ":recycle: "
 labels: ["feature"]
 assignees: ""
 ---

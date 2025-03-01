@@ -1,7 +1,7 @@
 ---
 name: リファクタリング
 about: リファクタリング用テンプレート
-title: "[Refactor]: "
+title: ":+1: "
 labels: ["refactor"]
 assignees: ""
 ---
