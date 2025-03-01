@@ -13,8 +13,9 @@ from my_modules.constants.spread_sheet import (
     ADVENTURER_BIRTH_HEADER_TEXT,
     DEFAULT_TEXT_FORMAT,
     DICE_AVERAGE_HEADER_TEXT,
-    HORIZONTAL_ALIGNMENT_CENTER_FORMAT,
+    HORIZONTAL_ALIGNMENT_CENTER,
     NO_HEADER_TEXT,
+    NUMBER_FORMAT_TYPE_REAL_NUMBER,
     PLAYER_CHARACTER_NAME_HEADER_TEXT,
     RACE_HEADER_TEXT,
     TRUE_STRING,
@@ -241,34 +242,35 @@ def updateStatusSheet(
 
     # 書式設定
     # アクティブ
+    updateDataCount: int = len(updateData)
     activeCountIndex: int = headers.index(ACTIVE_HEADER_TEXT)
     startA1: str = rowcol_to_a1(2, activeCountIndex + 1)
-    endA1: str = rowcol_to_a1(len(updateData), activeCountIndex + 1)
+    endA1: str = rowcol_to_a1(updateDataCount, activeCountIndex + 1)
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
-            "format": HORIZONTAL_ALIGNMENT_CENTER_FORMAT,
+            "format": HORIZONTAL_ALIGNMENT_CENTER,
         }
     )
 
     # ダイス平均
     startA1: str = rowcol_to_a1(1, diceAverageIndex)
-    endA1: str = rowcol_to_a1(len(updateData), diceAverageIndex)
+    endA1: str = rowcol_to_a1(updateDataCount, diceAverageIndex)
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
-            "format": {"numberFormat": {"type": "NUMBER", "pattern": "0.00"}},
+            "format": NUMBER_FORMAT_TYPE_REAL_NUMBER,
         }
     )
 
     # 冒険者生まれ
     adventurerBirthIndex: int = headers.index(ADVENTURER_BIRTH_HEADER_TEXT)
     startA1 = rowcol_to_a1(2, adventurerBirthIndex + 1)
-    endA1: str = rowcol_to_a1(len(updateData), adventurerBirthIndex + 1)
+    endA1: str = rowcol_to_a1(updateDataCount, adventurerBirthIndex + 1)
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
-            "format": HORIZONTAL_ALIGNMENT_CENTER_FORMAT,
+            "format": HORIZONTAL_ALIGNMENT_CENTER,
         }
     )
 

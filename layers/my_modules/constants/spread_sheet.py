@@ -11,8 +11,15 @@ DEFAULT_TEXT_FORMAT: dict = {
 }
 
 # 水平位置を中央にする書式
-HORIZONTAL_ALIGNMENT_CENTER_FORMAT: dict = {"horizontalAlignment": "CENTER"}
-HORIZONTAL_ALIGNMENT_RIGHT_FORMAT: dict = {"horizontalAlignment": "RIGHT"}
+HORIZONTAL_ALIGNMENT_CENTER: dict = {"horizontalAlignment": "CENTER"}
+HORIZONTAL_ALIGNMENT_RIGHT: dict = {"horizontalAlignment": "RIGHT"}
+
+# セルの数値形式
+NUMBER_FORMAT_TYPE_INTEGER: dict = {"numberFormat": {"type": "NUMBER"}}
+NUMBER_FORMAT_TYPE_REAL_NUMBER: dict = {
+    "numberFormat": {"type": "NUMBER", "pattern": "0.00"}
+}
+NUMBER_FORMAT_TYPE_DATE_TIME: dict = {"numberFormat": {"type": "DATE_TIME"}}
 
 # Trueのときに表示する文字列
 TRUE_STRING: str = "○"

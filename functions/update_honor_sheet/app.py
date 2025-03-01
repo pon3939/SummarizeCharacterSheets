@@ -10,7 +10,7 @@ from my_modules.common_functions import initializePlayers
 from my_modules.constants.spread_sheet import (
     ACTIVE_HEADER_TEXT,
     DEFAULT_TEXT_FORMAT,
-    HORIZONTAL_ALIGNMENT_CENTER_FORMAT,
+    HORIZONTAL_ALIGNMENT_CENTER,
     NO_HEADER_TEXT,
     PLAYER_CHARACTER_NAME_HEADER_TEXT,
     TRUE_STRING,
@@ -178,23 +178,24 @@ def updateHonorSheet(
     )
 
     # アクティブ
+    updateDataCount: int = len(updateData)
     activeCountIndex: int = headers.index(ACTIVE_HEADER_TEXT)
     startA1 = rowcol_to_a1(2, activeCountIndex + 1)
-    endA1: str = rowcol_to_a1(len(updateData) - 1, activeCountIndex + 1)
+    endA1: str = rowcol_to_a1(updateDataCount - 1, activeCountIndex + 1)
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
-            "format": HORIZONTAL_ALIGNMENT_CENTER_FORMAT,
+            "format": HORIZONTAL_ALIGNMENT_CENTER,
         }
     )
 
     # ○
     startA1 = rowcol_to_a1(2, notTotalColumnCount + 1)
-    endA1: str = rowcol_to_a1(len(updateData) - 1, len(headers))
+    endA1: str = rowcol_to_a1(updateDataCount - 1, len(headers))
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
-            "format": HORIZONTAL_ALIGNMENT_CENTER_FORMAT,
+            "format": HORIZONTAL_ALIGNMENT_CENTER,
         }
     )
 

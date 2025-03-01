@@ -11,7 +11,7 @@ from my_modules.constants.spread_sheet import (
     ACTIVE_HEADER_TEXT,
     BATTLE_DANCER_HEADER_TEXT,
     DEFAULT_TEXT_FORMAT,
-    HORIZONTAL_ALIGNMENT_CENTER_FORMAT,
+    HORIZONTAL_ALIGNMENT_CENTER,
     LEVEL_HEADER_TEXT,
     NO_HEADER_TEXT,
     PLAYER_CHARACTER_NAME_HEADER_TEXT,
@@ -193,7 +193,7 @@ def updateCombatSkillSheet(
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
-            "format": HORIZONTAL_ALIGNMENT_CENTER_FORMAT,
+            "format": HORIZONTAL_ALIGNMENT_CENTER,
         }
     )
 

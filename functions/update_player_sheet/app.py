@@ -11,8 +11,10 @@ from my_modules.constants.spread_sheet import (
     ACTIVE_HEADER_TEXT,
     DEFAULT_TEXT_FORMAT,
     GAME_MASTER_COUNT_HEADER_TEXT,
-    HORIZONTAL_ALIGNMENT_CENTER_FORMAT,
+    HORIZONTAL_ALIGNMENT_CENTER,
     NO_HEADER_TEXT,
+    NUMBER_FORMAT_TYPE_DATE_TIME,
+    NUMBER_FORMAT_TYPE_INTEGER,
     PLAYER_COUNT_HEADER_TEXT,
     PLAYER_NAME_HEADER_TEXT,
     TOTAL_GAME_COUNT_HEADER_TEXT,
@@ -160,12 +162,35 @@ def updatePlayerSheet(
 
     # 書式設定
     # アクティブ
+    updateDataCount: int = len(updateData)
     startA1: str = rowcol_to_a1(2, activeCountIndex + 1)
-    endA1: str = rowcol_to_a1(len(updateData) - 1, activeCountIndex + 1)
+    endA1: str = rowcol_to_a1(updateDataCount - 1, activeCountIndex + 1)
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
-            "format": HORIZONTAL_ALIGNMENT_CENTER_FORMAT,
+            "format": HORIZONTAL_ALIGNMENT_CENTER,
+        }
+    )
+
+    # PL・GM・総卓数
+    playerCountIndex: int = header.index(PLAYER_COUNT_HEADER_TEXT)
+    startA1 = rowcol_to_a1(2, playerCountIndex + 1)
+    endA1 = rowcol_to_a1(updateDataCount - 1, playerCountIndex + 3)
+    formats.append(
+        {
+            "range": f"{startA1}:{endA1}",
+            "format": NUMBER_FORMAT_TYPE_INTEGER,
+        }
+    )
+
+    # 更新日時
+    updateDatetimeIndex: int = header.index(UPDATE_DATETIME_HEADER_TEXT)
+    startA1 = rowcol_to_a1(2, updateDatetimeIndex + 1)
+    endA1 = rowcol_to_a1(updateDataCount - 1, updateDatetimeIndex + 1)
+    formats.append(
+        {
+            "range": f"{startA1}:{endA1}",
+            "format": NUMBER_FORMAT_TYPE_DATE_TIME,
         }
     )
 

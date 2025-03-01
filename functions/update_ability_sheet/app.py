@@ -12,7 +12,7 @@ from my_modules.constants.spread_sheet import (
     DEFAULT_TEXT_FORMAT,
     EXP_HEADER_TEXT,
     FAITH_HEADER_TEXT,
-    HORIZONTAL_ALIGNMENT_CENTER_FORMAT,
+    HORIZONTAL_ALIGNMENT_CENTER,
     LEVEL_HEADER_TEXT,
     NO_HEADER_TEXT,
     PLAYER_CHARACTER_NAME_HEADER_TEXT,
@@ -189,7 +189,7 @@ def updateAbilitySheet(
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
-            "format": HORIZONTAL_ALIGNMENT_CENTER_FORMAT,
+            "format": HORIZONTAL_ALIGNMENT_CENTER,
         }
     )
 

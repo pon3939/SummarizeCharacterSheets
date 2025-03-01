@@ -5,8 +5,8 @@ from gspread.worksheet import CellFormat, Worksheet
 
 from .constants.spread_sheet import (
     DEFAULT_TEXT_FORMAT,
-    HORIZONTAL_ALIGNMENT_CENTER_FORMAT,
-    HORIZONTAL_ALIGNMENT_RIGHT_FORMAT,
+    HORIZONTAL_ALIGNMENT_CENTER,
+    HORIZONTAL_ALIGNMENT_RIGHT,
 )
 from .my_spreadsheet import MySpreadsheet
 
@@ -72,7 +72,7 @@ class MyWorksheet:
             formats.append(
                 {
                     "range": f"{startA1}:{endA1}",
-                    "format": HORIZONTAL_ALIGNMENT_RIGHT_FORMAT,
+                    "format": HORIZONTAL_ALIGNMENT_RIGHT,
                 }
             )
 
@@ -103,7 +103,7 @@ class MyWorksheet:
         formats.append(
             {
                 "range": f"{startA1}:{endA1}",
-                "format": HORIZONTAL_ALIGNMENT_CENTER_FORMAT
+                "format": HORIZONTAL_ALIGNMENT_CENTER
                 | {
                     "verticalAlignment": "BOTTOM",
                     "textRotation": {"vertical": False},

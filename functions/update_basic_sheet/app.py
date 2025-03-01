@@ -13,8 +13,9 @@ from my_modules.constants.spread_sheet import (
     DIED_TIMES_HEADER_TEXT,
     FAITH_HEADER_TEXT,
     GAME_MASTER_COUNT_HEADER_TEXT,
-    HORIZONTAL_ALIGNMENT_CENTER_FORMAT,
+    HORIZONTAL_ALIGNMENT_CENTER,
     NO_HEADER_TEXT,
+    NUMBER_FORMAT_TYPE_DATE_TIME,
     PLAYER_CHARACTER_NAME_HEADER_TEXT,
     PLAYER_COUNT_HEADER_TEXT,
     PLAYER_NAME_HEADER_TEXT,
@@ -203,22 +204,34 @@ def updateBasicSheet(
     updateData.append(total)
 
     # アクティブ
+    updateDataCount: int = len(updateData)
     startA1: str = rowcol_to_a1(2, activeCountIndex + 1)
-    endA1: str = rowcol_to_a1(len(updateData) - 1, activeCountIndex + 1)
+    endA1: str = rowcol_to_a1(updateDataCount - 1, activeCountIndex + 1)
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
-            "format": HORIZONTAL_ALIGNMENT_CENTER_FORMAT,
+            "format": HORIZONTAL_ALIGNMENT_CENTER,
         }
     )
 
     # ヴァグランツ
     startA1 = rowcol_to_a1(2, vagrantsCountIndex + 1)
-    endA1: str = rowcol_to_a1(len(updateData) - 1, vagrantsCountIndex + 1)
+    endA1: str = rowcol_to_a1(updateDataCount - 1, vagrantsCountIndex + 1)
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
-            "format": HORIZONTAL_ALIGNMENT_CENTER_FORMAT,
+            "format": HORIZONTAL_ALIGNMENT_CENTER,
+        }
+    )
+
+    # 更新日時
+    updateDatetimeIndex: int = header.index(UPDATE_DATETIME_HEADER_TEXT)
+    startA1 = rowcol_to_a1(2, updateDatetimeIndex + 1)
+    endA1 = rowcol_to_a1(updateDataCount - 1, updateDatetimeIndex + 1)
+    formats.append(
+        {
+            "range": f"{startA1}:{endA1}",
+            "format": NUMBER_FORMAT_TYPE_DATE_TIME,
         }
     )
 
