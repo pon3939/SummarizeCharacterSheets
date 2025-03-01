@@ -45,10 +45,10 @@
   },
   "LevelCap": {
     "minimum_exp": {
-      "S": ""
+      "N": ""
     },
     "max_exp": {
-      "S": ""
+      "N": ""
     }
   }
 }

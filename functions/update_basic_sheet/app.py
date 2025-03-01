@@ -4,7 +4,7 @@
 from typing import Any
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from gspread import utils
+from gspread.utils import rowcol_to_a1
 from gspread.worksheet import CellFormat
 from my_modules.common_functions import initializePlayers
 from my_modules.constants.spread_sheet import (
@@ -13,13 +13,14 @@ from my_modules.constants.spread_sheet import (
     DIED_TIMES_HEADER_TEXT,
     FAITH_HEADER_TEXT,
     GAME_MASTER_COUNT_HEADER_TEXT,
+    HORIZONTAL_ALIGNMENT_CENTER,
     NO_HEADER_TEXT,
+    NUMBER_FORMAT_TYPE_DATE_TIME,
     PLAYER_CHARACTER_NAME_HEADER_TEXT,
     PLAYER_COUNT_HEADER_TEXT,
     PLAYER_NAME_HEADER_TEXT,
     RACE_HEADER_TEXT,
     TOTAL_GAME_COUNT_HEADER_TEXT,
-    TOTAL_TEXT,
     TRUE_STRING,
     UPDATE_DATETIME_HEADER_TEXT,
     VAGRANTS_HEADER_TEXT,
@@ -173,7 +174,7 @@ def updateBasicSheet(
             pcTextFormat["link"] = {"uri": character.GetYtsheetUrl()}
             formats.append(
                 {
-                    "range": utils.rowcol_to_a1(
+                    "range": rowcol_to_a1(
                         no + 1,
                         header.index(PLAYER_CHARACTER_NAME_HEADER_TEXT) + 1,
                     ),
@@ -184,7 +185,6 @@ def updateBasicSheet(
     # 合計行
     total: list = [None] * len(header)
     activeCountIndex: int = header.index(ACTIVE_HEADER_TEXT)
-    total[activeCountIndex - 1] = TOTAL_TEXT
 
     # アクティブ
     total[activeCountIndex] = sum(
@@ -204,24 +204,34 @@ def updateBasicSheet(
     updateData.append(total)
 
     # アクティブ
-    startA1: str = utils.rowcol_to_a1(2, activeCountIndex + 1)
-    endA1: str = utils.rowcol_to_a1(len(updateData) - 1, activeCountIndex + 1)
+    updateDataCount: int = len(updateData)
+    startA1: str = rowcol_to_a1(2, activeCountIndex + 1)
+    endA1: str = rowcol_to_a1(updateDataCount - 1, activeCountIndex + 1)
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
-            "format": {"horizontalAlignment": "CENTER"},
+            "format": HORIZONTAL_ALIGNMENT_CENTER,
         }
     )
 
     # ヴァグランツ
-    startA1 = utils.rowcol_to_a1(2, vagrantsCountIndex + 1)
-    endA1: str = utils.rowcol_to_a1(
-        len(updateData) - 1, vagrantsCountIndex + 1
-    )
+    startA1 = rowcol_to_a1(2, vagrantsCountIndex + 1)
+    endA1: str = rowcol_to_a1(updateDataCount - 1, vagrantsCountIndex + 1)
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
-            "format": {"horizontalAlignment": "CENTER"},
+            "format": HORIZONTAL_ALIGNMENT_CENTER,
+        }
+    )
+
+    # 更新日時
+    updateDatetimeIndex: int = header.index(UPDATE_DATETIME_HEADER_TEXT)
+    startA1 = rowcol_to_a1(2, updateDatetimeIndex + 1)
+    endA1 = rowcol_to_a1(updateDataCount - 1, updateDatetimeIndex + 1)
+    formats.append(
+        {
+            "range": f"{startA1}:{endA1}",
+            "format": NUMBER_FORMAT_TYPE_DATE_TIME,
         }
     )
 

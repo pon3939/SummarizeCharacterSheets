@@ -4,7 +4,7 @@
 from typing import Any
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from gspread import utils
+from gspread.utils import rowcol_to_a1
 from gspread.worksheet import CellFormat
 from my_modules.common_functions import initializePlayers
 from my_modules.constants.spread_sheet import (
@@ -12,10 +12,10 @@ from my_modules.constants.spread_sheet import (
     DEFAULT_TEXT_FORMAT,
     EXP_HEADER_TEXT,
     FAITH_HEADER_TEXT,
+    HORIZONTAL_ALIGNMENT_CENTER,
     LEVEL_HEADER_TEXT,
     NO_HEADER_TEXT,
     PLAYER_CHARACTER_NAME_HEADER_TEXT,
-    TOTAL_TEXT,
 )
 from my_modules.constants.sword_world import SKILLS
 from my_modules.exp_status import ExpStatus
@@ -137,7 +137,7 @@ def updateAbilitySheet(
             if character.ActiveStatus in [ExpStatus.MAX, ExpStatus.INACTIVE]:
                 formats.append(
                     {
-                        "range": utils.rowcol_to_a1(
+                        "range": rowcol_to_a1(
                             rowIndex, headers.index(EXP_HEADER_TEXT) + 1
                         ),
                         "format": {"textFormat": expTextFormat},
@@ -149,7 +149,7 @@ def updateAbilitySheet(
             pcTextFormat["link"] = {"uri": character.GetYtsheetUrl()}
             formats.append(
                 {
-                    "range": utils.rowcol_to_a1(
+                    "range": rowcol_to_a1(
                         rowIndex,
                         headers.index(PLAYER_CHARACTER_NAME_HEADER_TEXT) + 1,
                     ),
@@ -160,7 +160,6 @@ def updateAbilitySheet(
     # 合計行
     notSkillColumnCount: int = len(headers) - len(SKILLS)
     total: list = [None] * notSkillColumnCount
-    total[-1] = TOTAL_TEXT
     total += list(
         map(
             lambda x: sum(
@@ -174,8 +173,8 @@ def updateAbilitySheet(
 
     # 書式設定
     # 技能レベルのヘッダー
-    startA1: str = utils.rowcol_to_a1(1, notSkillColumnCount + 1)
-    endA1: str = utils.rowcol_to_a1(1, len(headers))
+    startA1: str = rowcol_to_a1(1, notSkillColumnCount + 1)
+    endA1: str = rowcol_to_a1(1, len(headers))
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
@@ -185,12 +184,12 @@ def updateAbilitySheet(
 
     # アクティブ
     activeCountIndex: int = headers.index(ACTIVE_HEADER_TEXT)
-    startA1 = utils.rowcol_to_a1(2, activeCountIndex + 1)
-    endA1 = utils.rowcol_to_a1(len(updateData) - 1, activeCountIndex + 1)
+    startA1 = rowcol_to_a1(2, activeCountIndex + 1)
+    endA1 = rowcol_to_a1(len(updateData) - 1, activeCountIndex + 1)
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
-            "format": {"horizontalAlignment": "CENTER"},
+            "format": HORIZONTAL_ALIGNMENT_CENTER,
         }
     )
 
