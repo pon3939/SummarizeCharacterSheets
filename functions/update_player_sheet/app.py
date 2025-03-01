@@ -4,18 +4,18 @@
 from typing import Any
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from gspread import utils
+from gspread.utils import rowcol_to_a1
 from gspread.worksheet import CellFormat
 from my_modules.common_functions import initializePlayers
 from my_modules.constants.spread_sheet import (
     ACTIVE_HEADER_TEXT,
     DEFAULT_TEXT_FORMAT,
     GAME_MASTER_COUNT_HEADER_TEXT,
+    HORIZONTAL_ALIGNMENT_CENTER_FORMAT,
     NO_HEADER_TEXT,
     PLAYER_COUNT_HEADER_TEXT,
     PLAYER_NAME_HEADER_TEXT,
     TOTAL_GAME_COUNT_HEADER_TEXT,
-    TOTAL_TEXT,
     TRUE_STRING,
     UPDATE_DATETIME_HEADER_TEXT,
 )
@@ -121,7 +121,7 @@ def updatePlayerSheet(
             }
             formats.append(
                 {
-                    "range": utils.rowcol_to_a1(no + 1, pcIndex),
+                    "range": rowcol_to_a1(no + 1, pcIndex),
                     "format": {"textFormat": pcTextFormat},
                 }
             )
@@ -145,7 +145,6 @@ def updatePlayerSheet(
     # 合計行
     total: list = [None] * len(header)
     activeCountIndex: int = header.index(ACTIVE_HEADER_TEXT)
-    total[activeCountIndex - 1] = TOTAL_TEXT
 
     # アクティブ
     total[activeCountIndex] = sum(
@@ -161,12 +160,12 @@ def updatePlayerSheet(
 
     # 書式設定
     # アクティブ
-    startA1: str = utils.rowcol_to_a1(2, activeCountIndex + 1)
-    endA1: str = utils.rowcol_to_a1(len(updateData) - 1, activeCountIndex + 1)
+    startA1: str = rowcol_to_a1(2, activeCountIndex + 1)
+    endA1: str = rowcol_to_a1(len(updateData) - 1, activeCountIndex + 1)
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
-            "format": {"horizontalAlignment": "CENTER"},
+            "format": HORIZONTAL_ALIGNMENT_CENTER_FORMAT,
         }
     )
 

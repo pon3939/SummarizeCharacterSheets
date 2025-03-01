@@ -10,6 +10,10 @@ DEFAULT_TEXT_FORMAT: dict = {
     "fontFamily": "Meiryo",
 }
 
+# 水平位置を中央にする書式
+HORIZONTAL_ALIGNMENT_CENTER_FORMAT: dict = {"horizontalAlignment": "CENTER"}
+HORIZONTAL_ALIGNMENT_RIGHT_FORMAT: dict = {"horizontalAlignment": "RIGHT"}
+
 # Trueのときに表示する文字列
 TRUE_STRING: str = "○"
 
@@ -31,6 +35,3 @@ DICE_AVERAGE_HEADER_TEXT: str = "ﾀﾞｲｽ平均"
 ADVENTURER_BIRTH_HEADER_TEXT: str = "冒険者\n生まれ"
 BATTLE_DANCER_HEADER_TEXT: str = "バトルダンサー"
 LEVEL_HEADER_TEXT: str = "Lv."
-
-# 合計行のラベル
-TOTAL_TEXT: str = "合計"
