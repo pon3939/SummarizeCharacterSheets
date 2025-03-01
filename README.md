@@ -18,6 +18,8 @@ SW2.5 のキャラクターシートをスプレッドシートに集計する S
 - functions
   - initial_data/insert_dynamo_db.json : google_service_accounts
   - local_inputs/insert_dynamo_db.json : google_service_accounts
+- local_env.json
+  - GetYtsheetDataFunction.MY_SNS_TOPIC_ARN : SNS トピックの ARN、sam deploy 時に表示される
 - template.yaml : MyEmailAddress
 
 ### ローカル環境

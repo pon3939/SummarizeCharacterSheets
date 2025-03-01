@@ -47,6 +47,9 @@
   },
   "GetYtsheetDataFunction": {
     "MY_AWS_REGION": "ap-northeast-1",
-    "MY_BUCKET_NAME": "summarize-character-sheets-bucket"
+    "MY_BUCKET_NAME": "summarize-character-sheets-bucket",
+    "PLAYERS_TABLE_NAME": "summarize-character-sheets_players",
+    "GET_YTSHEET_INTERVAL_SECONDS": "5",
+    "MY_SNS_TOPIC_ARN": "arn:aws:sns:ap-northeast-1:xxxx:summarize-character-sheets-MySNSTopic-xxxx"
   }
 }

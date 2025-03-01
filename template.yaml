@@ -654,3 +654,7 @@ Resources:
           Name: AWS::Include
           Parameters:
             Location: functions/initial_data/insert_dynamo_db.json
+Outputs:
+  MySNSTopicArn:
+    Description: "SNS Topic ARN"
+    Value: !Ref MySNSTopic
