@@ -73,6 +73,9 @@ def getYtsheetData(
             )
             continue
 
+        # 文字化けすることがあるため文字コード指定
+        response.encoding = response.apparent_encoding  # type: ignore
+
         # JSON形式でなければエラー
         if response.headers["Content-Type"] != "application/json":
             publish_error_message(
