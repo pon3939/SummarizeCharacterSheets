@@ -1,9 +1,18 @@
 # -*- coding: utf-8 -*-
 
+from gspread.exceptions import APIError
 from gspread.utils import ValueInputOption, rowcol_to_a1
 from gspread.worksheet import CellFormat, Worksheet
+from tenacity import (
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_fixed,
+)
 
 from .constants.spread_sheet import (
+    API_RETRY_COUNT,
+    API_RETRY_WAIT_SECOND,
     DEFAULT_TEXT_FORMAT,
     HORIZONTAL_ALIGNMENT_CENTER,
     HORIZONTAL_ALIGNMENT_RIGHT,
@@ -40,6 +49,11 @@ class MyWorksheet:
         )
         self.worksheet: Worksheet = spreadsheet.getWorksheet(worksheetName)
 
+    @retry(
+        stop=stop_after_attempt(API_RETRY_COUNT),
+        wait=wait_fixed(API_RETRY_WAIT_SECOND),
+        retry=retry_if_exception_type(APIError),
+    )
     def Update(
         self,
         originalValues: list[list],
