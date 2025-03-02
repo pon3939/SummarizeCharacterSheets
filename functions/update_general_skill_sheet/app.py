@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-from typing import Any, Union
+from typing import Any
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from gspread.utils import rowcol_to_a1
@@ -14,7 +14,7 @@ from my_modules.constants.spread_sheet import (
     NO_HEADER_TEXT,
     PLAYER_CHARACTER_NAME_HEADER_TEXT,
 )
-from my_modules.constants.sword_world import OFFICIAL_GENERAL_SKILL_NAMES
+from my_modules.constants.sword_world import OFFICIAL_GENERAL_SKILLS
 from my_modules.general_skill import GeneralSkill
 from my_modules.my_dynamo_db_client import ConvertDynamoDBToJson
 from my_modules.my_worksheet import ConvertToVerticalHeaders, MyWorksheet
@@ -80,7 +80,12 @@ def updateGeneralSkillSheet(
     # 縦書きヘッダー
     headers.extend(
         ConvertToVerticalHeaders(
-            list(map(lambda x: x, OFFICIAL_GENERAL_SKILL_NAMES))
+            list(
+                map(
+                    lambda x: x.getFormattedSkill(),
+                    OFFICIAL_GENERAL_SKILLS,
+                )
+            )
         )
     )
     updateData.append(headers)
@@ -92,19 +97,10 @@ def updateGeneralSkillSheet(
             # 公式一般技能のレベル取得
             officialGeneralSkills: list[GeneralSkill] = list(
                 filter(
-                    lambda x: x.Name in OFFICIAL_GENERAL_SKILL_NAMES,
+                    lambda x: not x.IsOriginal,
                     character.GeneralSkills,
                 )
             )
-            officialGeneralSkillLevels: list[Union[int, None]] = [None] * len(
-                OFFICIAL_GENERAL_SKILL_NAMES
-            )
-            for officialGeneralSkill in officialGeneralSkills:
-                officialGeneralSkillLevels[
-                    OFFICIAL_GENERAL_SKILL_NAMES.index(
-                        officialGeneralSkill.Name
-                    )
-                ] = officialGeneralSkill.Level
 
             row: list = []
 
@@ -120,18 +116,22 @@ def updateGeneralSkillSheet(
 
             # 公式技能
             row.append(
-                "\n".join([x.getFormattedStr() for x in officialGeneralSkills])
+                "\n".join(
+                    [
+                        x.getFormattedSkillAndLevel()
+                        for x in officialGeneralSkills
+                    ]
+                )
             )
 
             # オリジナル技能
             row.append(
                 "\n".join(
                     [
-                        x.getFormattedStr()
+                        x.getFormattedSkillAndLevel()
                         for x in list(
                             filter(
-                                lambda x: x.Name
-                                not in OFFICIAL_GENERAL_SKILL_NAMES,
+                                lambda x: x.IsOriginal,
                                 character.GeneralSkills,
                             )
                         )
@@ -139,8 +139,18 @@ def updateGeneralSkillSheet(
                 )
             )
 
-            # 公式技能
-            row.extend(officialGeneralSkillLevels)
+            # 公式技能のレベル
+            for officialGeneralSkill in OFFICIAL_GENERAL_SKILLS:
+                row.append(
+                    next(
+                        (
+                            x.Level
+                            for x in officialGeneralSkills
+                            if x.compareWithGeneralSkill(officialGeneralSkill)
+                        ),
+                        None,
+                    )
+                )
 
             updateData.append(row)
 
@@ -158,16 +168,16 @@ def updateGeneralSkillSheet(
             )
 
     # 合計行
-    notTotalColumnCount: int = len(headers) - len(OFFICIAL_GENERAL_SKILL_NAMES)
+    notTotalColumnCount: int = len(headers) - len(OFFICIAL_GENERAL_SKILLS)
     total: list = [None] * notTotalColumnCount
-    for officialGeneralSkillName in OFFICIAL_GENERAL_SKILL_NAMES:
+    for officialGeneralSkill in OFFICIAL_GENERAL_SKILLS:
         total.append(
             sum(
                 sum(
                     1
                     for y in x.Characters
                     if any(
-                        z.Name == officialGeneralSkillName
+                        z.compareWithGeneralSkill(officialGeneralSkill)
                         for z in y.GeneralSkills
                     )
                 )

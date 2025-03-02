@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime
-from re import Match, findall, search, sub
+from re import Match, search, split, sub
 from typing import Union
 
 from .constants import sword_world
@@ -227,43 +228,57 @@ class PlayerCharacter:
         # 一般技能
         self.GeneralSkills: list[GeneralSkill] = []
         for i in range(1, int(characterJson.get("commonClassNum", "0")) + 1):
-            generalSkillName: str = characterJson.get(f"commonClass{i}", "")
-            generalSkillName = generalSkillName.removeprefix("|")
-            if generalSkillName == "":
+            ytsheetGeneralSkillName: str = characterJson.get(
+                f"commonClass{i}", ""
+            )
+            if ytsheetGeneralSkillName == "":
                 continue
 
-            # カッコの中と外で分離
-            ytsheetGeneralSkills: list[str] = findall(
-                r"[^(（《/]+",
-                generalSkillName.removesuffix(")")
+            # カッコの中と外で分割
+            skillNameAndJob: list[str] = split(
+                r"[\(（《]+",
+                ytsheetGeneralSkillName.removeprefix("|")
+                .removesuffix(")")
                 .removesuffix("）")
                 .removesuffix("》"),
+                1,
             )
-            for ytsheetGeneralSkill in ytsheetGeneralSkills:
-                if ytsheetGeneralSkill in sword_world.PROSTITUTE_SKILL_NAME:
-                    # 男娼と高級男娼を誤検知するので個別対応
-                    generalSkillName = sword_world.PROSTITUTE_SKILL_NAME
-                    break
-
-                officialGeneralSkill: Union[str, None] = next(
-                    filter(
-                        lambda x: isinstance(x, str)
-                        and ytsheetGeneralSkill in x,
-                        sword_world.OFFICIAL_GENERAL_SKILL_NAMES,
-                    ),
-                    None,
-                )
-                if officialGeneralSkill is not None:
-                    # 公式一般技能は定数から正式名称を取得
-                    generalSkillName = officialGeneralSkill
-                    break
-
-            self.GeneralSkills.append(
-                GeneralSkill(
-                    generalSkillName,
-                    int(characterJson.get(f"lvCommon{i}", "0")),
-                )
+            generalSkillLevel: int = int(
+                characterJson.get(f"lvCommon{i}", "0")
             )
+            if sword_world.PROSTITUTE_GENERAL_SKILL.compareWithListOfStr(
+                skillNameAndJob
+            ):
+                # 男娼と高級男娼を誤検知するので個別対応
+                copiedOfficialGeneralSkill: GeneralSkill = deepcopy(
+                    sword_world.PROSTITUTE_GENERAL_SKILL
+                )
+                copiedOfficialGeneralSkill.Level = generalSkillLevel
+                self.GeneralSkills.append(copiedOfficialGeneralSkill)
+                continue
+
+            officialGeneralSkill: Union[GeneralSkill, None] = next(
+                filter(
+                    lambda x: x.compareWithListOfStr(skillNameAndJob),
+                    sword_world.OFFICIAL_GENERAL_SKILLS,
+                ),
+                None,
+            )
+            if officialGeneralSkill is None:
+                # オリジナル一般技能
+                self.GeneralSkills.append(
+                    GeneralSkill(
+                        skillNameAndJob[0],
+                        skillNameAndJob[1] if len(skillNameAndJob) > 1 else "",
+                        generalSkillLevel,
+                        True,
+                    )
+                )
+            else:
+                # 公式一般技能
+                copiedOfficialGeneralSkill = deepcopy(officialGeneralSkill)
+                copiedOfficialGeneralSkill.Level = generalSkillLevel
+                self.GeneralSkills.append(copiedOfficialGeneralSkill)
 
         # セッション履歴を集計
         self.GameMasterScenarioKeys: list[str] = []

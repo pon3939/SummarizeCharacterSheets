@@ -215,7 +215,7 @@ def ConvertDynamoDBToJson(dynamoDBData) -> Any:
     raise Exception("未対応の型です")
 
 
-@ConvertDynamoDBToJson.register(dict)
+@ConvertDynamoDBToJson.register
 def _(dynamoDBData: dict) -> dict:
     """
 
@@ -238,7 +238,7 @@ def _(dynamoDBData: dict) -> dict:
     return convertedJson
 
 
-@ConvertDynamoDBToJson.register(list)
+@ConvertDynamoDBToJson.register
 def _(dynamoDBData: list) -> list:
     """
 
