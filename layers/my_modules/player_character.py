@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime
-from re import Match, findall, search, sub
+from re import Match, search, split, sub
 from typing import Union
 
+from .combat_skill import CombatSkill
 from .constants import sword_world
 from .exp_status import ExpStatus
 from .general_skill import GeneralSkill
@@ -121,11 +123,11 @@ class PlayerCharacter:
         ).split(",")
 
         # 技能レベル
-        self.Skills: dict[str, int] = {}
-        for skill in sword_world.SKILLS:
-            skillLevel: int = int(characterJson.get(skill, "0"))
+        self.CombatSkills: list[CombatSkill] = []
+        for key, skillName in sword_world.COMBAT_SKILLS.items():
+            skillLevel: int = int(characterJson.get(key, "0"))
             if skillLevel > 0:
-                self.Skills[skill] = skillLevel
+                self.CombatSkills.append(CombatSkill(skillName, skillLevel))
 
         # 各能力値
         self.Dexterity: Status = Status(
@@ -227,43 +229,57 @@ class PlayerCharacter:
         # 一般技能
         self.GeneralSkills: list[GeneralSkill] = []
         for i in range(1, int(characterJson.get("commonClassNum", "0")) + 1):
-            generalSkillName: str = characterJson.get(f"commonClass{i}", "")
-            generalSkillName = generalSkillName.removeprefix("|")
-            if generalSkillName == "":
+            ytsheetGeneralSkillName: str = characterJson.get(
+                f"commonClass{i}", ""
+            )
+            if ytsheetGeneralSkillName == "":
                 continue
 
-            # カッコの中と外で分離
-            ytsheetGeneralSkills: list[str] = findall(
-                r"[^(（《/]+",
-                generalSkillName.removesuffix(")")
+            # カッコの中と外で分割
+            skillNameAndJob: list[str] = split(
+                r"[\(（《]+",
+                ytsheetGeneralSkillName.removeprefix("|")
+                .removesuffix(")")
                 .removesuffix("）")
                 .removesuffix("》"),
+                1,
             )
-            for ytsheetGeneralSkill in ytsheetGeneralSkills:
-                if ytsheetGeneralSkill in sword_world.PROSTITUTE_SKILL_NAME:
-                    # 男娼と高級男娼を誤検知するので個別対応
-                    generalSkillName = sword_world.PROSTITUTE_SKILL_NAME
-                    break
-
-                officialGeneralSkill: Union[str, None] = next(
-                    filter(
-                        lambda x: isinstance(x, str)
-                        and ytsheetGeneralSkill in x,
-                        sword_world.OFFICIAL_GENERAL_SKILL_NAMES,
-                    ),
-                    None,
-                )
-                if officialGeneralSkill is not None:
-                    # 公式一般技能は定数から正式名称を取得
-                    generalSkillName = officialGeneralSkill
-                    break
-
-            self.GeneralSkills.append(
-                GeneralSkill(
-                    generalSkillName,
-                    int(characterJson.get(f"lvCommon{i}", "0")),
-                )
+            generalSkillLevel: int = int(
+                characterJson.get(f"lvCommon{i}", "0")
             )
+            if sword_world.PROSTITUTE_GENERAL_SKILL.compareWithListOfStr(
+                skillNameAndJob
+            ):
+                # 男娼と高級男娼を誤検知するので個別対応
+                copiedOfficialGeneralSkill: GeneralSkill = deepcopy(
+                    sword_world.PROSTITUTE_GENERAL_SKILL
+                )
+                copiedOfficialGeneralSkill.Level = generalSkillLevel
+                self.GeneralSkills.append(copiedOfficialGeneralSkill)
+                continue
+
+            officialGeneralSkill: Union[GeneralSkill, None] = next(
+                filter(
+                    lambda x: x.compareWithListOfStr(skillNameAndJob),
+                    sword_world.OFFICIAL_GENERAL_SKILLS,
+                ),
+                None,
+            )
+            if officialGeneralSkill is None:
+                # オリジナル一般技能
+                self.GeneralSkills.append(
+                    GeneralSkill(
+                        skillNameAndJob[0],
+                        skillNameAndJob[1] if len(skillNameAndJob) > 1 else "",
+                        generalSkillLevel,
+                        True,
+                    )
+                )
+            else:
+                # 公式一般技能
+                copiedOfficialGeneralSkill = deepcopy(officialGeneralSkill)
+                copiedOfficialGeneralSkill.Level = generalSkillLevel
+                self.GeneralSkills.append(copiedOfficialGeneralSkill)
 
         # セッション履歴を集計
         self.GameMasterScenarioKeys: list[str] = []
@@ -369,6 +385,22 @@ class PlayerCharacter:
 
         return sub(r"（.+）", "", self.Race)
 
+    def IsBattleDancer(self) -> bool:
+        """
+
+        バトルダンサーかどうか
+
+        Returns:
+            bool: True バトルダンサー
+        """
+
+        return any(
+            map(
+                lambda x: x.SkillName == sword_world.BATTLE_DANCER_SKILL_NAME,
+                self.CombatSkills,
+            )
+        )
+
     def IsVagrants(self) -> bool:
         """
 
@@ -378,7 +410,7 @@ class PlayerCharacter:
             bool: True ヴァグランツ
         """
 
-        if self.Skills.get(sword_world.BATTLE_DANCER_LEVEL_KEY, 0) > 0 and any(
+        if self.IsBattleDancer() and any(
             list(
                 map(
                     lambda x: self.CombatFeatsLv1bat.startswith(x),
@@ -492,18 +524,6 @@ class PlayerCharacter:
         from .common_functions import MakeYtsheetUrl
 
         return MakeYtsheetUrl(self.YtsheetId)
-
-    def GetSkillLevel(self, key: str) -> int:
-        """
-
-        冒険者技能のレベルを返却
-
-        Args:
-            key str: 冒険者技能のキー
-        Returns:
-            int: 技能レベル
-        """
-        return self.Skills.get(key, 0)
 
     def GetGameMasterTimes(self) -> int:
         """GM回数を取得
