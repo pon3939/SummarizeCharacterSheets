@@ -13,12 +13,11 @@ from tenacity import (
     wait_fixed,
 )
 
+from .constants.spread_sheet import API_RETRY_COUNT, API_RETRY_WAIT_SECOND
+
 """
 Spreadsheet拡張クラス
 """
-
-_RETRY_COUNT = 3
-_RETRY_WAIT_SECOND = 5
 
 
 class MySpreadsheet:
@@ -47,8 +46,8 @@ class MySpreadsheet:
         self.spreadsheet: Spreadsheet = client.open_by_key(spreadsheetId)
 
     @retry(
-        stop=stop_after_attempt(_RETRY_COUNT),
-        wait=wait_fixed(_RETRY_WAIT_SECOND),
+        stop=stop_after_attempt(API_RETRY_COUNT),
+        wait=wait_fixed(API_RETRY_WAIT_SECOND),
         retry=retry_if_exception_type(APIError),
     )
     def getWorksheet(self, title: str) -> Worksheet:
@@ -63,8 +62,8 @@ class MySpreadsheet:
         return self.spreadsheet.worksheet(title)
 
     @retry(
-        stop=stop_after_attempt(_RETRY_COUNT),
-        wait=wait_fixed(_RETRY_WAIT_SECOND),
+        stop=stop_after_attempt(API_RETRY_COUNT),
+        wait=wait_fixed(API_RETRY_WAIT_SECOND),
         retry=retry_if_exception_type(APIError),
     )
     def reorderWorksheets(self, titles: list[str]):

@@ -4,6 +4,9 @@
 スプレッドシート関係の定数
 """
 
+# APIリトライ設定
+API_RETRY_COUNT = 3
+API_RETRY_WAIT_SECOND = 5
 
 # スプレッドシート全体に適用するテキストの書式
 DEFAULT_TEXT_FORMAT: dict = {
