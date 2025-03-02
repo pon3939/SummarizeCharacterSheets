@@ -6,6 +6,7 @@ from datetime import datetime
 from re import Match, search, split, sub
 from typing import Union
 
+from .combat_skill import CombatSkill
 from .constants import sword_world
 from .exp_status import ExpStatus
 from .general_skill import GeneralSkill
@@ -122,11 +123,11 @@ class PlayerCharacter:
         ).split(",")
 
         # 技能レベル
-        self.Skills: dict[str, int] = {}
-        for skill in sword_world.SKILLS:
-            skillLevel: int = int(characterJson.get(skill, "0"))
+        self.CombatSkills: list[CombatSkill] = []
+        for key, skillName in sword_world.COMBAT_SKILLS.items():
+            skillLevel: int = int(characterJson.get(key, "0"))
             if skillLevel > 0:
-                self.Skills[skill] = skillLevel
+                self.CombatSkills.append(CombatSkill(skillName, skillLevel))
 
         # 各能力値
         self.Dexterity: Status = Status(
@@ -384,6 +385,22 @@ class PlayerCharacter:
 
         return sub(r"（.+）", "", self.Race)
 
+    def IsBattleDancer(self) -> bool:
+        """
+
+        バトルダンサーかどうか
+
+        Returns:
+            bool: True バトルダンサー
+        """
+
+        return any(
+            map(
+                lambda x: x.SkillName == sword_world.BATTLE_DANCER_SKILL_NAME,
+                self.CombatSkills,
+            )
+        )
+
     def IsVagrants(self) -> bool:
         """
 
@@ -393,7 +410,7 @@ class PlayerCharacter:
             bool: True ヴァグランツ
         """
 
-        if self.Skills.get(sword_world.BATTLE_DANCER_LEVEL_KEY, 0) > 0 and any(
+        if self.IsBattleDancer() and any(
             list(
                 map(
                     lambda x: self.CombatFeatsLv1bat.startswith(x),
@@ -507,18 +524,6 @@ class PlayerCharacter:
         from .common_functions import MakeYtsheetUrl
 
         return MakeYtsheetUrl(self.YtsheetId)
-
-    def GetSkillLevel(self, key: str) -> int:
-        """
-
-        冒険者技能のレベルを返却
-
-        Args:
-            key str: 冒険者技能のキー
-        Returns:
-            int: 技能レベル
-        """
-        return self.Skills.get(key, 0)
 
     def GetGameMasterTimes(self) -> int:
         """GM回数を取得

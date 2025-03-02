@@ -17,7 +17,7 @@ from my_modules.constants.spread_sheet import (
     NO_HEADER_TEXT,
     PLAYER_CHARACTER_NAME_HEADER_TEXT,
 )
-from my_modules.constants.sword_world import SKILLS
+from my_modules.constants.sword_world import COMBAT_SKILLS
 from my_modules.exp_status import ExpStatus
 from my_modules.my_dynamo_db_client import ConvertDynamoDBToJson
 from my_modules.my_worksheet import ConvertToVerticalHeaders, MyWorksheet
@@ -84,7 +84,9 @@ def updateAbilitySheet(
     # ヘッダーを縦書き用に変換
     headers.extend(
         ConvertToVerticalHeaders(
-            ConvertToVerticalHeaders(list(map(lambda x: x, SKILLS.values())))
+            ConvertToVerticalHeaders(
+                list(map(lambda x: x, COMBAT_SKILLS.values()))
+            )
         )
     )
     updateData.append(headers)
@@ -115,8 +117,17 @@ def updateAbilitySheet(
             row.append(character.Exp)
 
             # 技能レベル
-            for skill in SKILLS:
-                row.append(character.Skills.get(skill, ""))
+            for skillName in COMBAT_SKILLS.values():
+                row.append(
+                    next(
+                        (
+                            x.Level
+                            for x in character.CombatSkills
+                            if x.SkillName == skillName
+                        ),
+                        None,
+                    )
+                )
 
             updateData.append(row)
 
@@ -158,17 +169,20 @@ def updateAbilitySheet(
             )
 
     # 合計行
-    notSkillColumnCount: int = len(headers) - len(SKILLS)
+    notSkillColumnCount: int = len(headers) - len(COMBAT_SKILLS)
     total: list = [None] * notSkillColumnCount
-    total += list(
-        map(
-            lambda x: sum(
-                sum(1 for z in y.Characters if z.GetSkillLevel(x) > 0)
-                for y in players
-            ),
-            SKILLS.keys(),
+    for combatSkill in COMBAT_SKILLS.values():
+        total.append(
+            sum(
+                sum(
+                    1
+                    for y in x.Characters
+                    if any(z.SkillName == combatSkill for z in y.CombatSkills)
+                )
+                for x in players
+            )
         )
-    )
+
     updateData.append(total)
 
     # 書式設定

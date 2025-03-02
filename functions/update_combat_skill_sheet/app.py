@@ -16,7 +16,6 @@ from my_modules.constants.spread_sheet import (
     NO_HEADER_TEXT,
     PLAYER_CHARACTER_NAME_HEADER_TEXT,
 )
-from my_modules.constants.sword_world import BATTLE_DANCER_LEVEL_KEY
 from my_modules.my_dynamo_db_client import ConvertDynamoDBToJson
 from my_modules.my_worksheet import MyWorksheet
 from my_modules.player import Player
@@ -174,7 +173,7 @@ def updateCombatSkillSheet(
                 )
 
             # バトルダンサー未習得もグレーで表示
-            if character.Skills.get(BATTLE_DANCER_LEVEL_KEY, 0) == 0:
+            if not character.IsBattleDancer():
                 formats.append(
                     {
                         "range": rowcol_to_a1(

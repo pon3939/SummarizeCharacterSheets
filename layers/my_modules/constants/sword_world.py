@@ -8,11 +8,11 @@ SW2.5関係の定数
 """
 
 # 戦闘技能
-BATTLE_DANCER_LEVEL_KEY: str = "lvBat"
-SKILLS: dict[str, str] = {
+BATTLE_DANCER_SKILL_NAME: str = "バトルダンサー"
+COMBAT_SKILLS: dict[str, str] = {
     "lvFig": "ファイター",
     "lvGra": "グラップラー",
-    BATTLE_DANCER_LEVEL_KEY: "バトルダンサー",
+    "lvBat": BATTLE_DANCER_SKILL_NAME,
     "lvFen": "フェンサー",
     "lvSho": "シューター",
     "lvSor": "ソーサラー",
