@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from ..general_skill import GeneralSkill
-from ..style import Style
+from ..sword_world.general_skill import GeneralSkill
 from ..sword_world.race import Race
 from ..sword_world.races_base_status import RacesBaseStatus
+from ..sword_world.style import Style
 
 """
 SW2.5関係の定数

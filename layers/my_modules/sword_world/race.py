@@ -7,7 +7,7 @@ from .races_base_status import RacesBaseStatus
 
 if TYPE_CHECKING:
     # 循環参照対策
-    from ..player_character import PlayerCharacter
+    from .player_character import PlayerCharacter
 
 """
 種族

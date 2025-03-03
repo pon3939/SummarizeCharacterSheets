@@ -13,7 +13,7 @@ from tenacity import (
     wait_fixed,
 )
 
-from .constants.spread_sheet import API_RETRY_COUNT, API_RETRY_WAIT_SECOND
+from ..constants.spread_sheet import API_RETRY_COUNT, API_RETRY_WAIT_SECOND
 
 """
 Spreadsheet拡張クラス

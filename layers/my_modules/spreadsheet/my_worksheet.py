@@ -10,7 +10,7 @@ from tenacity import (
     wait_fixed,
 )
 
-from .constants.spread_sheet import (
+from ..constants.spread_sheet import (
     API_RETRY_COUNT,
     API_RETRY_WAIT_SECOND,
     DEFAULT_TEXT_FORMAT,

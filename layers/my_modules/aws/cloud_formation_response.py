@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from .constants.aws import CLOUD_FORMATION_REQUEST_TYPE_MANUAL
+from ..constants.aws import CLOUD_FORMATION_REQUEST_TYPE_MANUAL
 
 """
 CloudFormationのレスポンス情報

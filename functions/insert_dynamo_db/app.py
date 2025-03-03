@@ -4,7 +4,8 @@ from os import getenv
 from typing import Any
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from my_modules.cloud_formation_response import CloudFormationResponse
+from my_modules.aws.cloud_formation_response import CloudFormationResponse
+from my_modules.aws.my_dynamo_db_client import MyDynamoDBClient
 from my_modules.common_functions import putCloudFormationResponse
 from my_modules.constants.aws import (
     CLOUD_FORMATION_REQUEST_TYPE_CREATE,
@@ -12,7 +13,6 @@ from my_modules.constants.aws import (
     CLOUD_FORMATION_STATUS_FAILED,
 )
 from my_modules.constants.env_keys import PREFIX
-from my_modules.my_dynamo_db_client import MyDynamoDBClient
 from mypy_boto3_dynamodb.type_defs import WriteRequestTypeDef
 
 """

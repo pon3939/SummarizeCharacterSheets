@@ -11,8 +11,8 @@ from mypy_boto3_s3.client import S3Client
 from mypy_boto3_s3.type_defs import GetObjectOutputTypeDef
 from pytz import timezone
 
-from .constants.common import BACKUP_KEY, TIMEZONE
-from .constants.env_keys import MY_AWS_REGION, MY_BUCKET_NAME
+from ..constants.common import BACKUP_KEY, TIMEZONE
+from ..constants.env_keys import MY_AWS_REGION, MY_BUCKET_NAME
 
 """
 S3Client拡張クラス

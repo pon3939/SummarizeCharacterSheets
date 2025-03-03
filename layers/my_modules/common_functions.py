@@ -6,14 +6,14 @@ from typing import Any
 
 from requests import put
 
-from .cloud_formation_response import CloudFormationResponse
+from .aws.cloud_formation_response import CloudFormationResponse
+from .aws.my_s3_client import MyS3Client
 from .constants.aws import (
     CLOUD_FORMATION_REQUEST_TYPE_MANUAL,
     CLOUD_FORMATION_STATUS_SUCCESS,
 )
-from .my_s3_client import MyS3Client
-from .player import Player
-from .player_character import PlayerCharacter
+from .sword_world.player import Player
+from .sword_world.player_character import PlayerCharacter
 
 """
 汎用関数

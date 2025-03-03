@@ -6,8 +6,8 @@ from datetime import datetime
 from re import Match, search, split, sub
 from typing import Union
 
+from ..constants import sword_world
 from .combat_skill import CombatSkill
-from .constants import sword_world
 from .exp_status import ExpStatus
 from .general_skill import GeneralSkill
 from .status import Status
@@ -521,7 +521,7 @@ class PlayerCharacter:
             str: URL
         """
         # 循環参照対策で遅延インポート
-        from .common_functions import MakeYtsheetUrl
+        from ..common_functions import MakeYtsheetUrl
 
         return MakeYtsheetUrl(self.YtsheetId)
 

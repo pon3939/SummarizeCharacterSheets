@@ -6,11 +6,11 @@ from time import sleep
 from typing import Any
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
+from my_modules.aws.my_dynamo_db_client import ConvertDynamoDBToJson
+from my_modules.aws.my_s3_client import MyS3Client
+from my_modules.aws.my_sns_client import MySNSClient
 from my_modules.common_functions import MakeYtsheetUrl
 from my_modules.constants.env_keys import GET_YTSHEET_INTERVAL_SECONDS
-from my_modules.my_dynamo_db_client import ConvertDynamoDBToJson
-from my_modules.my_s3_client import MyS3Client
-from my_modules.my_sns_client import MySNSClient
 from requests import Response, get
 
 """

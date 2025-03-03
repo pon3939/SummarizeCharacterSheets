@@ -6,6 +6,7 @@ from typing import Any
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from gspread.utils import rowcol_to_a1
 from gspread.worksheet import CellFormat
+from my_modules.aws.my_dynamo_db_client import ConvertDynamoDBToJson
 from my_modules.common_functions import initializePlayers
 from my_modules.constants.spread_sheet import (
     ACTIVE_HEADER_TEXT,
@@ -16,9 +17,8 @@ from my_modules.constants.spread_sheet import (
     TRUE_STRING,
 )
 from my_modules.constants.sword_world import ABYSS_CURSES
-from my_modules.my_dynamo_db_client import ConvertDynamoDBToJson
-from my_modules.my_worksheet import MyWorksheet
-from my_modules.player import Player
+from my_modules.spreadsheet.my_worksheet import MyWorksheet
+from my_modules.sword_world.player import Player
 
 """
 アビスカースシートを更新

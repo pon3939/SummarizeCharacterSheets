@@ -4,8 +4,8 @@
 from typing import Any
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from my_modules.my_dynamo_db_client import ConvertDynamoDBToJson
-from my_modules.my_spreadsheet import MySpreadsheet
+from my_modules.aws.my_dynamo_db_client import ConvertDynamoDBToJson
+from my_modules.spreadsheet.my_spreadsheet import MySpreadsheet
 
 """
 ワークシートを並べ変える
