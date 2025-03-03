@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-from re import sub
 from typing import Any
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
@@ -20,50 +19,16 @@ from my_modules.constants.spread_sheet import (
     RACE_HEADER_TEXT,
     TRUE_STRING,
 )
+from my_modules.constants.sword_world import RACES
 from my_modules.my_dynamo_db_client import ConvertDynamoDBToJson
 from my_modules.my_worksheet import MyWorksheet
 from my_modules.player import Player
+from my_modules.sword_world.race import Race
+from my_modules.sword_world.races_base_status import RacesBaseStatus
 
 """
 能力値シートを更新
 """
-
-RACES_STATUSES: dict = {
-    "人間": {"diceCount": 12, "fixedValue": 0},
-    "エルフ": {"diceCount": 11, "fixedValue": 0},
-    "ドワーフ": {"diceCount": 10, "fixedValue": 12},
-    "タビット": {"diceCount": 9, "fixedValue": 6},
-    "ルーンフォーク": {"diceCount": 10, "fixedValue": 0},
-    "ナイトメア": {"diceCount": 10, "fixedValue": 0},
-    "リカント": {"diceCount": 8, "fixedValue": 9},
-    "リルドラケン": {"diceCount": 10, "fixedValue": 6},
-    "グラスランナー": {"diceCount": 10, "fixedValue": 12},
-    "メリア": {"diceCount": 7, "fixedValue": 6},
-    "ティエンス": {"diceCount": 10, "fixedValue": 6},
-    "レプラカーン": {"diceCount": 11, "fixedValue": 0},
-    "ウィークリング": {"diceCount": 12, "fixedValue": 3},
-    "ソレイユ": {"diceCount": 9, "fixedValue": 6},
-    "アルヴ": {"diceCount": 8, "fixedValue": 12},
-    "シャドウ": {"diceCount": 10, "fixedValue": 0},
-    "スプリガン": {"diceCount": 8, "fixedValue": 0},
-    "アビスボーン": {"diceCount": 9, "fixedValue": 6},
-    "ハイマン": {"diceCount": 8, "fixedValue": 0},
-    "フロウライト": {"diceCount": 11, "fixedValue": 12},
-    "ダークドワーフ": {"diceCount": 9, "fixedValue": 12},
-    "ディアボロ": {"diceCount": 10, "fixedValue": 12},
-    "ドレイク": {"diceCount": 10, "fixedValue": 6},
-    "バジリスク": {"diceCount": 9, "fixedValue": 6},
-    "ダークトロール": {"diceCount": 10, "fixedValue": 6},
-    "アルボル": {"diceCount": 10, "fixedValue": 3},
-    "バーバヤガー": {"diceCount": 8, "fixedValue": 6},
-    "ケンタウロス": {"diceCount": 10, "fixedValue": 6},
-    "シザースコーピオン": {"diceCount": 10, "fixedValue": 6},
-    "ドーン": {"diceCount": 10, "fixedValue": 6},
-    "コボルド": {"diceCount": 10, "fixedValue": 0},
-    "ドレイクブロークン": {"diceCount": 10, "fixedValue": 6},
-    "ラミア": {"diceCount": 10, "fixedValue": 0},
-    "ラルヴァ": {"diceCount": 9, "fixedValue": 6},
-}
 
 
 def lambda_handler(event: dict, context: LambdaContext):
@@ -129,6 +94,7 @@ def updateStatusSheet(
         "魔物知識",
         "先制",
         DICE_AVERAGE_HEADER_TEXT,
+        "割り振り\nポイント",
         ADVENTURER_BIRTH_HEADER_TEXT,
     ]
     updateData.append(headers)
@@ -193,7 +159,10 @@ def updateStatusSheet(
             row.append(character.Initiative)
 
             # ダイス平均
-            racesStatus: dict = RACES_STATUSES[sub("（.*", "", character.Race)]
+            race: Race = next(
+                (x for x in RACES if x.Name == character.GetMajorRace())
+            )
+            totalBaseStatus: RacesBaseStatus = race.GetTotalBaseStatus()
             diceAverage: float = (
                 character.Dexterity.Base
                 + character.Agility.Base
@@ -201,9 +170,12 @@ def updateStatusSheet(
                 + character.Vitality.Base
                 + character.Intelligence.Base
                 + character.Mental.Base
-                - racesStatus["fixedValue"]
-            ) / racesStatus["diceCount"]
+                - totalBaseStatus.FixedValue
+            ) / totalBaseStatus.DiceCount
             row.append(diceAverage)
+
+            # 割り振りポイント
+            row.append(race.GetAllocationsPoint(character))
 
             # 冒険者生まれ
             if character.Birth == "冒険者":
