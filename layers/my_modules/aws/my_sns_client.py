@@ -5,7 +5,7 @@ from os import getenv
 from boto3 import client
 from mypy_boto3_sns.client import SNSClient
 
-from .constants.env_keys import MY_AWS_REGION, MY_SNS_TOPIC_ARN
+from ..constants.env_keys import MY_AWS_REGION, MY_SNS_TOPIC_ARN
 
 """
 SNSClient拡張クラス

@@ -4,14 +4,14 @@ from os import getenv
 from typing import Any, Union
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from my_modules.constants.env_keys import (
-    PLAYERS_SEASON_ID_NAME_INDEX_NAME,
-    PLAYERS_TABLE_NAME,
-)
-from my_modules.my_dynamo_db_client import (
+from my_modules.aws.my_dynamo_db_client import (
     ConvertDynamoDBToJson,
     ConvertJsonToDynamoDB,
     MyDynamoDBClient,
+)
+from my_modules.constants.env_keys import (
+    PLAYERS_SEASON_ID_NAME_INDEX_NAME,
+    PLAYERS_TABLE_NAME,
 )
 from mypy_boto3_dynamodb.type_defs import (
     QueryOutputTypeDef,

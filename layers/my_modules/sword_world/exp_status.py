@@ -2,7 +2,7 @@
 
 from enum import IntEnum, auto
 
-from .constants import spread_sheet
+from ..constants import spread_sheet
 
 """
 経験点の状態を管理する列挙型

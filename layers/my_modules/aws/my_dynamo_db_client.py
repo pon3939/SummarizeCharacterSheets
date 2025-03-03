@@ -13,7 +13,7 @@ from mypy_boto3_dynamodb.type_defs import (
     WriteRequestTypeDef,
 )
 
-from .constants.env_keys import MY_AWS_REGION
+from ..constants.env_keys import MY_AWS_REGION
 
 """
 DynamoDBClient拡張クラス

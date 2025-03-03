@@ -6,7 +6,12 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
-from my_modules.cloud_formation_response import CloudFormationResponse
+from my_modules.aws.cloud_formation_response import CloudFormationResponse
+from my_modules.aws.my_dynamo_db_client import (
+    ConvertJsonToDynamoDB,
+    DateTimeToStrForDynamoDB,
+    MyDynamoDBClient,
+)
 from my_modules.common_functions import putCloudFormationResponse
 from my_modules.constants.aws import (
     CLOUD_FORMATION_REQUEST_TYPE_CREATE,
@@ -15,11 +20,6 @@ from my_modules.constants.aws import (
 )
 from my_modules.constants.common import TIMEZONE
 from my_modules.constants.env_keys import LEVEL_CAPS_TABLE_NAME
-from my_modules.my_dynamo_db_client import (
-    ConvertJsonToDynamoDB,
-    DateTimeToStrForDynamoDB,
-    MyDynamoDBClient,
-)
 from mypy_boto3_dynamodb.type_defs import WriteRequestTypeDef
 
 """
