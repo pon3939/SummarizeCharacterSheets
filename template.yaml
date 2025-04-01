@@ -47,7 +47,7 @@ Resources:
           Type: Schedule
           Properties:
             Description: 8時間ごとに定期実行
-            Input: '{"environment_id" : 3}'
+            Input: '{"environment_id" : 2}'
             Schedule: cron(0 1/8 ? * * *)
       Policies:
         - StepFunctionsExecutionPolicy:
