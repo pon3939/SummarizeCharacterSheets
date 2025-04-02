@@ -13,12 +13,15 @@ from my_modules.constants.spread_sheet import (
     DEFAULT_TEXT_FORMAT,
     GAME_MASTER_COUNT_HEADER_TEXT,
     HORIZONTAL_ALIGNMENT_CENTER,
+    HORIZONTAL_ALIGNMENT_RIGHT,
     NO_HEADER_TEXT,
     NUMBER_FORMAT_TYPE_DATE_TIME,
     NUMBER_FORMAT_TYPE_INTEGER,
     PLAYER_COUNT_HEADER_TEXT,
     PLAYER_NAME_HEADER_TEXT,
+    TOTAL_COLUMN_INDEX,
     TOTAL_GAME_COUNT_HEADER_TEXT,
+    TOTAL_TEXT,
     TRUE_STRING,
     UPDATE_DATETIME_HEADER_TEXT,
 )
@@ -147,6 +150,7 @@ def updatePlayerSheet(
     # 合計行
     total: list = [None] * len(header)
     activeCountIndex: int = header.index(ACTIVE_HEADER_TEXT)
+    total[TOTAL_COLUMN_INDEX] = TOTAL_TEXT
 
     # アクティブ
     total[activeCountIndex] = sum(
@@ -191,6 +195,16 @@ def updatePlayerSheet(
         {
             "range": f"{startA1}:{endA1}",
             "format": NUMBER_FORMAT_TYPE_DATE_TIME,
+        }
+    )
+
+    # 合計行
+    startA1 = rowcol_to_a1(updateDataCount, activeCountIndex + 1)
+    endA1 = rowcol_to_a1(updateDataCount, activeCountIndex + 1)
+    formats.append(
+        {
+            "range": f"{startA1}:{endA1}",
+            "format": HORIZONTAL_ALIGNMENT_RIGHT,
         }
     )
 

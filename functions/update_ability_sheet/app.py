@@ -14,9 +14,12 @@ from my_modules.constants.spread_sheet import (
     EXP_HEADER_TEXT,
     FAITH_HEADER_TEXT,
     HORIZONTAL_ALIGNMENT_CENTER,
+    HORIZONTAL_ALIGNMENT_RIGHT,
     LEVEL_HEADER_TEXT,
     NO_HEADER_TEXT,
     PLAYER_CHARACTER_NAME_HEADER_TEXT,
+    TOTAL_COLUMN_INDEX,
+    TOTAL_TEXT,
 )
 from my_modules.constants.sword_world import COMBAT_SKILLS
 from my_modules.spreadsheet.my_worksheet import (
@@ -174,6 +177,7 @@ def updateAbilitySheet(
     # 合計行
     notSkillColumnCount: int = len(headers) - len(COMBAT_SKILLS)
     total: list = [None] * notSkillColumnCount
+    total[TOTAL_COLUMN_INDEX] = TOTAL_TEXT
     for combatSkill in COMBAT_SKILLS.values():
         total.append(
             sum(
@@ -200,13 +204,24 @@ def updateAbilitySheet(
     )
 
     # アクティブ
+    updateDataCount: int = len(updateData)
     activeCountIndex: int = headers.index(ACTIVE_HEADER_TEXT)
     startA1 = rowcol_to_a1(2, activeCountIndex + 1)
-    endA1 = rowcol_to_a1(len(updateData) - 1, activeCountIndex + 1)
+    endA1 = rowcol_to_a1(updateDataCount - 1, activeCountIndex + 1)
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
             "format": HORIZONTAL_ALIGNMENT_CENTER,
+        }
+    )
+
+    # 合計行
+    startA1 = rowcol_to_a1(updateDataCount, notSkillColumnCount + 1)
+    endA1 = rowcol_to_a1(updateDataCount, len(headers))
+    formats.append(
+        {
+            "range": f"{startA1}:{endA1}",
+            "format": HORIZONTAL_ALIGNMENT_RIGHT,
         }
     )
 

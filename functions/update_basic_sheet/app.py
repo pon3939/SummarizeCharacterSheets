@@ -15,13 +15,16 @@ from my_modules.constants.spread_sheet import (
     FAITH_HEADER_TEXT,
     GAME_MASTER_COUNT_HEADER_TEXT,
     HORIZONTAL_ALIGNMENT_CENTER,
+    HORIZONTAL_ALIGNMENT_RIGHT,
     NO_HEADER_TEXT,
     NUMBER_FORMAT_TYPE_DATE_TIME,
     PLAYER_CHARACTER_NAME_HEADER_TEXT,
     PLAYER_COUNT_HEADER_TEXT,
     PLAYER_NAME_HEADER_TEXT,
     RACE_HEADER_TEXT,
+    TOTAL_COLUMN_INDEX,
     TOTAL_GAME_COUNT_HEADER_TEXT,
+    TOTAL_TEXT,
     TRUE_STRING,
     UPDATE_DATETIME_HEADER_TEXT,
     VAGRANTS_HEADER_TEXT,
@@ -185,6 +188,7 @@ def updateBasicSheet(
     # 合計行
     total: list = [None] * len(header)
     activeCountIndex: int = header.index(ACTIVE_HEADER_TEXT)
+    total[TOTAL_COLUMN_INDEX] = TOTAL_TEXT
 
     # アクティブ
     total[activeCountIndex] = sum(
@@ -192,17 +196,19 @@ def updateBasicSheet(
     )
 
     # ヴァグランツ
-    vagrantsCountIndex: int = header.index(VAGRANTS_HEADER_TEXT)
-    total[vagrantsCountIndex] = sum(
+    vagrantsIndex: int = header.index(VAGRANTS_HEADER_TEXT)
+    total[vagrantsIndex] = sum(
         x.CountVagrantsPlayerCharacters() for x in players
     )
 
     # 死亡回数
-    total[header.index(DIED_TIMES_HEADER_TEXT)] = sum(
+    diedIndex: int = header.index(DIED_TIMES_HEADER_TEXT)
+    total[diedIndex] = sum(
         sum(y.DiedTimes for y in x.Characters) for x in players
     )
     updateData.append(total)
 
+    # 書式設定
     # アクティブ
     updateDataCount: int = len(updateData)
     startA1: str = rowcol_to_a1(2, activeCountIndex + 1)
@@ -215,8 +221,8 @@ def updateBasicSheet(
     )
 
     # ヴァグランツ
-    startA1 = rowcol_to_a1(2, vagrantsCountIndex + 1)
-    endA1: str = rowcol_to_a1(updateDataCount - 1, vagrantsCountIndex + 1)
+    startA1 = rowcol_to_a1(2, vagrantsIndex + 1)
+    endA1: str = rowcol_to_a1(updateDataCount - 1, vagrantsIndex + 1)
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
@@ -232,6 +238,36 @@ def updateBasicSheet(
         {
             "range": f"{startA1}:{endA1}",
             "format": NUMBER_FORMAT_TYPE_DATE_TIME,
+        }
+    )
+
+    # アクティブ合計
+    startA1 = rowcol_to_a1(updateDataCount, activeCountIndex + 1)
+    endA1 = rowcol_to_a1(updateDataCount, activeCountIndex + 1)
+    formats.append(
+        {
+            "range": f"{startA1}:{endA1}",
+            "format": HORIZONTAL_ALIGNMENT_RIGHT,
+        }
+    )
+
+    # ヴァグランツ合計
+    startA1 = rowcol_to_a1(updateDataCount, vagrantsIndex + 1)
+    endA1 = rowcol_to_a1(updateDataCount, vagrantsIndex + 1)
+    formats.append(
+        {
+            "range": f"{startA1}:{endA1}",
+            "format": HORIZONTAL_ALIGNMENT_RIGHT,
+        }
+    )
+
+    # 死亡合計
+    startA1 = rowcol_to_a1(updateDataCount, diedIndex + 1)
+    endA1 = rowcol_to_a1(updateDataCount, diedIndex + 1)
+    formats.append(
+        {
+            "range": f"{startA1}:{endA1}",
+            "format": HORIZONTAL_ALIGNMENT_RIGHT,
         }
     )
 

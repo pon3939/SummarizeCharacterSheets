@@ -15,7 +15,6 @@ from ..constants.spread_sheet import (
     API_RETRY_WAIT_SECOND,
     DEFAULT_TEXT_FORMAT,
     HORIZONTAL_ALIGNMENT_CENTER,
-    HORIZONTAL_ALIGNMENT_RIGHT,
 )
 from .my_spreadsheet import MySpreadsheet
 
@@ -56,14 +55,14 @@ class MyWorksheet:
     )
     def Update(
         self,
-        originalValues: list[list],
+        values: list[list],
         additionalFormats: list[CellFormat],
         isContainTotalRow: bool,
     ):
         """更新する
 
         Args:
-            originalValues (list[list]): 更新する値
+            values (list[list]): 更新する値
             additionalFormats (list[CellFormat]): 書式
             isContainTotalRow (bool): 合計行を含むか
         """
@@ -71,36 +70,18 @@ class MyWorksheet:
         self.worksheet.clear()
         self.worksheet.clear_basic_filter()
 
-        rowCount: int = len(originalValues)
-        columnCount: int = max(map(lambda x: len(x), originalValues))
-        values: list[list] = originalValues
-        filterLastRowIndex: int = rowCount
-        formats: list[CellFormat] = []
-        if isContainTotalRow:
-            # 合計行のラベル
-            values[-1][1] = "合計"
-
-            # 合計行の数値の書式設定
-            startA1: str = rowcol_to_a1(len(values), 3)
-            endA1: str = rowcol_to_a1(len(values), columnCount)
-            formats.append(
-                {
-                    "range": f"{startA1}:{endA1}",
-                    "format": HORIZONTAL_ALIGNMENT_RIGHT,
-                }
-            )
-
-            # 合計行はフィルターしない
-            filterLastRowIndex -= 1
-
         # 更新
         self.worksheet.update(
             values, value_input_option=ValueInputOption.user_entered
         )
 
+        formats: list[CellFormat] = []
+        rowCount: int = len(values)
+        columnCount: int = max(map(lambda x: len(x), values))
+
         # デフォルトの書式設定
-        startA1 = rowcol_to_a1(1, 1)
-        endA1 = rowcol_to_a1(rowCount, columnCount)
+        startA1: str = rowcol_to_a1(1, 1)
+        endA1: str = rowcol_to_a1(rowCount, columnCount)
         formats.append(
             {
                 "range": f"{startA1}:{endA1}",
@@ -135,7 +116,8 @@ class MyWorksheet:
         self.worksheet.set_basic_filter(
             1,
             1,
-            filterLastRowIndex,
+            rowCount
+            - (1 if isContainTotalRow else 0),  # 合計行はフィルターしない
             columnCount,
         )
 

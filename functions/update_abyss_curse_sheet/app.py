@@ -12,8 +12,11 @@ from my_modules.constants.spread_sheet import (
     ACTIVE_HEADER_TEXT,
     DEFAULT_TEXT_FORMAT,
     HORIZONTAL_ALIGNMENT_CENTER,
+    HORIZONTAL_ALIGNMENT_RIGHT,
     NO_HEADER_TEXT,
     PLAYER_CHARACTER_NAME_HEADER_TEXT,
+    TOTAL_COLUMN_INDEX,
+    TOTAL_TEXT,
     TRUE_STRING,
 )
 from my_modules.constants.sword_world import ABYSS_CURSES
@@ -135,6 +138,7 @@ def updateAbyssCurseSheet(
     # 合計行
     notTotalColumnCount: int = len(headers) - len(ABYSS_CURSES) - 1
     total: list = [None] * notTotalColumnCount
+    total[TOTAL_COLUMN_INDEX] = TOTAL_TEXT
 
     # アビスカースの数
     total.append(
@@ -173,6 +177,16 @@ def updateAbyssCurseSheet(
         {
             "range": f"{startA1}:{endA1}",
             "format": HORIZONTAL_ALIGNMENT_CENTER,
+        }
+    )
+
+    # 合計行
+    startA1 = rowcol_to_a1(updateDataCount, notTotalColumnCount + 1)
+    endA1 = rowcol_to_a1(updateDataCount, len(headers))
+    formats.append(
+        {
+            "range": f"{startA1}:{endA1}",
+            "format": HORIZONTAL_ALIGNMENT_RIGHT,
         }
     )
 
