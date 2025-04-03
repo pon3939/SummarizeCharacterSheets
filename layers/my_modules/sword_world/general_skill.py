@@ -31,7 +31,7 @@ class GeneralSkill:
         Returns:
             str: 整形した一般技能名
         """
-        return f"{self.SkillName}({self.Job})"
+        return f"{self.SkillName}" + (f"({self.Job})" if self.Job else "")
 
     def getFormattedSkillAndLevel(self) -> str:
         """
