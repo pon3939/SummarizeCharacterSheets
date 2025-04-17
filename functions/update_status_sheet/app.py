@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-from typing import Any
+from typing import Any, Union
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from gspread.utils import rowcol_to_a1
@@ -158,24 +158,31 @@ def updateStatusSheet(
             # 先制力
             row.append(character.Initiative)
 
-            # ダイス平均
-            race: Race = next(
-                (x for x in RACES if x.Name == character.GetMajorRace())
+            diceAverage: float = 0.0
+            allocationsPoint: int = 0
+            race: Union[Race, None] = next(
+                (x for x in RACES if x.Name == character.GetMajorRace()),
+                None,
             )
-            totalBaseStatus: RacesBaseStatus = race.GetTotalBaseStatus()
-            diceAverage: float = (
-                character.Dexterity.Base
-                + character.Agility.Base
-                + character.Strength.Base
-                + character.Vitality.Base
-                + character.Intelligence.Base
-                + character.Mental.Base
-                - totalBaseStatus.FixedValue
-            ) / totalBaseStatus.DiceCount
+            if race is not None:
+                # 種族指定時のみ値を設定
+                totalBaseStatus: RacesBaseStatus = race.GetTotalBaseStatus()
+                diceAverage = (
+                    character.Dexterity.Base
+                    + character.Agility.Base
+                    + character.Strength.Base
+                    + character.Vitality.Base
+                    + character.Intelligence.Base
+                    + character.Mental.Base
+                    - totalBaseStatus.FixedValue
+                ) / totalBaseStatus.DiceCount
+                allocationsPoint = race.GetAllocationsPoint(character)
+
+            # ダイス平均
             row.append(diceAverage)
 
             # 割り振りポイント
-            row.append(race.GetAllocationsPoint(character))
+            row.append(allocationsPoint)
 
             # 冒険者生まれ
             if character.Birth == "冒険者":
