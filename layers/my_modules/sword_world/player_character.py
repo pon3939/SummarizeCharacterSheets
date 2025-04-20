@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from re import Match, search, split, sub
 from typing import Union
+from unicodedata import normalize
 
 from ..constants import sword_world
 from .combat_skill import CombatSkill
@@ -331,7 +332,7 @@ class PlayerCharacter:
                     freeNote,
                 )
                 if height != freeNote:
-                    self.Height = height
+                    self.Height = normalize("NFKC", height)
 
             if "背丈" in freeNote:
                 height = sub(
@@ -340,7 +341,7 @@ class PlayerCharacter:
                     freeNote,
                 )
                 if height != freeNote:
-                    self.Height = height
+                    self.Height = normalize("NFKC", height)
 
             if "体重" in freeNote:
                 weight: str = sub(
@@ -349,7 +350,7 @@ class PlayerCharacter:
                     freeNote,
                 )
                 if weight != freeNote:
-                    self.Weight = weight
+                    self.Weight = normalize("NFKC", weight)
 
     def GetMinorRace(self) -> str:
         """
