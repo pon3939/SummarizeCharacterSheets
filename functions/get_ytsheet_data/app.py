@@ -30,23 +30,23 @@ def lambda_handler(event: dict, context: LambdaContext):
 
     seasonId: int = int(event["SeasonId"])
     player: dict = ConvertDynamoDBToJson(event["Player"])
-    characters: list[dict] = player["characters"]
-    getYtsheetData(seasonId, characters)
+    getYtsheetData(seasonId, player)
 
 
 def getYtsheetData(
     seasonId: int,
-    characters: list[dict[str, Any]],
+    player: dict[str, Any],
 ):
     """ゆとシートデータを取得
 
     Args:
         seasonId: (int): シーズンID
-        characters: (list[dict[str, Any]]): キャラクター情報
+        player: (dict[str, Any]): プレイヤー情報
     """
 
     s3: MyS3Client = MyS3Client()
     isAccessedYtsheet: bool = False
+    characters: list[dict[str, Any]] = player["characters"]
     for character in characters:
         if character["is_deleted"]:
             # 削除済みの場合はスキップ
@@ -67,7 +67,8 @@ def getYtsheetData(
             publish_error_message(
                 {
                     "message": "ステータスコードエラー",
-                    "ytsheetId": ytsheetId,
+                    "id": player["id"],
+                    "ytsheet_id": ytsheetId,
                     "status_code": response.status_code,
                 }
             )
@@ -81,7 +82,8 @@ def getYtsheetData(
             publish_error_message(
                 {
                     "message": "JSON形式ではありません",
-                    "ytsheetId": ytsheetId,
+                    "id": player["id"],
+                    "ytsheet_id": ytsheetId,
                     "response": response.text,
                 }
             )
