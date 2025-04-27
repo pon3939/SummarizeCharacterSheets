@@ -224,6 +224,23 @@ class PlayerCharacter:
         # 所持品
         self.AbyssCurses += _FindAbyssCurses(characterJson.get("items", ""))
 
+        # 自由記入の表
+        effectBoxNum: int = int(characterJson.get("effectBoxNum", "0"))
+        for i in range(1, effectBoxNum + 1):
+            if (
+                characterJson.get(f"effect{i}Name", "") != "アビス侵蝕"
+                and characterJson.get(f"effect{i}NameFree", "")
+                != "アビスカース"
+            ):
+                # 表のタイトルが特定の値でなければ処理しない
+                continue
+
+            effectNum: int = int(characterJson.get(f"effect{i}Num", "0"))
+            for j in range(1, effectNum + 1):
+                self.AbyssCurses += _FindAbyssCurses(
+                    characterJson.get(f"effect{j}Name", "")
+                )
+
         # 重複を削除
         self.AbyssCurses = list(set(self.AbyssCurses))
 
