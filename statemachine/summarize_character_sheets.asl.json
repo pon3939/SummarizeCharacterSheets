@@ -1,117 +1,117 @@
 {
-    "QueryLanguage": "JSONata",
-    "Comment": "SW2.5 のキャラクターシートをスプレッドシートに集計する",
-    "StartAt": "initialize_pass",
-    "States": {
-        "initialize_pass": {
-            "Type": "Pass",
-            "Next": "environments_query",
-            "Assign": {
-                "environment_id": "{% $states.input.environment_id %}",
-                "get_ytsheet_data_interval_seconds": "${GetYtsheetIntervalSeconds}"
-            }
-        },
-        "environments_query": {
-            "Type": "Task",
-            "Arguments": {
-                "TableName": "${EnvironmentsTable}",
-                "ProjectionExpression": "season_id",
-                "KeyConditionExpression": "id = :environment_id",
-                "ExpressionAttributeValues": {
-                    ":environment_id": {
-                        "N": "{% $string($environment_id) %}"
-                    }
-                }
-            },
-            "Resource": "arn:aws:states:::aws-sdk:dynamodb:query",
-            "Next": "initialize_players_query_pass",
-            "Assign": {
-                "season_id": "{% $states.result.Items[0].season_id.N %}"
-            }
-        },
-        "players_query": {
-            "Type": "Task",
-            "Arguments": {
-                "TableName": "${PlayersTable}",
-                "ProjectionExpression": "characters",
-                "KeyConditionExpression": "season_id = :season_id",
-                "ExpressionAttributeValues": {
-                    ":season_id": {
-                        "N": "{% $season_id %}"
-                    }
-                },
-                "ExclusiveStartKey": "{% $states.input.last_evaluated_key %}"
-            },
-            "Resource": "arn:aws:states:::aws-sdk:dynamodb:query",
-            "Assign": {
-                "players": "{% $append($players, $states.result.Items) %}"
-            },
-            "Next": "players_query_choice"
-        },
-        "players_query_choice": {
-            "Type": "Choice",
-            "Choices": [
-                {
-                    "Next": "players_query",
-                    "Condition": "{% $exists($states.input.LastEvaluatedKey) %}",
-                    "Output": {
-                        "last_evaluated_key": "$states.input.LastEvaluatedKey"
-                    }
-                }
-            ],
-            "Default": "get_ytsheet_data_map"
-        },
-        "initialize_players_query_pass": {
-            "Type": "Pass",
-            "Next": "players_query",
-            "Output": {
-                "last_evaluated_key": "{% null %}",
-                "players": []
-            }
-        },
-        "get_ytsheet_data_map": {
-            "Type": "Map",
-            "ItemProcessor": {
-                "ProcessorConfig": {
-                    "Mode": "INLINE"
-                },
-                "StartAt": "get_ytsheet_data_invoke",
-                "States": {
-                    "get_ytsheet_data_invoke": {
-                        "Type": "Task",
-                        "Resource": "arn:aws:states:::lambda:invoke",
-                        "Output": "{% $states.result.Payload %}",
-                        "Arguments": {
-                            "FunctionName": "${GetYtsheetDataFunctionArn}",
-                            "Payload": {
-                                "SeasonId": "{% $season_id %}",
-                                "Player": "{% $states.input %}"
-                            }
-                        },
-                        "Next": "get_ytsheet_data_wait"
-                    },
-                    "get_ytsheet_data_wait": {
-                        "Type": "Wait",
-                        "Seconds": "{% $number($get_ytsheet_data_interval_seconds) %}",
-                        "End": true
-                    }
-                }
-            },
-            "MaxConcurrency": 1,
-            "Items": "{% $players %}",
-            "Next": "update_spread_sheet_start_execution"
-        },
-        "update_spread_sheet_start_execution": {
-            "Type": "Task",
-            "Resource": "arn:aws:states:::states:startExecution.sync:2",
-            "Arguments": {
-                "StateMachineArn": "${UpdateSpreadSheetStateMachineArn}",
-                "Input": {
-                    "environment_id": "{% $environment_id %}",
-                    "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID": "{% $states.context.Execution.Id %}"
-                }
-            },
-            "End": true
+  "QueryLanguage": "JSONata",
+  "Comment": "SW2.5 のキャラクターシートをスプレッドシートに集計する",
+  "StartAt": "initialize_pass",
+  "States": {
+    "initialize_pass": {
+      "Type": "Pass",
+      "Next": "environments_query",
+      "Assign": {
+        "environment_id": "{% $states.input.environment_id %}",
+        "get_ytsheet_data_interval_seconds": "${GetYtsheetIntervalSeconds}"
+      }
+    },
+    "environments_query": {
+      "Type": "Task",
+      "Arguments": {
+        "TableName": "${EnvironmentsTable}",
+        "ProjectionExpression": "season_id",
+        "KeyConditionExpression": "id = :environment_id",
+        "ExpressionAttributeValues": {
+          ":environment_id": {
+            "N": "{% $string($environment_id) %}"
+          }
         }
+      },
+      "Resource": "arn:aws:states:::aws-sdk:dynamodb:query",
+      "Next": "initialize_players_query_pass",
+      "Assign": {
+        "season_id": "{% $states.result.Items[0].season_id.N %}"
+      }
+    },
+    "players_query": {
+      "Type": "Task",
+      "Arguments": {
+        "TableName": "${PlayersTable}",
+        "ProjectionExpression": "id, characters",
+        "KeyConditionExpression": "season_id = :season_id",
+        "ExpressionAttributeValues": {
+          ":season_id": {
+            "N": "{% $season_id %}"
+          }
+        },
+        "ExclusiveStartKey": "{% $states.input.last_evaluated_key %}"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:dynamodb:query",
+      "Assign": {
+        "players": "{% $append($players, $states.result.Items) %}"
+      },
+      "Next": "players_query_choice"
+    },
+    "players_query_choice": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Next": "players_query",
+          "Condition": "{% $exists($states.input.LastEvaluatedKey) %}",
+          "Output": {
+            "last_evaluated_key": "$states.input.LastEvaluatedKey"
+          }
+        }
+      ],
+      "Default": "get_ytsheet_data_map"
+    },
+    "initialize_players_query_pass": {
+      "Type": "Pass",
+      "Next": "players_query",
+      "Output": {
+        "last_evaluated_key": "{% null %}",
+        "players": []
+      }
+    },
+    "get_ytsheet_data_map": {
+      "Type": "Map",
+      "ItemProcessor": {
+        "ProcessorConfig": {
+          "Mode": "INLINE"
+        },
+        "StartAt": "get_ytsheet_data_invoke",
+        "States": {
+          "get_ytsheet_data_invoke": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Output": "{% $states.result.Payload %}",
+            "Arguments": {
+              "FunctionName": "${GetYtsheetDataFunctionArn}",
+              "Payload": {
+                "SeasonId": "{% $season_id %}",
+                "Player": "{% $states.input %}"
+              }
+            },
+            "Next": "get_ytsheet_data_wait"
+          },
+          "get_ytsheet_data_wait": {
+            "Type": "Wait",
+            "Seconds": "{% $number($get_ytsheet_data_interval_seconds) %}",
+            "End": true
+          }
+        }
+      },
+      "MaxConcurrency": 1,
+      "Items": "{% $players %}",
+      "Next": "update_spread_sheet_start_execution"
+    },
+    "update_spread_sheet_start_execution": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::states:startExecution.sync:2",
+      "Arguments": {
+        "StateMachineArn": "${UpdateSpreadSheetStateMachineArn}",
+        "Input": {
+          "environment_id": "{% $environment_id %}",
+          "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID": "{% $states.context.Execution.Id %}"
+        }
+      },
+      "End": true
     }
+  }
 }
