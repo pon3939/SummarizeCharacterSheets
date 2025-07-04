@@ -118,7 +118,7 @@ Resources:
       Description: ゆとシータからデータを取得し、S3に出力する
       CodeUri: functions/get_ytsheet_data/
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.12
       Timeout: 60
       Architectures:
         - x86_64
@@ -146,7 +146,7 @@ Resources:
       Description: ワークシートを並べ変える
       CodeUri: functions/reorder_worksheets/
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.12
       Timeout: 60
       Architectures:
         - x86_64
@@ -164,7 +164,7 @@ Resources:
       Description: PL シートを更新する
       CodeUri: functions/update_player_sheet/
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.12
       Timeout: 60
       Architectures:
         - x86_64
@@ -185,7 +185,7 @@ Resources:
       Description: 基本シートを更新する
       CodeUri: functions/update_basic_sheet/
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.12
       Timeout: 60
       Architectures:
         - x86_64
@@ -206,7 +206,7 @@ Resources:
       Description: 技能シートを更新する
       CodeUri: functions/update_ability_sheet/
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.12
       Timeout: 60
       Architectures:
         - x86_64
@@ -227,7 +227,7 @@ Resources:
       Description: 能力値シートを更新する
       CodeUri: functions/update_status_sheet/
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.12
       Timeout: 60
       Architectures:
         - x86_64
@@ -248,7 +248,7 @@ Resources:
       Description: 戦闘特技シートを更新する
       CodeUri: functions/update_combat_skill_sheet/
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.12
       Timeout: 60
       Architectures:
         - x86_64
@@ -269,7 +269,7 @@ Resources:
       Description: 名誉点・流派シートを更新する
       CodeUri: functions/update_honor_sheet/
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.12
       Timeout: 60
       Architectures:
         - x86_64
@@ -290,7 +290,7 @@ Resources:
       Description: アビスカースシートを更新する
       CodeUri: functions/update_abyss_curse_sheet/
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.12
       Timeout: 60
       Architectures:
         - x86_64
@@ -311,7 +311,7 @@ Resources:
       Description: 一般技能シートを更新する
       CodeUri: functions/update_general_skill_sheet/
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.12
       Timeout: 60
       Architectures:
         - x86_64
@@ -332,7 +332,7 @@ Resources:
       Description: レベルキャップテーブルにレコードを追加する
       CodeUri: functions/insert_level_caps/
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.12
       Architectures:
         - x86_64
       Layers:
@@ -353,7 +353,7 @@ Resources:
       Description: PLテーブルにレコードを追加する
       CodeUri: functions/insert_players/
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.12
       Architectures:
         - x86_64
       Layers:
@@ -375,7 +375,7 @@ Resources:
       Description: DynamoDB のバックアップを取る
       CodeUri: functions/backup_dynamo_db/
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.12
       Timeout: 60
       Architectures:
         - x86_64
@@ -397,7 +397,7 @@ Resources:
       Description: DynamoDB をリストアする
       CodeUri: functions/restore_dynamo_db/
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.12
       Timeout: 60
       Architectures:
         - x86_64
@@ -419,7 +419,7 @@ Resources:
       Description: DynamoDB にレコードを登録する
       CodeUri: functions/insert_dynamo_db/
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.12
       Architectures:
         - x86_64
       Layers:
@@ -439,9 +439,9 @@ Resources:
       ContentUri: layers/
       Description: SummarizeCharacterSheets 用のレイヤー
       CompatibleRuntimes:
-        - python3.9
+        - python3.12
     Metadata:
-      BuildMethod: python3.9
+      BuildMethod: python3.12
       BuildArchitecture: x86_64
 
   # DynamoDB
