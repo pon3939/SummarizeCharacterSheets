@@ -24,14 +24,18 @@ SW2.5 のキャラクターシートをスプレッドシートに集計する S
 
 ### ローカル環境
 
-AWS SAM がセットアップ済みであること
+AWS SAM がセットアップ済みであること  
+参考
+
+- [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+- [AWS SAM CLI](https://docs.aws.amazon.com/ja_jp/serverless-application-model/latest/developerguide/install-sam-cli.html)
 
 ```bash
 # コミットメッセージのテンプレート設定
 git config --local commit.template .gitmessage.txt
 # Python仮想環境
-python -m venv .venv
-source venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 # パッケージ管理ツールインストール
 pip install pip-tools
 # エディターの補完等のためにライブラリインストール
