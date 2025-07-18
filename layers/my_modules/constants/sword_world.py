@@ -291,6 +291,11 @@ OFFICIAL_GENERAL_SKILLS: list[GeneralSkill] = [
     GeneralSkill("ピアインスペクター", "橋脚点検士"),
     GeneralSkill("プロスペクター", "山師"),
     GeneralSkill("マリンアニマルトレーナー", "海獣調教師"),
+    GeneralSkill("アーキオロジスト", "考古学者"),
+    GeneralSkill("エクスカヴェーター", "発掘作業員"),
+    GeneralSkill("クレーンオペレーター", "起重機技師"),
+    GeneralSkill("ジオロジスト", "地質学者"),
+    GeneralSkill("ベースキャンパー", "大規模キャンプ設営者"),
 ]
 
 # ヴァグランツ戦闘特技
