@@ -93,6 +93,8 @@ def updateStatusSheet(
         "精神抵抗",
         "魔物知識",
         "先制",
+        "命中",
+        "回避",
         DICE_AVERAGE_HEADER_TEXT,
         "割り振り\nポイント",
         ADVENTURER_BIRTH_HEADER_TEXT,
@@ -157,6 +159,12 @@ def updateStatusSheet(
 
             # 先制力
             row.append(character.Initiative)
+
+            # 命中
+            row.append(character.Accuracy)
+
+            # 回避
+            row.append(character.Evasion)
 
             diceAverage: float = 0.0
             allocationsPoint: int = 0

@@ -200,10 +200,18 @@ class PlayerCharacter:
                 self.Styles.append(style)
 
         # 武器
+        self.Accuracy: int = 0
         self.AbyssCurses: list[str] = []
         weaponNum: int = int(characterJson.get("weaponNum", "0"))
 
         for i in range(1, weaponNum + 1):
+            # 命中
+            self.Accuracy = max(
+                self.Accuracy,
+                int(characterJson.get(f"weapon{i}AccTotal", "0")),
+            )
+
+            # アビスカース
             self.AbyssCurses += _FindAbyssCurses(
                 characterJson.get(f"weapon{i}Name", "")
             )
@@ -219,6 +227,16 @@ class PlayerCharacter:
             )
             self.AbyssCurses += _FindAbyssCurses(
                 characterJson.get(f"armour{i}Note", "")
+            )
+
+        # 回避合計など
+        self.Evasion: int = 0
+        defenseNum: int = int(characterJson.get("defenseNum", "0"))
+        for i in range(1, defenseNum + 1):
+            # 回避
+            self.Evasion = max(
+                self.Evasion,
+                int(characterJson.get(f"defenseTotal{i}Eva", "0")),
             )
 
         # 所持品

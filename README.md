@@ -71,7 +71,7 @@ sam delete
 仮想環境に入る(Visual Studio Code は自動で入ってくれたりする)
 
 ```bash
-source venv/bin/activate
+source .venv/bin/activate
 ```
 
 仮想環境終了
