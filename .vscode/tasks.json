@@ -1,12 +1,10 @@
 {
-  // See https://go.microsoft.com/fwlink/?LinkId=733558
-  // for the documentation about the tasks.json format
   "version": "2.0.0",
   "tasks": [
     {
       "label": "install libraries",
       "type": "shell",
-      "command": "pip install --upgrade -r ${workspaceFolder}/requirements_dev.txt -t ${workspaceFolder}/layers"
+      "command": "${workspaceFolder}/.venv/bin/pip install --upgrade -r ${workspaceFolder}/requirements_dev.txt -t ${workspaceFolder}/layers"
     }
   ]
 }
