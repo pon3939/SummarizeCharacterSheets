@@ -188,7 +188,7 @@ def updateHonorSheet(
     updateDataCount: int = len(updateData)
     activeCountIndex: int = headers.index(ACTIVE_HEADER_TEXT)
     startA1 = rowcol_to_a1(2, activeCountIndex + 1)
-    endA1: str = rowcol_to_a1(updateDataCount - 1, activeCountIndex + 1)
+    endA1 = rowcol_to_a1(updateDataCount - 1, activeCountIndex + 1)
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
@@ -198,7 +198,7 @@ def updateHonorSheet(
 
     # ○
     startA1 = rowcol_to_a1(2, notTotalColumnCount + 1)
-    endA1: str = rowcol_to_a1(updateDataCount - 1, len(headers))
+    endA1 = rowcol_to_a1(updateDataCount - 1, len(headers))
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
