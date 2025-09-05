@@ -18,8 +18,8 @@
         { "StartDatetime": "2025/7/8", "MinimumExp": 34000, "MaxExp": 40500 },
         { "StartDatetime": "2025/8/1", "MinimumExp": 40500, "MaxExp": 65000 },
         { "StartDatetime": "2025/8/8", "MinimumExp": 56000, "MaxExp": 65000 },
-        { "StartDatetime": "2025/9/1", "MinimumExp": 105000, "MaxExp": 105000 },
-        { "StartDatetime": "2025/9/8", "MinimumExp": 135000, "MaxExp": 105000 },
+        { "StartDatetime": "2025/9/1", "MinimumExp": 65000, "MaxExp": 105000 },
+        { "StartDatetime": "2025/9/8", "MinimumExp": 90000, "MaxExp": 105000 },
         {
           "StartDatetime": "2025/10/1",
           "MinimumExp": 105000,
