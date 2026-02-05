@@ -30,7 +30,7 @@ def MakeYtsheetUrl(id: str) -> str:
     Returns:
         str: URL
     """
-    return f"https://yutorize.2-d.jp/ytsheet/sw2.5/?id={id}"
+    return f"https://yutorize.work/ytsheet/sw2.5/?id={id}"
 
 
 def putCloudFormationResponse(
