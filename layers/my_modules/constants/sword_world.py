@@ -296,6 +296,9 @@ OFFICIAL_GENERAL_SKILLS: list[GeneralSkill] = [
     GeneralSkill("クレーンオペレーター", "起重機技師"),
     GeneralSkill("ジオロジスト", "地質学者"),
     GeneralSkill("ベースキャンパー", "大規模キャンプ設営者"),
+    GeneralSkill("チャコールバーナー", "炭焼き"),
+    GeneralSkill("ハッター", "帽子屋"),
+    GeneralSkill("ブックバインダー", "製本工"),
 ]
 
 # ヴァグランツ戦闘特技
