@@ -45,6 +45,14 @@
           "spreadsheet_id": {
             "S": "1v3qRXJhzPK2vw-5NnDS3nW70bN-YD4p-pGUuOZDORNc"
           }
+        },
+        {
+          "id": { "N": "3" },
+          "name": { "S": "5期" },
+          "season_id": { "N": "5" },
+          "spreadsheet_id": {
+            "S": "1UGBjPNJluch7K-YE6uFRqubkzb0M-9BJvrY0UNqmlvA"
+          }
         }
       ]
     }
