@@ -27,6 +27,28 @@
         },
         { "StartDatetime": "2025/10/8", "MinimumExp": 135000, "MaxExp": 160000 }
       ]
+    },
+    {
+      "SeasonId": 5,
+      "LevelCaps": [
+        { "StartDatetime": "2026/6/1", "MinimumExp": 3000, "MaxExp": 3000 },
+        { "StartDatetime": "2026/7/1", "MinimumExp": 3000, "MaxExp": 8000 },
+        { "StartDatetime": "2026/7/8", "MinimumExp": 6000, "MaxExp": 8000 },
+        { "StartDatetime": "2026/8/1", "MinimumExp": 8000, "MaxExp": 23000 },
+        { "StartDatetime": "2026/8/8", "MinimumExp": 17500, "MaxExp": 23000 },
+        { "StartDatetime": "2026/9/1", "MinimumExp": 23000, "MaxExp": 40500 },
+        { "StartDatetime": "2026/9/8", "MinimumExp": 34000, "MaxExp": 40500 },
+        { "StartDatetime": "2026/10/1", "MinimumExp": 40500, "MaxExp": 65000 },
+        { "StartDatetime": "2026/10/8", "MinimumExp": 56000, "MaxExp": 65000 },
+        { "StartDatetime": "2026/11/1", "MinimumExp": 65000, "MaxExp": 105000 },
+        { "StartDatetime": "2026/11/8", "MinimumExp": 90000, "MaxExp": 105000 },
+        {
+          "StartDatetime": "2026/12/1",
+          "MinimumExp": 105000,
+          "MaxExp": 160000
+        },
+        { "StartDatetime": "2026/12/8", "MinimumExp": 135000, "MaxExp": 160000 }
+      ]
     }
   ]
 }
