@@ -15,7 +15,7 @@ class CombatAbility:
     冒険者技能
     Attributes:
         Names str: スキル名
-        Lv int: レベル
+        Level int: レベル
     """
 
     SkillName: str
