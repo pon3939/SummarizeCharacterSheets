@@ -97,3 +97,7 @@ pip-compile layers/requirements.in
 pip-compile requirements_dev.in
 pip-sync requirements_dev.txt
 ```
+
+## その他
+
+- SNSはメールから確認すると自動解除されることがある(原因不明)。管理画面から確認すること。
