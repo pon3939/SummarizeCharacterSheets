@@ -6,7 +6,7 @@ labels: ["bug"]
 assignees: ""
 ---
 
-# 概要
+# 詳細
 
 # 再現手順
 
