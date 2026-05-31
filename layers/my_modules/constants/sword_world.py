@@ -25,6 +25,7 @@ COMBAT_ABILITIES: dict[str, str] = {
     "lvDru": "ドルイド",
     "lvDem": "デーモンルーラー",
     "lvAby": "アビスゲイザー",
+    "lvBib": "ビブリオマンサー",
     "lvSco": "スカウト",
     "lvRan": "レンジャー",
     "lvSag": "セージ",
