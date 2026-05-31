@@ -13,6 +13,7 @@ from my_modules.constants.spread_sheet import (
     BATTLE_DANCER_HEADER_TEXT,
     DEFAULT_TEXT_FORMAT,
     HORIZONTAL_ALIGNMENT_CENTER,
+    HORIZONTAL_ALIGNMENT_RIGHT,
     LEVEL_HEADER_TEXT,
     NO_HEADER_TEXT,
     PLAYER_CHARACTER_NAME_HEADER_TEXT,
@@ -21,7 +22,10 @@ from my_modules.constants.spread_sheet import (
     TRUE_STRING,
 )
 from my_modules.constants.sword_world import COMBAT_SKILLS
-from my_modules.spreadsheet.my_worksheet import MyWorksheet
+from my_modules.spreadsheet.my_worksheet import (
+    ConvertToVerticalHeaders,
+    MyWorksheet,
+)
 from my_modules.sword_world.combat_skill import CombatSkill
 from my_modules.sword_world.player import Player
 
@@ -88,10 +92,8 @@ def updateCombatSkillSheet(
     for level in range(1, MAX_LEVEL + 1, 2):
         headers.append(f"{LEVEL_HEADER_TEXT}{level}")
 
-    # 戦闘特技の取得状況
-    for combatSkillName in COMBAT_SKILLS:
-        headers.append(combatSkillName)
-
+    # 戦闘特技の取得状況(縦書き)
+    headers.extend(ConvertToVerticalHeaders(COMBAT_SKILLS))
     updateData.append(headers)
 
     formats: list[CellFormat] = []
@@ -289,12 +291,33 @@ def updateCombatSkillSheet(
 
     # アクティブ
     activeCountIndex: int = headers.index(ACTIVE_HEADER_TEXT)
+    updateDataCount: int = len(updateData)
     startA1 = rowcol_to_a1(2, activeCountIndex + 1)
-    endA1 = rowcol_to_a1(len(updateData), activeCountIndex + 1)
+    endA1 = rowcol_to_a1(updateDataCount, activeCountIndex + 1)
     formats.append(
         {
             "range": f"{startA1}:{endA1}",
             "format": HORIZONTAL_ALIGNMENT_CENTER,
+        }
+    )
+
+    # ○
+    startA1 = rowcol_to_a1(2, notTotalColumnCount + 1)
+    endA1 = rowcol_to_a1(updateDataCount - 1, len(headers))
+    formats.append(
+        {
+            "range": f"{startA1}:{endA1}",
+            "format": HORIZONTAL_ALIGNMENT_CENTER,
+        }
+    )
+
+    # 合計行
+    startA1 = rowcol_to_a1(updateDataCount, notTotalColumnCount + 1)
+    endA1 = rowcol_to_a1(updateDataCount, len(headers))
+    formats.append(
+        {
+            "range": f"{startA1}:{endA1}",
+            "format": HORIZONTAL_ALIGNMENT_RIGHT,
         }
     )
 
