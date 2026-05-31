@@ -16,8 +16,13 @@ from my_modules.constants.spread_sheet import (
     LEVEL_HEADER_TEXT,
     NO_HEADER_TEXT,
     PLAYER_CHARACTER_NAME_HEADER_TEXT,
+    TOTAL_COLUMN_INDEX,
+    TOTAL_TEXT,
+    TRUE_STRING,
 )
+from my_modules.constants.sword_world import COMBAT_SKILLS
 from my_modules.spreadsheet.my_worksheet import MyWorksheet
+from my_modules.sword_world.combat_skill import CombatSkill
 from my_modules.sword_world.player import Player
 
 """
@@ -75,12 +80,18 @@ def updateCombatSkillSheet(
         NO_HEADER_TEXT,
         PLAYER_CHARACTER_NAME_HEADER_TEXT,
         ACTIVE_HEADER_TEXT,
+        "サマリー",
         BATTLE_DANCER_HEADER_TEXT,
     ]
+
+    # レベルごとの戦闘特技
     for level in range(1, MAX_LEVEL + 1, 2):
         headers.append(f"{LEVEL_HEADER_TEXT}{level}")
 
-    headers.append("自動取得")
+    # 戦闘特技の取得状況
+    for combatSkillName in COMBAT_SKILLS:
+        headers.append(combatSkillName)
+
     updateData.append(headers)
 
     formats: list[CellFormat] = []
@@ -99,33 +110,93 @@ def updateCombatSkillSheet(
             # 参加傾向
             row.append(character.ActiveStatus.GetStrForSpreadsheet())
 
-            # バトルダンサー
-            row.append(character.CombatFeatsLv1bat)
+            summary: list[str] = []
+            skillByLevel: list[str] = []
+            battleDancerCombatSkill: str = ""
+            if (
+                character.IsBattleDancer()
+                and character.CombatFeatsLv1bat is not None
+            ):
+                # バトルダンサー
+                summary.append(f"1+ : {character.CombatFeatsLv1bat.SkillName}")
+                battleDancerCombatSkill = character.CombatFeatsLv1bat.SkillName
 
-            # Lv.1
-            row.append(character.CombatFeatsLv1)
+            skillByLevel.append(battleDancerCombatSkill)
+            level1CombatSkill: str = ""
+            if character.CombatFeatsLv1 is not None:
+                # Lv.1
+                summary.append(f"1 : {character.CombatFeatsLv1.SkillName}")
+                level1CombatSkill = character.CombatFeatsLv1.SkillName
 
-            # Lv.3
-            row.append(character.CombatFeatsLv3)
+            skillByLevel.append(level1CombatSkill)
+            level3CombatSkill: str = ""
+            if character.CombatFeatsLv3 is not None:
+                # Lv.3
+                summary.append(f"3 : {character.CombatFeatsLv3.SkillName}")
+                level3CombatSkill = character.CombatFeatsLv3.SkillName
 
-            # Lv.5
-            row.append(character.CombatFeatsLv5)
+            skillByLevel.append(level3CombatSkill)
+            level5CombatSkill: str = ""
+            if character.CombatFeatsLv5 is not None:
+                # Lv.5
+                summary.append(f"5 : {character.CombatFeatsLv5.SkillName}")
+                level5CombatSkill = character.CombatFeatsLv5.SkillName
 
-            # Lv.7
-            row.append(character.CombatFeatsLv7)
+            skillByLevel.append(level5CombatSkill)
+            level7CombatSkill: str = ""
+            if character.CombatFeatsLv7 is not None:
+                # Lv.7
+                summary.append(f"7 : {character.CombatFeatsLv7.SkillName}")
+                level7CombatSkill = character.CombatFeatsLv7.SkillName
 
-            # Lv.9
-            row.append(character.CombatFeatsLv9)
+            skillByLevel.append(level7CombatSkill)
+            level9CombatSkill: str = ""
+            if character.CombatFeatsLv9 is not None:
+                # Lv.9
+                summary.append(f"9 : {character.CombatFeatsLv9.SkillName}")
+                level9CombatSkill = character.CombatFeatsLv9.SkillName
 
-            # Lv.11
-            row.append(character.CombatFeatsLv11)
+            skillByLevel.append(level9CombatSkill)
+            level11CombatSkill: str = ""
+            if character.CombatFeatsLv11 is not None:
+                # Lv.11
+                summary.append(f"11 : {character.CombatFeatsLv11.SkillName}")
+                level11CombatSkill = character.CombatFeatsLv11.SkillName
 
-            # Lv.13
-            row.append(character.CombatFeatsLv13)
+            skillByLevel.append(level11CombatSkill)
+            level13CombatSkill: str = ""
+            if character.CombatFeatsLv13 is not None:
+                # Lv.13
+                summary.append(f"13 : {character.CombatFeatsLv13.SkillName}")
+                level13CombatSkill = character.CombatFeatsLv13.SkillName
+
+            skillByLevel.append(level13CombatSkill)
 
             # 自動取得
             for autoCombatFeat in character.AutoCombatFeats:
-                row.append(autoCombatFeat)
+                summary.append(autoCombatFeat.SkillName)
+
+            # サマリー
+            row.append("\n".join(summary))
+
+            # レベルごとの取得戦闘特技
+            row += skillByLevel
+
+            # 戦闘特技の取得状況
+            for combatSkillName in COMBAT_SKILLS:
+                combatSkillStatus: str = ""
+                combatSkill: Union[CombatSkill, None] = (
+                    character.GetCombatSkillByName(combatSkillName)
+                )
+                if combatSkill is not None:
+                    if combatSkill.detail == "":
+                        # 習得している戦闘特技で、詳細がない場合は○を表示
+                        combatSkillStatus = TRUE_STRING
+                    else:
+                        # 詳細(魔法拡大/数など)を表示
+                        combatSkillStatus = combatSkill.detail
+
+                row.append(combatSkillStatus)
 
             updateData.append(row)
 
@@ -184,7 +255,38 @@ def updateCombatSkillSheet(
                     }
                 )
 
+    # 合計行
+    notTotalColumnCount: int = len(headers) - len(COMBAT_SKILLS)
+    total: list = [None] * notTotalColumnCount
+    total[TOTAL_COLUMN_INDEX] = TOTAL_TEXT
+    for totalCombatSkill in COMBAT_SKILLS:
+        total.append(
+            sum(
+                sum(
+                    1
+                    for y in x.Characters
+                    if any(
+                        z.IsSameCombatSkill(totalCombatSkill)
+                        for z in y.GetCombatSkills()
+                    )
+                )
+                for x in players
+            )
+        )
+
+    updateData.append(total)
+
     # 書式設定
+    # 縦書きヘッダー
+    startA1 = rowcol_to_a1(1, notTotalColumnCount + 1)
+    endA1 = rowcol_to_a1(1, len(headers))
+    formats.append(
+        {
+            "range": f"{startA1}:{endA1}",
+            "format": {"textRotation": {"vertical": True}},
+        }
+    )
+
     # アクティブ
     activeCountIndex: int = headers.index(ACTIVE_HEADER_TEXT)
     startA1 = rowcol_to_a1(2, activeCountIndex + 1)
@@ -197,4 +299,4 @@ def updateCombatSkillSheet(
     )
 
     # 更新
-    worksheet.Update(updateData, formats, False)
+    worksheet.Update(updateData, formats, True)

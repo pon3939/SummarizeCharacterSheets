@@ -7,8 +7,10 @@ from re import Match, search, split, sub
 from typing import Union
 from unicodedata import normalize
 
+from my_modules.sword_world.combat_skill import CombatSkill
+
 from ..constants import sword_world
-from .combat_skill import CombatSkill
+from .combat_ability import CombatAbility
 from .exp_status import ExpStatus
 from .general_skill import GeneralSkill
 from .status import Status
@@ -61,16 +63,37 @@ class PlayerCharacter:
         self.Age: str = characterJson.get("age", "")
         self.Gender: str = characterJson.get("gender", "")
         self.Birth: str = characterJson.get("birth", "")
-        self.CombatFeatsLv1: str = characterJson.get("combatFeatsLv1", "")
-        self.CombatFeatsLv3: str = characterJson.get("combatFeatsLv3", "")
-        self.CombatFeatsLv5: str = characterJson.get("combatFeatsLv5", "")
-        self.CombatFeatsLv7: str = characterJson.get("combatFeatsLv7", "")
-        self.CombatFeatsLv9: str = characterJson.get("combatFeatsLv9", "")
-        self.CombatFeatsLv11: str = characterJson.get("combatFeatsLv11", "")
-        self.CombatFeatsLv13: str = characterJson.get("combatFeatsLv13", "")
-        self.CombatFeatsLv1bat: str = characterJson.get(
-            "combatFeatsLv1bat", ""
-        )
+        self.CombatFeatsLv1: Union[CombatSkill, None] = None
+        if "combatFeatsLv1" in characterJson:
+            self.CombatFeatsLv1 = CombatSkill(characterJson["combatFeatsLv1"])
+
+        self.CombatFeatsLv3: Union[CombatSkill, None] = None
+        if "combatFeatsLv3" in characterJson:
+            self.CombatFeatsLv3 = CombatSkill(characterJson["combatFeatsLv3"])
+        self.CombatFeatsLv5: Union[CombatSkill, None] = None
+        if "combatFeatsLv5" in characterJson:
+            self.CombatFeatsLv5 = CombatSkill(characterJson["combatFeatsLv5"])
+        self.CombatFeatsLv7: Union[CombatSkill, None] = None
+        if "combatFeatsLv7" in characterJson:
+            self.CombatFeatsLv7 = CombatSkill(characterJson["combatFeatsLv7"])
+        self.CombatFeatsLv9: Union[CombatSkill, None] = None
+        if "combatFeatsLv9" in characterJson:
+            self.CombatFeatsLv9 = CombatSkill(characterJson["combatFeatsLv9"])
+        self.CombatFeatsLv11: Union[CombatSkill, None] = None
+        if "combatFeatsLv11" in characterJson:
+            self.CombatFeatsLv11 = CombatSkill(
+                characterJson["combatFeatsLv11"]
+            )
+        self.CombatFeatsLv13: Union[CombatSkill, None] = None
+        if "combatFeatsLv13" in characterJson:
+            self.CombatFeatsLv13 = CombatSkill(
+                characterJson["combatFeatsLv13"]
+            )
+        self.CombatFeatsLv1bat: Union[CombatSkill, None] = None
+        if "combatFeatsLv1bat" in characterJson:
+            self.CombatFeatsLv1bat = CombatSkill(
+                characterJson["combatFeatsLv1bat"]
+            )
         self.AdventurerRank: str = characterJson.get("rank", "")
 
         # 数値
@@ -119,16 +142,19 @@ class PlayerCharacter:
             self.Faith = characterJson.get("faithOther", self.Faith)
 
         # 自動取得
-        self.AutoCombatFeats: list[str] = characterJson.get(
-            "combatFeatsAuto", ""
-        ).split(",")
+        self.AutoCombatFeats: list[CombatSkill] = []
+        if "combatFeatsAuto" in characterJson:
+            for skillName in characterJson["combatFeatsAuto"].split(","):
+                self.AutoCombatFeats.append(CombatSkill(skillName))
 
         # 技能レベル
-        self.CombatSkills: list[CombatSkill] = []
-        for key, skillName in sword_world.COMBAT_SKILLS.items():
+        self.CombatAbilities: list[CombatAbility] = []
+        for key, skillName in sword_world.COMBAT_ABILITIES.items():
             skillLevel: int = int(characterJson.get(key, "0"))
             if skillLevel > 0:
-                self.CombatSkills.append(CombatSkill(skillName, skillLevel))
+                self.CombatAbilities.append(
+                    CombatAbility(skillName, skillLevel)
+                )
 
         # 各能力値
         self.Dexterity: Status = Status(
@@ -432,8 +458,9 @@ class PlayerCharacter:
 
         return any(
             map(
-                lambda x: x.SkillName == sword_world.BATTLE_DANCER_SKILL_NAME,
-                self.CombatSkills,
+                lambda x: x.SkillName
+                == sword_world.BATTLE_DANCER_ABILITY_NAME,
+                self.CombatAbilities,
             )
         )
 
@@ -449,7 +476,8 @@ class PlayerCharacter:
         if self.IsBattleDancer() and any(
             list(
                 map(
-                    lambda x: self.CombatFeatsLv1bat.startswith(x),
+                    lambda x: self.CombatFeatsLv1bat is not None
+                    and self.CombatFeatsLv1bat.IsSameCombatSkill(x),
                     sword_world.VAGRANTS_COMBAT_SKILLS,
                 )
             )
@@ -459,7 +487,8 @@ class PlayerCharacter:
         if any(
             list(
                 map(
-                    lambda x: self.CombatFeatsLv1.startswith(x),
+                    lambda x: self.CombatFeatsLv1 is not None
+                    and self.CombatFeatsLv1.IsSameCombatSkill(x),
                     sword_world.VAGRANTS_COMBAT_SKILLS,
                 )
             )
@@ -472,7 +501,8 @@ class PlayerCharacter:
         if any(
             list(
                 map(
-                    lambda x: self.CombatFeatsLv3.startswith(x),
+                    lambda x: self.CombatFeatsLv3 is not None
+                    and self.CombatFeatsLv3.IsSameCombatSkill(x),
                     sword_world.VAGRANTS_COMBAT_SKILLS,
                 )
             )
@@ -485,7 +515,8 @@ class PlayerCharacter:
         if any(
             list(
                 map(
-                    lambda x: self.CombatFeatsLv5.startswith(x),
+                    lambda x: self.CombatFeatsLv5 is not None
+                    and self.CombatFeatsLv5.IsSameCombatSkill(x),
                     sword_world.VAGRANTS_COMBAT_SKILLS,
                 )
             )
@@ -498,7 +529,8 @@ class PlayerCharacter:
         if any(
             list(
                 map(
-                    lambda x: self.CombatFeatsLv7.startswith(x),
+                    lambda x: self.CombatFeatsLv7 is not None
+                    and self.CombatFeatsLv7.IsSameCombatSkill(x),
                     sword_world.VAGRANTS_COMBAT_SKILLS,
                 )
             )
@@ -511,7 +543,8 @@ class PlayerCharacter:
         if any(
             list(
                 map(
-                    lambda x: self.CombatFeatsLv9.startswith(x),
+                    lambda x: self.CombatFeatsLv9 is not None
+                    and self.CombatFeatsLv9.IsSameCombatSkill(x),
                     sword_world.VAGRANTS_COMBAT_SKILLS,
                 )
             )
@@ -524,7 +557,8 @@ class PlayerCharacter:
         if any(
             list(
                 map(
-                    lambda x: self.CombatFeatsLv11.startswith(x),
+                    lambda x: self.CombatFeatsLv11 is not None
+                    and self.CombatFeatsLv11.IsSameCombatSkill(x),
                     sword_world.VAGRANTS_COMBAT_SKILLS,
                 )
             )
@@ -537,7 +571,8 @@ class PlayerCharacter:
         if any(
             list(
                 map(
-                    lambda x: self.CombatFeatsLv13.startswith(x),
+                    lambda x: self.CombatFeatsLv13 is not None
+                    and self.CombatFeatsLv13.IsSameCombatSkill(x),
                     sword_world.VAGRANTS_COMBAT_SKILLS,
                 )
             )
@@ -568,6 +603,56 @@ class PlayerCharacter:
             int: GM回数
         """
         return len(self.GameMasterScenarioKeys)
+
+    def GetCombatSkillByName(self, skillName: str) -> Union[CombatSkill, None]:
+        """指定された戦闘特技を返却
+
+        Args:
+            skillName str: 検索する戦闘特技名
+
+        Returns:
+            Union[CombatSkill, None]: 戦闘特技、存在しない場合はNone
+        """
+        for skill in self.GetCombatSkills():
+            if skill.IsSameCombatSkill(skillName):
+                return skill
+
+        return None
+
+    def GetCombatSkills(self) -> list[CombatSkill]:
+        """戦闘特技のリストを返却
+
+        Returns:
+            list[CombatSkill]: 戦闘特技のリスト
+        """
+        combatSkills: list[CombatSkill] = []
+        if self.CombatFeatsLv1 is not None:
+            combatSkills.append(self.CombatFeatsLv1)
+
+        if self.CombatFeatsLv3 is not None:
+            combatSkills.append(self.CombatFeatsLv3)
+
+        if self.CombatFeatsLv5 is not None:
+            combatSkills.append(self.CombatFeatsLv5)
+
+        if self.CombatFeatsLv7 is not None:
+            combatSkills.append(self.CombatFeatsLv7)
+
+        if self.CombatFeatsLv9 is not None:
+            combatSkills.append(self.CombatFeatsLv9)
+
+        if self.CombatFeatsLv11 is not None:
+            combatSkills.append(self.CombatFeatsLv11)
+
+        if self.CombatFeatsLv13 is not None:
+            combatSkills.append(self.CombatFeatsLv13)
+
+        if self.IsBattleDancer() and self.CombatFeatsLv1bat is not None:
+            combatSkills.append(self.CombatFeatsLv1bat)
+
+        combatSkills += self.AutoCombatFeats
+
+        return combatSkills
 
 
 def _FindStyle(string: str) -> Union[Style, None]:

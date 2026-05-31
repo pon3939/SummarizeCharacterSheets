@@ -21,7 +21,7 @@ from my_modules.constants.spread_sheet import (
     TOTAL_COLUMN_INDEX,
     TOTAL_TEXT,
 )
-from my_modules.constants.sword_world import COMBAT_SKILLS
+from my_modules.constants.sword_world import COMBAT_ABILITIES
 from my_modules.spreadsheet.my_worksheet import (
     ConvertToVerticalHeaders,
     MyWorksheet,
@@ -91,7 +91,7 @@ def updateAbilitySheet(
     headers.extend(
         ConvertToVerticalHeaders(
             ConvertToVerticalHeaders(
-                list(map(lambda x: x, COMBAT_SKILLS.values()))
+                list(map(lambda x: x, COMBAT_ABILITIES.values()))
             )
         )
     )
@@ -123,12 +123,12 @@ def updateAbilitySheet(
             row.append(character.Exp)
 
             # 技能レベル
-            for skillName in COMBAT_SKILLS.values():
+            for skillName in COMBAT_ABILITIES.values():
                 row.append(
                     next(
                         (
                             x.Level
-                            for x in character.CombatSkills
+                            for x in character.CombatAbilities
                             if x.SkillName == skillName
                         ),
                         None,
@@ -175,16 +175,18 @@ def updateAbilitySheet(
             )
 
     # 合計行
-    notSkillColumnCount: int = len(headers) - len(COMBAT_SKILLS)
+    notSkillColumnCount: int = len(headers) - len(COMBAT_ABILITIES)
     total: list = [None] * notSkillColumnCount
     total[TOTAL_COLUMN_INDEX] = TOTAL_TEXT
-    for combatSkill in COMBAT_SKILLS.values():
+    for combatSkill in COMBAT_ABILITIES.values():
         total.append(
             sum(
                 sum(
                     1
                     for y in x.Characters
-                    if any(z.SkillName == combatSkill for z in y.CombatSkills)
+                    if any(
+                        z.SkillName == combatSkill for z in y.CombatAbilities
+                    )
                 )
                 for x in players
             )
