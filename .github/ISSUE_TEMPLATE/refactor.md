@@ -6,6 +6,6 @@ labels: ["refactor"]
 assignees: ""
 ---
 
-# 概要
+# 詳細
 
 # その他
