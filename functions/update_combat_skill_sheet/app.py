@@ -21,7 +21,10 @@ from my_modules.constants.spread_sheet import (
     TRUE_STRING,
 )
 from my_modules.constants.sword_world import COMBAT_SKILLS
-from my_modules.spreadsheet.my_worksheet import MyWorksheet
+from my_modules.spreadsheet.my_worksheet import (
+    ConvertToVerticalHeaders,
+    MyWorksheet,
+)
 from my_modules.sword_world.combat_skill import CombatSkill
 from my_modules.sword_world.player import Player
 
@@ -88,10 +91,8 @@ def updateCombatSkillSheet(
     for level in range(1, MAX_LEVEL + 1, 2):
         headers.append(f"{LEVEL_HEADER_TEXT}{level}")
 
-    # 戦闘特技の取得状況
-    for combatSkillName in COMBAT_SKILLS:
-        headers.append(combatSkillName)
-
+    # 戦闘特技の取得状況(縦書き)
+    headers.extend(ConvertToVerticalHeaders(COMBAT_SKILLS))
     updateData.append(headers)
 
     formats: list[CellFormat] = []

@@ -94,6 +94,7 @@ def updateGeneralSkillSheet(
             )
         )
     )
+
     updateData.append(headers)
 
     formats: list[CellFormat] = []
