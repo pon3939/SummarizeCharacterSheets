@@ -122,9 +122,9 @@
                     }
                 }
             ],
-            "Default": "update_sheets_parallel"
+            "Default": "update_sheets_parallel_1"
         },
-        "update_sheets_parallel": {
+        "update_sheets_parallel_1": {
             "Type": "Parallel",
             "Branches": [
                 {
@@ -244,7 +244,13 @@
                             "End": true
                         }
                     }
-                },
+                }
+            ],
+            "Next": "update_sheets_parallel_2"
+        },
+        "update_sheets_parallel_2": {
+            "Type": "Parallel",
+            "Branches": [
                 {
                     "StartAt": "update_honor_sheet_invoke",
                     "States": {
