@@ -17,6 +17,7 @@ from my_modules.constants.spread_sheet import (
     LEVEL_HEADER_TEXT,
     NO_HEADER_TEXT,
     PLAYER_CHARACTER_NAME_HEADER_TEXT,
+    SUMMARY_HEADER_TEXT,
     TOTAL_COLUMN_INDEX,
     TOTAL_TEXT,
     TRUE_STRING,
@@ -84,7 +85,7 @@ def updateCombatSkillSheet(
         NO_HEADER_TEXT,
         PLAYER_CHARACTER_NAME_HEADER_TEXT,
         ACTIVE_HEADER_TEXT,
-        "サマリー",
+        SUMMARY_HEADER_TEXT,
         BATTLE_DANCER_HEADER_TEXT,
     ]
 

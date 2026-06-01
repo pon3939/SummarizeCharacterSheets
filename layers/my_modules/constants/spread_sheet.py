@@ -45,6 +45,7 @@ DICE_AVERAGE_HEADER_TEXT: str = "ﾀﾞｲｽ平均"
 ADVENTURER_BIRTH_HEADER_TEXT: str = "冒険者\n生まれ"
 BATTLE_DANCER_HEADER_TEXT: str = "バトルダンサー"
 LEVEL_HEADER_TEXT: str = "Lv."
+SUMMARY_HEADER_TEXT: str = "サマリー"
 
 # 合計行のラベル用
 TOTAL_TEXT: str = "合計"

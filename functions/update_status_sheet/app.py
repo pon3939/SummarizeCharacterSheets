@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-from typing import Any, Union
+from typing import Any
 
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from gspread.utils import rowcol_to_a1
@@ -20,10 +20,8 @@ from my_modules.constants.spread_sheet import (
     RACE_HEADER_TEXT,
     TRUE_STRING,
 )
-from my_modules.constants.sword_world import RACES
 from my_modules.spreadsheet.my_worksheet import MyWorksheet
 from my_modules.sword_world.player import Player
-from my_modules.sword_world.race import Race
 from my_modules.sword_world.races_base_status import RacesBaseStatus
 
 """
@@ -166,30 +164,25 @@ def updateStatusSheet(
             # 回避
             row.append(character.Evasion)
 
-            diceAverage: float = 0.0
-            allocationsPoint: int = 0
-            race: Union[Race, None] = next(
-                (x for x in RACES if x.Name == character.GetMajorRace()),
-                None,
-            )
-            if race is not None:
-                # 種族指定時のみ値を設定
-                totalBaseStatus: RacesBaseStatus = race.GetTotalBaseStatus()
-                diceAverage = (
-                    character.Dexterity.Base
-                    + character.Agility.Base
-                    + character.Strength.Base
-                    + character.Vitality.Base
-                    + character.Intelligence.Base
-                    + character.Mental.Base
-                    - totalBaseStatus.FixedValue
-                ) / totalBaseStatus.DiceCount
-                allocationsPoint = race.GetAllocationsPoint(character)
-
             # ダイス平均
+            totalBaseStatus: RacesBaseStatus = (
+                character.MajorRace.GetTotalBaseStatus()
+            )
+            diceAverage: float = (
+                character.Dexterity.Base
+                + character.Agility.Base
+                + character.Strength.Base
+                + character.Vitality.Base
+                + character.Intelligence.Base
+                + character.Mental.Base
+                - totalBaseStatus.FixedValue
+            ) / totalBaseStatus.DiceCount
             row.append(diceAverage)
 
             # 割り振りポイント
+            allocationsPoint: int = character.MajorRace.GetAllocationsPoint(
+                character
+            )
             row.append(allocationsPoint)
 
             # 冒険者生まれ
