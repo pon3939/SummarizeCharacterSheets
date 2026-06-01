@@ -3,6 +3,8 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from my_modules.sword_world.language import Language
+
 from .races_base_status import RacesBaseStatus
 
 if TYPE_CHECKING:
@@ -26,6 +28,7 @@ class Race:
         Vitality (RacesBaseStatus): 生命力
         Intelligence (RacesBaseStatus): 知力
         Mental (RacesBaseStatus): 精神力
+        Languages (list[Language]): 初期習得言語
     """
 
     Name: str
@@ -35,6 +38,7 @@ class Race:
     Vitality: RacesBaseStatus
     Intelligence: RacesBaseStatus
     Mental: RacesBaseStatus
+    Languages: list[Language]
 
     def GetTotalBaseStatus(self) -> RacesBaseStatus:
         """

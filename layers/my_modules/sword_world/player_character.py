@@ -7,7 +7,10 @@ from re import Match, search, split, sub
 from typing import Union
 from unicodedata import normalize
 
+from my_modules.constants.sword_world import RACES
 from my_modules.sword_world.combat_skill import CombatSkill
+from my_modules.sword_world.language import Language
+from my_modules.sword_world.race import Race
 
 from ..constants import sword_world
 from .combat_ability import CombatAbility
@@ -117,6 +120,33 @@ class PlayerCharacter:
 
         # 特殊な変数
         self.Sin: str = characterJson.get("sin", "0")
+
+        # メジャー種族
+        majorRace: Union[Race, None] = next(
+            (x for x in RACES if x.Name == self.GetMajorRace()),
+            None,
+        )
+        if majorRace is None:
+            raise ValueError(f"不正な種族 : {self.GetMajorRace()}")
+
+        self.MajorRace: Race = majorRace
+
+        # 言語(生まれつき習得しているものを除く)
+        self.LearnedLanguages: list[Language] = []
+        languageNum: int = int(characterJson.get("languagesNum", "0"))
+        for i in range(1, languageNum + 1):
+            languageName: str = characterJson.get(f"language{i}", "")
+            if not languageName:
+                # 未設定は読み飛ばす
+                continue
+
+            canTalk: bool = not characterJson.get(f"language{i}Talk", "")
+            canRead: bool = not characterJson.get(f"language{i}Read", "")
+            if canTalk or canRead:
+                # 会話か読文が可能なものを設定する
+                self.LearnedLanguages.append(
+                    Language(languageName, canTalk, canRead)
+                )
 
         # PC名
         # フリガナを削除
@@ -653,6 +683,22 @@ class PlayerCharacter:
         combatSkills += self.AutoCombatFeats
 
         return combatSkills
+
+    def GetLanguages(self) -> list[Language]:
+        """言語のリストを返却
+
+        Returns:
+            list[Language]: 言語のリスト
+        """
+        languages: list[Language] = []
+        for language in self.MajorRace.Languages:
+            languages.append(language)
+
+        for language in self.LearnedLanguages:
+            if language not in languages:
+                languages.append(language)
+
+        return languages
 
 
 def _FindStyle(string: str) -> Union[Style, None]:

@@ -306,6 +306,26 @@
                     }
                 },
                 {
+                    "StartAt": "update_language_sheet_invoke",
+                    "States": {
+                        "update_language_sheet_invoke": {
+                            "Type": "Task",
+                            "Resource": "arn:aws:states:::lambda:invoke",
+                            "Output": "{% $states.result.Payload %}",
+                            "Arguments": {
+                                "FunctionName": "${UpdateLanguageSheetFunctionArn}",
+                                "Payload": {
+                                    "Environment": "{% $environment %}",
+                                    "GoogleServiceAccount": "{% $google_service_account %}",
+                                    "LevelCap": "{% $level_cap %}",
+                                    "Players": "{% $players %}"
+                                }
+                            },
+                            "End": true
+                        }
+                    }
+                },
+                {
                     "StartAt": "update_template_sheet_invoke",
                     "States": {
                         "update_template_sheet_invoke": {

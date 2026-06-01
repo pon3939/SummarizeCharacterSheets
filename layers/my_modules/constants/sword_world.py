@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from my_modules.sword_world.language import Language
+
 from ..sword_world.general_skill import GeneralSkill
 from ..sword_world.race import Race
 from ..sword_world.races_base_status import RacesBaseStatus
@@ -418,6 +420,61 @@ COMBAT_SKILLS: list[str] = [
     "魔導書の達人",
 ] + VAGRANTS_COMBAT_SKILLS
 
+# 言語
+COMMON_LANGUAGE: str = "交易共通語"
+ELF_LANGUAGE: str = "エルフ語"
+DWARF_LANGUAGE: str = "ドワーフ語"
+ANCIENT_CELESTIAL_LANGUAGE: str = "神紀文明語"
+MAGITECH_CIVILIZATION_LANGUAGE: str = "魔動機文明語"
+LYKANT_LANGUAGE: str = "リカント語"
+DRAGON_LANGUAGE: str = "ドラゴン語"
+GRASS_RUNNER_LANGUAGE: str = "グラスランナー語"
+FAIRY_LANGUAGE: str = "妖精語"
+DEMON_LANGUAGE: str = "魔神語"
+BARBAROUS_LANGUAGE: str = "汎用蛮族語"
+SOLEIL_LANGUAGE: str = "ソレイユ語"
+SHADOW_LANGUAGE: str = "シャドウ語"
+ARCANA_LANGUAGE: str = "魔法文明語"
+GIANT_LANGUAGE: str = "巨人語"
+DRAKE_LANGUAGE: str = "ドレイク語"
+BASILISK_LANGUAGE: str = "バジリスク語"
+FIEND_LANGUAGE: str = "妖魔語"
+CENTAUR_LANGUAGE: str = "ケンタウロス語"
+ANDRO_SCORPION_LANGUAGE: str = "アンドロスコーピオン語"
+LANGUAGES: list[str] = [
+    COMMON_LANGUAGE,
+    "地方語",
+    ANCIENT_CELESTIAL_LANGUAGE,
+    ARCANA_LANGUAGE,
+    MAGITECH_CIVILIZATION_LANGUAGE,
+    ELF_LANGUAGE,
+    DWARF_LANGUAGE,
+    GRASS_RUNNER_LANGUAGE,
+    SHADOW_LANGUAGE,
+    SOLEIL_LANGUAGE,
+    "ミアキス語",
+    LYKANT_LANGUAGE,
+    DRAGON_LANGUAGE,
+    FAIRY_LANGUAGE,
+    "海獣語",
+    "ヴァルグ語",
+    BARBAROUS_LANGUAGE,
+    FIEND_LANGUAGE,
+    GIANT_LANGUAGE,
+    DRAKE_LANGUAGE,
+    BASILISK_LANGUAGE,
+    "ノスフェラトゥ語",
+    "マーマン語",
+    CENTAUR_LANGUAGE,
+    "ライカンスロープ語",
+    "リザードマン語",
+    "ハルピュイア語",
+    "バルカン語",
+    "翼人語",
+    DEMON_LANGUAGE,
+    ANDRO_SCORPION_LANGUAGE,
+]
+
 # 種族
 RACES: list[Race] = [
     Race(
@@ -428,6 +485,7 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 0),
         RacesBaseStatus(2, 0),
         RacesBaseStatus(2, 0),
+        [Language(COMMON_LANGUAGE, True, True)],
     ),
     Race(
         "エルフ",
@@ -437,6 +495,10 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 0),
         RacesBaseStatus(2, 0),
         RacesBaseStatus(2, 0),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+            Language(ELF_LANGUAGE, True, True),
+        ],
     ),
     Race(
         "ドワーフ",
@@ -446,6 +508,10 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 0),
         RacesBaseStatus(1, 0),
         RacesBaseStatus(2, 6),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+            Language(DWARF_LANGUAGE, True, True),
+        ],
     ),
     Race(
         "タビット",
@@ -455,6 +521,10 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 0),
         RacesBaseStatus(2, 6),
         RacesBaseStatus(2, 0),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+            Language(ANCIENT_CELESTIAL_LANGUAGE, False, True),
+        ],
     ),
     Race(
         "ルーンフォーク",
@@ -464,6 +534,10 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 0),
         RacesBaseStatus(2, 0),
         RacesBaseStatus(1, 0),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+            Language(MAGITECH_CIVILIZATION_LANGUAGE, False, True),
+        ],
     ),
     Race(
         "ナイトメア",
@@ -473,6 +547,9 @@ RACES: list[Race] = [
         RacesBaseStatus(1, 0),
         RacesBaseStatus(2, 0),
         RacesBaseStatus(2, 0),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+        ],
     ),
     Race(
         "リカント",
@@ -482,6 +559,10 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 0),
         RacesBaseStatus(1, 6),
         RacesBaseStatus(1, 0),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+            Language(LYKANT_LANGUAGE, True, True),
+        ],
     ),
     Race(
         "リルドラケン",
@@ -491,6 +572,10 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 6),
         RacesBaseStatus(1, 0),
         RacesBaseStatus(2, 0),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+            Language(DRAGON_LANGUAGE, True, False),
+        ],
     ),
     Race(
         "グラスランナー",
@@ -500,6 +585,10 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 6),
         RacesBaseStatus(1, 0),
         RacesBaseStatus(2, 6),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+            Language(GRASS_RUNNER_LANGUAGE, True, True),
+        ],
     ),
     Race(
         "メリア",
@@ -509,6 +598,10 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 6),
         RacesBaseStatus(1, 0),
         RacesBaseStatus(1, 0),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+            Language(FAIRY_LANGUAGE, True, False),
+        ],
     ),
     Race(
         "ティエンス",
@@ -518,6 +611,10 @@ RACES: list[Race] = [
         RacesBaseStatus(1, 3),
         RacesBaseStatus(2, 0),
         RacesBaseStatus(2, 3),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+            Language(DEMON_LANGUAGE, True, False),
+        ],
     ),
     Race(
         "レプラカーン",
@@ -527,6 +624,10 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 0),
         RacesBaseStatus(2, 0),
         RacesBaseStatus(2, 0),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+            Language(MAGITECH_CIVILIZATION_LANGUAGE, True, True),
+        ],
     ),
     Race(
         "ウィークリング",
@@ -536,6 +637,10 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 0),
         RacesBaseStatus(2, 0),
         RacesBaseStatus(2, 0),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+            Language(BARBAROUS_LANGUAGE, True, True),
+        ],
     ),
     Race(
         "ソレイユ",
@@ -545,6 +650,10 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 0),
         RacesBaseStatus(1, 0),
         RacesBaseStatus(2, 0),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+            Language(SOLEIL_LANGUAGE, True, True),
+        ],
     ),
     Race(
         "アルヴ",
@@ -554,6 +663,9 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 0),
         RacesBaseStatus(1, 6),
         RacesBaseStatus(1, 0),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+        ],
     ),
     Race(
         "シャドウ",
@@ -563,6 +675,10 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 0),
         RacesBaseStatus(2, 0),
         RacesBaseStatus(2, 0),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+            Language(SHADOW_LANGUAGE, True, True),
+        ],
     ),
     Race(
         "スプリガン",
@@ -572,6 +688,11 @@ RACES: list[Race] = [
         RacesBaseStatus(1, 0),
         RacesBaseStatus(2, 0),
         RacesBaseStatus(1, 0),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+            Language(ARCANA_LANGUAGE, True, True),
+            Language(GIANT_LANGUAGE, True, True),
+        ],
     ),
     Race(
         "アビスボーン",
@@ -581,6 +702,9 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 0),
         RacesBaseStatus(2, 0),
         RacesBaseStatus(1, 0),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+        ],
     ),
     Race(
         "ハイマン",
@@ -590,6 +714,10 @@ RACES: list[Race] = [
         RacesBaseStatus(1, 0),
         RacesBaseStatus(1, 0),
         RacesBaseStatus(1, 0),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+            Language(ARCANA_LANGUAGE, True, True),
+        ],
     ),
     Race(
         "フロウライト",
@@ -599,6 +727,9 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 0),
         RacesBaseStatus(1, 0),
         RacesBaseStatus(2, 6),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+        ],
     ),
     Race(
         "ダークドワーフ",
@@ -608,6 +739,11 @@ RACES: list[Race] = [
         RacesBaseStatus(1, 0),
         RacesBaseStatus(1, 0),
         RacesBaseStatus(2, 6),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+            Language(DWARF_LANGUAGE, True, True),
+            Language(BARBAROUS_LANGUAGE, True, True),
+        ],
     ),
     Race(
         "ディアボロ",
@@ -617,6 +753,10 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 0),
         RacesBaseStatus(1, 0),
         RacesBaseStatus(1, 6),
+        [
+            Language(BARBAROUS_LANGUAGE, True, True),
+            Language(DEMON_LANGUAGE, True, True),
+        ],
     ),
     Race(
         "ドレイク",
@@ -626,6 +766,11 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 0),
         RacesBaseStatus(2, 6),
         RacesBaseStatus(2, 0),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+            Language(BARBAROUS_LANGUAGE, True, True),
+            Language(DRAKE_LANGUAGE, True, True),
+        ],
     ),
     Race(
         "バジリスク",
@@ -635,6 +780,13 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 0),
         RacesBaseStatus(1, 0),
         RacesBaseStatus(1, 0),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+            Language(BARBAROUS_LANGUAGE, True, True),
+            Language(BASILISK_LANGUAGE, True, True),
+            Language(DRAKE_LANGUAGE, True, True),
+            Language(FIEND_LANGUAGE, True, False),
+        ],
     ),
     Race(
         "ダークトロール",
@@ -644,6 +796,10 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 6),
         RacesBaseStatus(1, 0),
         RacesBaseStatus(2, 0),
+        [
+            Language(BARBAROUS_LANGUAGE, True, True),
+            Language(GIANT_LANGUAGE, True, True),
+        ],
     ),
     Race(
         "アルボル",
@@ -653,6 +809,12 @@ RACES: list[Race] = [
         RacesBaseStatus(1, 3),
         RacesBaseStatus(2, 0),
         RacesBaseStatus(2, 0),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+            Language(BARBAROUS_LANGUAGE, True, True),
+            Language(DRAKE_LANGUAGE, True, True),
+            Language(FAIRY_LANGUAGE, True, False),
+        ],
     ),
     Race(
         "バーバヤガー",
@@ -662,6 +824,12 @@ RACES: list[Race] = [
         RacesBaseStatus(1, 0),
         RacesBaseStatus(2, 0),
         RacesBaseStatus(1, 6),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+            Language(ARCANA_LANGUAGE, True, True),
+            Language(BARBAROUS_LANGUAGE, True, True),
+            Language(DRAKE_LANGUAGE, True, True),
+        ],
     ),
     Race(
         "ケンタウロス",
@@ -671,6 +839,10 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 0),
         RacesBaseStatus(1, 0),
         RacesBaseStatus(2, 0),
+        [
+            Language(BARBAROUS_LANGUAGE, True, True),
+            Language(CENTAUR_LANGUAGE, True, True),
+        ],
     ),
     Race(
         "シザースコーピオン",
@@ -680,6 +852,11 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 0),
         RacesBaseStatus(2, 0),
         RacesBaseStatus(2, 0),
+        [
+            Language(BARBAROUS_LANGUAGE, True, True),
+            Language(ANDRO_SCORPION_LANGUAGE, True, True),
+            Language(MAGITECH_CIVILIZATION_LANGUAGE, True, True),
+        ],
     ),
     Race(
         "ドーン",
@@ -689,6 +866,10 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 0),
         RacesBaseStatus(2, 0),
         RacesBaseStatus(1, 0),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+            Language(BARBAROUS_LANGUAGE, True, True),
+        ],
     ),
     Race(
         "コボルド",
@@ -698,6 +879,11 @@ RACES: list[Race] = [
         RacesBaseStatus(1, 0),
         RacesBaseStatus(2, 0),
         RacesBaseStatus(2, 0),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+            Language(BARBAROUS_LANGUAGE, True, True),
+            Language(FIEND_LANGUAGE, True, False),
+        ],
     ),
     Race(
         "ドレイクブロークン",
@@ -707,6 +893,11 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 0),
         RacesBaseStatus(2, 6),
         RacesBaseStatus(2, 0),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+            Language(BARBAROUS_LANGUAGE, True, True),
+            Language(DRAKE_LANGUAGE, True, True),
+        ],
     ),
     Race(
         "ラミア",
@@ -716,6 +907,11 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 0),
         RacesBaseStatus(2, 0),
         RacesBaseStatus(2, 0),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+            Language(BARBAROUS_LANGUAGE, True, True),
+            Language(DRAKE_LANGUAGE, True, True),
+        ],
     ),
     Race(
         "ラルヴァ",
@@ -725,5 +921,8 @@ RACES: list[Race] = [
         RacesBaseStatus(1, 0),
         RacesBaseStatus(2, 0),
         RacesBaseStatus(1, 0),
+        [
+            Language(COMMON_LANGUAGE, True, True),
+        ],
     ),
 ]
