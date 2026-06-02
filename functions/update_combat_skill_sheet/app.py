@@ -125,53 +125,93 @@ def updateCombatSkillSheet(
                 battleDancerCombatSkill = character.CombatFeatsLv1bat.SkillName
 
             skillByLevel.append(battleDancerCombatSkill)
+            grayOutStartIndex: Union[int, None] = None
             level1CombatSkill: str = ""
             if character.CombatFeatsLv1 is not None:
                 # Lv.1
-                summary.append(f"1 : {character.CombatFeatsLv1.SkillName}")
                 level1CombatSkill = character.CombatFeatsLv1.SkillName
+                if character.Level >= 1:
+                    summary.append(f"1 : {character.CombatFeatsLv1.SkillName}")
+                elif grayOutStartIndex is None:
+                    grayOutStartIndex = (
+                        headers.index(f"{LEVEL_HEADER_TEXT}1") + 1
+                    )
 
             skillByLevel.append(level1CombatSkill)
             level3CombatSkill: str = ""
             if character.CombatFeatsLv3 is not None:
                 # Lv.3
-                summary.append(f"3 : {character.CombatFeatsLv3.SkillName}")
                 level3CombatSkill = character.CombatFeatsLv3.SkillName
+                if character.Level >= 3:
+                    summary.append(f"3 : {character.CombatFeatsLv3.SkillName}")
+                elif grayOutStartIndex is None:
+                    grayOutStartIndex = (
+                        headers.index(f"{LEVEL_HEADER_TEXT}3") + 1
+                    )
 
             skillByLevel.append(level3CombatSkill)
             level5CombatSkill: str = ""
             if character.CombatFeatsLv5 is not None:
                 # Lv.5
-                summary.append(f"5 : {character.CombatFeatsLv5.SkillName}")
                 level5CombatSkill = character.CombatFeatsLv5.SkillName
+                if character.Level >= 5:
+                    summary.append(f"5 : {character.CombatFeatsLv5.SkillName}")
+                elif grayOutStartIndex is None:
+                    grayOutStartIndex = (
+                        headers.index(f"{LEVEL_HEADER_TEXT}5") + 1
+                    )
 
             skillByLevel.append(level5CombatSkill)
             level7CombatSkill: str = ""
             if character.CombatFeatsLv7 is not None:
                 # Lv.7
-                summary.append(f"7 : {character.CombatFeatsLv7.SkillName}")
                 level7CombatSkill = character.CombatFeatsLv7.SkillName
+                if character.Level >= 7:
+                    summary.append(f"7 : {character.CombatFeatsLv7.SkillName}")
+                elif grayOutStartIndex is None:
+                    grayOutStartIndex = (
+                        headers.index(f"{LEVEL_HEADER_TEXT}7") + 1
+                    )
 
             skillByLevel.append(level7CombatSkill)
             level9CombatSkill: str = ""
             if character.CombatFeatsLv9 is not None:
                 # Lv.9
-                summary.append(f"9 : {character.CombatFeatsLv9.SkillName}")
                 level9CombatSkill = character.CombatFeatsLv9.SkillName
+                if character.Level >= 9:
+                    summary.append(f"9 : {character.CombatFeatsLv9.SkillName}")
+                elif grayOutStartIndex is None:
+                    grayOutStartIndex = (
+                        headers.index(f"{LEVEL_HEADER_TEXT}9") + 1
+                    )
 
             skillByLevel.append(level9CombatSkill)
             level11CombatSkill: str = ""
             if character.CombatFeatsLv11 is not None:
                 # Lv.11
-                summary.append(f"11 : {character.CombatFeatsLv11.SkillName}")
                 level11CombatSkill = character.CombatFeatsLv11.SkillName
+                if character.Level >= 11:
+                    summary.append(
+                        f"11 : {character.CombatFeatsLv11.SkillName}"
+                    )
+                elif grayOutStartIndex is None:
+                    grayOutStartIndex = (
+                        headers.index(f"{LEVEL_HEADER_TEXT}11") + 1
+                    )
 
             skillByLevel.append(level11CombatSkill)
             level13CombatSkill: str = ""
             if character.CombatFeatsLv13 is not None:
                 # Lv.13
-                summary.append(f"13 : {character.CombatFeatsLv13.SkillName}")
                 level13CombatSkill = character.CombatFeatsLv13.SkillName
+                if character.Level >= 13:
+                    summary.append(
+                        f"13 : {character.CombatFeatsLv13.SkillName}"
+                    )
+                elif grayOutStartIndex is None:
+                    grayOutStartIndex = (
+                        headers.index(f"{LEVEL_HEADER_TEXT}13") + 1
+                    )
 
             skillByLevel.append(level13CombatSkill)
 
@@ -222,16 +262,8 @@ def updateCombatSkillSheet(
             # 習得レベルに満たないものはグレーで表示
             grayOutTextFormat: dict = DEFAULT_TEXT_FORMAT.copy()
             grayOutTextFormat["foregroundColorStyle"] = {
-                "rgbColor": {"red": 0.4, "green": 0.4, "blue": 0.4}
+                "rgbColor": {"red": 0.7, "green": 0.7, "blue": 0.9}
             }
-
-            grayOutStartIndex: Union[int, None] = None
-            for level in range(3, MAX_LEVEL + 1, 2):
-                if character.Level < level:
-                    grayOutStartIndex = (
-                        headers.index(f"{LEVEL_HEADER_TEXT}{level}") + 1
-                    )
-                    break
 
             if grayOutStartIndex is not None:
                 startA1: str = rowcol_to_a1(rowIndex, grayOutStartIndex)
