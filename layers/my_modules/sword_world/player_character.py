@@ -133,15 +133,15 @@ class PlayerCharacter:
 
         # 言語(生まれつき習得しているものを除く)
         self.LearnedLanguages: list[Language] = []
-        languageNum: int = int(characterJson.get("languagesNum", "0"))
+        languageNum: int = int(characterJson.get("languageNum", "0"))
         for i in range(1, languageNum + 1):
             languageName: str = characterJson.get(f"language{i}", "")
             if not languageName:
                 # 未設定は読み飛ばす
                 continue
 
-            canTalk: bool = not characterJson.get(f"language{i}Talk", "")
-            canRead: bool = not characterJson.get(f"language{i}Read", "")
+            canTalk: bool = characterJson.get(f"language{i}Talk", "") != ""
+            canRead: bool = characterJson.get(f"language{i}Read", "") != ""
             if canTalk or canRead:
                 # 会話か読文が可能なものを設定する
                 self.LearnedLanguages.append(
