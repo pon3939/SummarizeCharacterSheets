@@ -655,32 +655,48 @@ class PlayerCharacter:
         Returns:
             list[CombatSkill]: 戦闘特技のリスト
         """
-        combatSkills: list[CombatSkill] = []
+        combatSkills: list[CombatSkill] = self.AutoCombatFeats.copy()
+        if self.IsBattleDancer() and self.CombatFeatsLv1bat is not None:
+            combatSkills.append(self.CombatFeatsLv1bat)
+
         if self.CombatFeatsLv1 is not None:
             combatSkills.append(self.CombatFeatsLv1)
+
+        if self.Level < 3:
+            return combatSkills
 
         if self.CombatFeatsLv3 is not None:
             combatSkills.append(self.CombatFeatsLv3)
 
+        if self.Level < 5:
+            return combatSkills
+
         if self.CombatFeatsLv5 is not None:
             combatSkills.append(self.CombatFeatsLv5)
+
+        if self.Level < 7:
+            return combatSkills
 
         if self.CombatFeatsLv7 is not None:
             combatSkills.append(self.CombatFeatsLv7)
 
+        if self.Level < 9:
+            return combatSkills
+
         if self.CombatFeatsLv9 is not None:
             combatSkills.append(self.CombatFeatsLv9)
+
+        if self.Level < 11:
+            return combatSkills
 
         if self.CombatFeatsLv11 is not None:
             combatSkills.append(self.CombatFeatsLv11)
 
+        if self.Level < 13:
+            return combatSkills
+
         if self.CombatFeatsLv13 is not None:
             combatSkills.append(self.CombatFeatsLv13)
-
-        if self.IsBattleDancer() and self.CombatFeatsLv1bat is not None:
-            combatSkills.append(self.CombatFeatsLv1bat)
-
-        combatSkills += self.AutoCombatFeats
 
         return combatSkills
 
