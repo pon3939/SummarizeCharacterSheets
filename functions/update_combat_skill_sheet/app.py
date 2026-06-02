@@ -262,7 +262,7 @@ def updateCombatSkillSheet(
             # 習得レベルに満たないものはグレーで表示
             grayOutTextFormat: dict = DEFAULT_TEXT_FORMAT.copy()
             grayOutTextFormat["foregroundColorStyle"] = {
-                "rgbColor": {"red": 0.7, "green": 0.7, "blue": 0.9}
+                "rgbColor": {"red": 0.5, "green": 0.5, "blue": 0.7}
             }
 
             if grayOutStartIndex is not None:
