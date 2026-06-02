@@ -317,6 +317,30 @@
       "request": "direct-invoke",
       "invokeTarget": {
         "target": "template",
+        "logicalId": "UpdateLanguageSheetFunction",
+        "templatePath": "${workspaceFolder}/template.yaml"
+      },
+      "lambda": {
+        "runtime": "python3.12"
+      },
+      "sam": {
+        "containerBuild": false,
+        "localArguments": [
+          "-e",
+          "${workspaceFolder}/functions/local_inputs/update_worksheet.json",
+          "-n",
+          "${workspaceFolder}/local_env.json"
+        ],
+        "skipNewImageCheck": false
+      },
+      "name": "UpdateLanguageSheetFunction",
+      "preLaunchTask": "install libraries"
+    },
+    {
+      "type": "aws-sam",
+      "request": "direct-invoke",
+      "invokeTarget": {
+        "target": "template",
         "logicalId": "GetYtsheetDataFunction",
         "templatePath": "${workspaceFolder}/template.yaml"
       },
