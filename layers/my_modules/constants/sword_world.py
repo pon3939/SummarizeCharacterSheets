@@ -202,9 +202,6 @@ ABYSS_CURSES: list[str] = [
 ]
 
 # 一般技能
-PROSTITUTE_GENERAL_SKILL: GeneralSkill = GeneralSkill(
-    "プロスティチュート", "娼婦/男娼"
-)
 OFFICIAL_GENERAL_SKILLS: list[GeneralSkill] = [
     GeneralSkill("アーマラー", "防具職人"),
     GeneralSkill("インベンター", "発明家"),
@@ -224,7 +221,9 @@ OFFICIAL_GENERAL_SKILLS: list[GeneralSkill] = [
     GeneralSkill("クレリック", "聖職者"),
     GeneralSkill("グレイブキーパー", "墓守"),
     GeneralSkill("コーチマン", "御者"),
-    GeneralSkill("コーティザン", "高級娼婦/男娼"),
+    GeneralSkill(
+        "コーティザン", "高級娼婦/男娼", jobs=["高級娼婦", "高級男娼"]
+    ),
     GeneralSkill("コック", "料理人"),
     GeneralSkill("コンポーザー", "作曲家"),
     GeneralSkill("サージョン", "外科医"),
@@ -240,7 +239,7 @@ OFFICIAL_GENERAL_SKILLS: list[GeneralSkill] = [
     GeneralSkill("タワーマン", "高所作業員"),
     GeneralSkill("ダンサー", "踊り子"),
     GeneralSkill("ツアーガイド", "旅先案内人"),
-    GeneralSkill("ディスティラー", "(蒸留)酒造家"),
+    GeneralSkill("ディスティラー", "蒸留酒造家"),
     GeneralSkill("テイマー", "調教師"),
     GeneralSkill("テイラー", "仕立て屋"),
     GeneralSkill("ドクター", "医者"),
@@ -250,7 +249,7 @@ OFFICIAL_GENERAL_SKILLS: list[GeneralSkill] = [
     GeneralSkill("ノーブル", "貴族"),
     GeneralSkill("ハーズマン", "牧童"),
     GeneralSkill("バーバー", "髪結い/理髪師"),
-    GeneralSkill("ハウスキーパー", "家政婦(夫)"),
+    GeneralSkill("ハウスキーパー", "家政婦(夫)", jobs=["家政婦", "家政夫"]),
     GeneralSkill("バトラー", "執事"),
     GeneralSkill("パヒューマー", "調香師"),
     GeneralSkill("パフォーマー", "芸人"),
@@ -261,7 +260,7 @@ OFFICIAL_GENERAL_SKILLS: list[GeneralSkill] = [
     GeneralSkill("ブラックスミス", "鍛冶師"),
     GeneralSkill("ブルワー", "醸造家"),
     GeneralSkill("プレスティディジテイター", "手品師"),
-    PROSTITUTE_GENERAL_SKILL,
+    GeneralSkill("プロスティチュート", "娼婦/男娼", jobs=["娼婦", "男娼"]),
     GeneralSkill("ペインター", "絵師"),
     GeneralSkill("ベガー", "物乞い"),
     GeneralSkill("ヘラルディスト", "紋章学者"),
