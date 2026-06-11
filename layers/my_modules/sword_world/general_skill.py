@@ -13,16 +13,34 @@ from dataclasses import dataclass
 class GeneralSkill:
     """
     一般技能
-    Attributes:
-        Names str: スキル名
-        Job str: 職業名
-        Lv int: レベル
     """
 
-    SkillName: str
-    Job: str
-    Level: int = 0
-    IsOriginal: bool = False
+    def __init__(
+        self,
+        SkillName: str,
+        DisplayJob: str,
+        Level: int = 0,
+        IsOriginal: bool = False,
+        jobs: list[str] = [],
+    ):
+        """
+        コンストラクタ
+
+        Args:
+            SkillName (str): スキル名
+            DisplayJob (str): 表示される職業名
+            Level (int): レベル
+            IsOriginal (bool): 原始スキルかどうか
+            jobs (list[str]): 関連する職業名のリスト
+        """
+
+        self.SkillName: str = SkillName
+        self.DisplayJob: str = DisplayJob
+        self.Level: int = Level
+        self.IsOriginal: bool = IsOriginal
+        self.jobs: list[str] = [DisplayJob]
+        for job in jobs:
+            self.jobs.append(job)
 
     def getFormattedSkill(self) -> str:
         """
@@ -31,7 +49,10 @@ class GeneralSkill:
         Returns:
             str: 整形した一般技能名
         """
-        return f"{self.SkillName}" + (f"({self.Job})" if self.Job else "")
+        return (
+            f"{self.SkillName}"
+            + (f"({self.DisplayJob})" if self.DisplayJob else "")
+        )
 
     def getFormattedSkillAndLevel(self) -> str:
         """
@@ -53,9 +74,18 @@ class GeneralSkill:
             bool: True: 一致
         """
         for ytsheetSkillName in target:
-            if any(ytsheetSkillName in x for x in [self.SkillName, self.Job]):
-                # スキル名か職業名と一致
+            if ytsheetSkillName in self.SkillName:
+                # スキル名と一致
                 return True
+
+            if ytsheetSkillName in self.DisplayJob:
+                # 職業名と一致
+                return True
+
+            for job in self.jobs:
+                if ytsheetSkillName in job:
+                    # 関連する職業名と一致
+                    return True
 
         return False
 
@@ -69,4 +99,7 @@ class GeneralSkill:
         Returns:
             bool: True: 一致
         """
-        return self.SkillName == target.SkillName and self.Job == target.Job
+        return (
+            self.SkillName == target.SkillName
+            and self.DisplayJob == target.DisplayJob
+        )

@@ -329,7 +329,7 @@ class PlayerCharacter:
 
             # カッコの中と外で分割
             skillNameAndJob: list[str] = split(
-                r"[\(（《]+",
+                r"[\(（《　]+",
                 ytsheetGeneralSkillName.removeprefix("|")
                 .removesuffix(")")
                 .removesuffix("）")
@@ -339,17 +339,6 @@ class PlayerCharacter:
             generalSkillLevel: int = int(
                 characterJson.get(f"lvCommon{i}", "0")
             )
-            if sword_world.PROSTITUTE_GENERAL_SKILL.compareWithListOfStr(
-                skillNameAndJob
-            ):
-                # 男娼と高級男娼を誤検知するので個別対応
-                copiedOfficialGeneralSkill: GeneralSkill = deepcopy(
-                    sword_world.PROSTITUTE_GENERAL_SKILL
-                )
-                copiedOfficialGeneralSkill.Level = generalSkillLevel
-                self.GeneralSkills.append(copiedOfficialGeneralSkill)
-                continue
-
             officialGeneralSkill: Union[GeneralSkill, None] = next(
                 filter(
                     lambda x: x.compareWithListOfStr(skillNameAndJob),
