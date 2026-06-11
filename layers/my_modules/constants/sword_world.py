@@ -652,7 +652,7 @@ RACES: list[Race] = [
         RacesBaseStatus(2, 0),
         [
             Language(COMMON_LANGUAGE, True, True),
-            Language(SOLEIL_LANGUAGE, True, True),
+            Language(SOLEIL_LANGUAGE, True, False),
         ],
     ),
     Race(
