@@ -74,18 +74,17 @@ class GeneralSkill:
             bool: True: 一致
         """
         for ytsheetSkillName in target:
-            if ytsheetSkillName in self.SkillName:
+            if ytsheetSkillName == self.SkillName:
                 # スキル名と一致
                 return True
 
-            if ytsheetSkillName in self.DisplayJob:
+            if ytsheetSkillName == self.DisplayJob:
                 # 職業名と一致
                 return True
 
-            for job in self.jobs:
-                if ytsheetSkillName in job:
-                    # 関連する職業名と一致
-                    return True
+            if ytsheetSkillName in self.jobs:
+                # 表示される職業名に関連する職業名が含まれている
+                return True
 
         return False
 
