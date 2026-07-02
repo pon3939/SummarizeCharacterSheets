@@ -21,7 +21,7 @@ class GeneralSkill:
         DisplayJob: str,
         Level: int = 0,
         IsOriginal: bool = False,
-        jobs: list[str] = [],
+        keywords: list[str] = [],
     ):
         """
         コンストラクタ
@@ -31,16 +31,16 @@ class GeneralSkill:
             DisplayJob (str): 表示される職業名
             Level (int): レベル
             IsOriginal (bool): 原始スキルかどうか
-            jobs (list[str]): 関連する職業名のリスト
+            keywords (list[str]): 関連するキーワードのリスト
         """
 
         self.SkillName: str = SkillName
         self.DisplayJob: str = DisplayJob
         self.Level: int = Level
         self.IsOriginal: bool = IsOriginal
-        self.jobs: list[str] = [DisplayJob]
-        for job in jobs:
-            self.jobs.append(job)
+        self.keywords: list[str] = [DisplayJob]
+        for keyword in keywords:
+            self.keywords.append(keyword)
 
     def getFormattedSkill(self) -> str:
         """
@@ -82,7 +82,7 @@ class GeneralSkill:
                 # 職業名と一致
                 return True
 
-            if ytsheetSkillName in self.jobs:
+            if ytsheetSkillName in self.keywords:
                 # 表示される職業名に関連する職業名が含まれている
                 return True
 
