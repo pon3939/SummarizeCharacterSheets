@@ -207,7 +207,9 @@ OFFICIAL_GENERAL_SKILLS: list[GeneralSkill] = [
     GeneralSkill("インベンター", "発明家"),
     GeneralSkill("ウィーバー", "織り子"),
     GeneralSkill("ウィッチドクター", "祈祷師"),
-    GeneralSkill("ウェイター/ウェイトレス", "給仕"),
+    GeneralSkill(
+        "ウェイター/ウェイトレス", "給仕", keywords=["ウェイター", "ウェイトレス"]
+    ),
     GeneralSkill("ウェザーマン", "天候予報士"),
     GeneralSkill("ウェポンスミス", "武器職人"),
     GeneralSkill("ウッドクラフトマン", "木工職人"),
@@ -222,7 +224,7 @@ OFFICIAL_GENERAL_SKILLS: list[GeneralSkill] = [
     GeneralSkill("グレイブキーパー", "墓守"),
     GeneralSkill("コーチマン", "御者"),
     GeneralSkill(
-        "コーティザン", "高級娼婦/男娼", jobs=["高級娼婦", "高級男娼"]
+        "コーティザン", "高級娼婦/男娼", keywords=["高級娼婦", "高級男娼"]
     ),
     GeneralSkill("コック", "料理人"),
     GeneralSkill("コンポーザー", "作曲家"),
@@ -249,7 +251,9 @@ OFFICIAL_GENERAL_SKILLS: list[GeneralSkill] = [
     GeneralSkill("ノーブル", "貴族"),
     GeneralSkill("ハーズマン", "牧童"),
     GeneralSkill("バーバー", "髪結い/理髪師"),
-    GeneralSkill("ハウスキーパー", "家政婦(夫)", jobs=["家政婦", "家政夫"]),
+    GeneralSkill(
+        "ハウスキーパー", "家政婦(夫)", keywords=["家政婦", "家政夫"]
+    ),
     GeneralSkill("バトラー", "執事"),
     GeneralSkill("パヒューマー", "調香師"),
     GeneralSkill("パフォーマー", "芸人"),
@@ -260,7 +264,7 @@ OFFICIAL_GENERAL_SKILLS: list[GeneralSkill] = [
     GeneralSkill("ブラックスミス", "鍛冶師"),
     GeneralSkill("ブルワー", "醸造家"),
     GeneralSkill("プレスティディジテイター", "手品師"),
-    GeneralSkill("プロスティチュート", "娼婦/男娼", jobs=["娼婦", "男娼"]),
+    GeneralSkill("プロスティチュート", "娼婦/男娼", keywords=["娼婦", "男娼"]),
     GeneralSkill("ペインター", "絵師"),
     GeneralSkill("ベガー", "物乞い"),
     GeneralSkill("ヘラルディスト", "紋章学者"),
