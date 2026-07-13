@@ -18,8 +18,8 @@
     "Ytsheet"
   ],
   "python.analysis.typeCheckingMode": "standard",
-  "python.autoComplete.extraPaths": ["${workspaceFolder}/layers"],
-  "python.analysis.extraPaths": ["${workspaceFolder}/layers"],
+  "python.autoComplete.extraPaths": ["${workspaceFolder}/source/layers"],
+  "python.analysis.extraPaths": ["${workspaceFolder}/source/layers"],
   "explorer.excludeGitIgnore": true,
   "emeraldwalk.runonsave": {
     "commands": [
