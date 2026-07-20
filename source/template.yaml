@@ -6,6 +6,10 @@ Description: >
   SW2.5 のキャラクターシートをスプレッドシートに集計する StepFunctions
 
 Parameters:
+  NetworkStackName:
+    Type: String
+    Default: summarize-character-sheets-network
+    Description: 固定IP用ネットワークスタック名
   PlayersSeasonIdNameIndexName:
     Type: String
     Default: season_id_name_index
@@ -20,7 +24,7 @@ Parameters:
     Description: バックアップ用のボールト名
   GetYtsheetIntervalSeconds:
     Type: String
-    Default: "5"
+    Default: "10"
     Description: ゆとシートにアクセスする間隔
   MyEmailAddress:
     Type: String
@@ -128,9 +132,15 @@ Resources:
       Timeout: 60
       Architectures:
         - x86_64
+      VpcConfig:
+        SubnetIds:
+          - Fn::ImportValue: !Sub "${NetworkStackName}-PrivateSubnetId"
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub "${NetworkStackName}-LambdaSecurityGroupId"
       Layers:
         - !Ref MyLayer
       Policies:
+        - AWSLambdaVPCAccessExecutionRole
         - !Ref S3Policy
         - DynamoDBCrudPolicy:
             TableName: !Ref PlayersTable

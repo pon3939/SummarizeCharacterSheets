@@ -1,0 +1,11 @@
+version = 0.1
+
+[default.global.parameters]
+stack_name = "summarize-character-sheets-network"
+
+[default.validate.parameters]
+lint = true
+
+[default.deploy.parameters]
+confirm_changeset = true
+region = "ap-northeast-1"

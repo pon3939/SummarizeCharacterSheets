@@ -4,7 +4,7 @@
     {
       "label": "install libraries",
       "type": "shell",
-      "command": "${workspaceFolder}/.venv/bin/pip install --upgrade -r ${workspaceFolder}/requirements_dev.txt -t ${workspaceFolder}/layers"
+      "command": "${workspaceFolder}/source/.venv/bin/pip install --upgrade -r ${workspaceFolder}/source/requirements_dev.txt -t ${workspaceFolder}/source/layers"
     }
   ]
 }
