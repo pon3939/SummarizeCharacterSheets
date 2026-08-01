@@ -287,7 +287,7 @@ class PlayerCharacter:
 
         # 回避合計など
         self.Evasion: int = 0
-        defenseNum: int = int(characterJson.get("defenseNum", "0"))
+        defenseNum: int = int(characterJson.get("defenseTotalNum", "0"))
         for i in range(1, defenseNum + 1):
             # 回避
             self.Evasion = max(
