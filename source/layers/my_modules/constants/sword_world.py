@@ -539,7 +539,7 @@ RACES: list[Race] = [
         RacesBaseStatus(1, 0),
         [
             Language(COMMON_LANGUAGE, True, True),
-            Language(MAGITECH_CIVILIZATION_LANGUAGE, False, True),
+            Language(MAGITECH_CIVILIZATION_LANGUAGE, True, True),
         ],
     ),
     Race(
