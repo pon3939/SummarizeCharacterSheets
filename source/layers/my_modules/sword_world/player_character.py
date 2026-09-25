@@ -736,6 +736,9 @@ def _FindAbyssCurses(string: str) -> list[str]:
     Returns:
         list[str]: 引数に含まれるアビスカース
     """
+    if string is None or string == "":
+        # 引数が空の場合は空のリストを返却
+        return []
 
     result: list[str] = []
     for abyssCurse in sword_world.ABYSS_CURSES:
