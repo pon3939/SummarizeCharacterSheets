@@ -6,7 +6,7 @@
       "invokeTarget": {
         "target": "template",
         "logicalId": "InsertLevelCapsFunction",
-        "templatePath": "${workspaceFolder}/template.yaml"
+        "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
         "runtime": "python3.12"
@@ -15,9 +15,9 @@
         "containerBuild": false,
         "localArguments": [
           "-e",
-          "${workspaceFolder}/functions/local_inputs/insert_level_caps.json",
+          "${workspaceFolder}/source/functions/local_inputs/insert_level_caps.json",
           "-n",
-          "${workspaceFolder}/local_env.json"
+          "${workspaceFolder}/source/local_env.json"
         ],
         "skipNewImageCheck": false
       },
@@ -30,7 +30,7 @@
       "invokeTarget": {
         "target": "template",
         "logicalId": "InsertPlayersFunction",
-        "templatePath": "${workspaceFolder}/template.yaml"
+        "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
         "runtime": "python3.12"
@@ -39,9 +39,9 @@
         "containerBuild": false,
         "localArguments": [
           "-e",
-          "${workspaceFolder}/functions/local_inputs/insert_players.json",
+          "${workspaceFolder}/source/functions/local_inputs/insert_players.json",
           "-n",
-          "${workspaceFolder}/local_env.json"
+          "${workspaceFolder}/source/local_env.json"
         ],
         "skipNewImageCheck": false
       },
@@ -54,7 +54,7 @@
       "invokeTarget": {
         "target": "template",
         "logicalId": "BackupDynamoDbFunction",
-        "templatePath": "${workspaceFolder}/template.yaml"
+        "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
         "runtime": "python3.12"
@@ -63,9 +63,9 @@
         "containerBuild": false,
         "localArguments": [
           "-e",
-          "${workspaceFolder}/functions/local_inputs/backup_dynamo_db.json",
+          "${workspaceFolder}/source/functions/local_inputs/backup_dynamo_db.json",
           "-n",
-          "${workspaceFolder}/local_env.json"
+          "${workspaceFolder}/source/local_env.json"
         ],
         "skipNewImageCheck": false
       },
@@ -78,7 +78,7 @@
       "invokeTarget": {
         "target": "template",
         "logicalId": "RestoreDynamoDbFunction",
-        "templatePath": "${workspaceFolder}/template.yaml"
+        "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
         "runtime": "python3.12"
@@ -87,9 +87,9 @@
         "containerBuild": false,
         "localArguments": [
           "-e",
-          "${workspaceFolder}/functions/local_inputs/restore_dynamo_db.json",
+          "${workspaceFolder}/source/functions/local_inputs/restore_dynamo_db.json",
           "-n",
-          "${workspaceFolder}/local_env.json"
+          "${workspaceFolder}/source/local_env.json"
         ],
         "skipNewImageCheck": false
       },
@@ -102,7 +102,7 @@
       "invokeTarget": {
         "target": "template",
         "logicalId": "InsertDynamoDbFunction",
-        "templatePath": "${workspaceFolder}/template.yaml"
+        "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
         "runtime": "python3.12"
@@ -111,9 +111,9 @@
         "containerBuild": false,
         "localArguments": [
           "-e",
-          "${workspaceFolder}/functions/local_inputs/insert_dynamo_db.json",
+          "${workspaceFolder}/source/functions/local_inputs/insert_dynamo_db.json",
           "-n",
-          "${workspaceFolder}/local_env.json"
+          "${workspaceFolder}/source/local_env.json"
         ],
         "skipNewImageCheck": false
       },
@@ -126,7 +126,7 @@
       "invokeTarget": {
         "target": "template",
         "logicalId": "UpdatePlayerSheetFunction",
-        "templatePath": "${workspaceFolder}/template.yaml"
+        "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
         "runtime": "python3.12"
@@ -135,9 +135,9 @@
         "containerBuild": false,
         "localArguments": [
           "-e",
-          "${workspaceFolder}/functions/local_inputs/update_worksheet.json",
+          "${workspaceFolder}/source/functions/local_inputs/update_worksheet.json",
           "-n",
-          "${workspaceFolder}/local_env.json"
+          "${workspaceFolder}/source/local_env.json"
         ],
         "skipNewImageCheck": false
       },
@@ -150,7 +150,7 @@
       "invokeTarget": {
         "target": "template",
         "logicalId": "UpdateBasicSheetFunction",
-        "templatePath": "${workspaceFolder}/template.yaml"
+        "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
         "runtime": "python3.12"
@@ -159,9 +159,9 @@
         "containerBuild": false,
         "localArguments": [
           "-e",
-          "${workspaceFolder}/functions/local_inputs/update_worksheet.json",
+          "${workspaceFolder}/source/functions/local_inputs/update_worksheet.json",
           "-n",
-          "${workspaceFolder}/local_env.json"
+          "${workspaceFolder}/source/local_env.json"
         ],
         "skipNewImageCheck": false
       },
@@ -174,7 +174,7 @@
       "invokeTarget": {
         "target": "template",
         "logicalId": "UpdateAbilitySheetFunction",
-        "templatePath": "${workspaceFolder}/template.yaml"
+        "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
         "runtime": "python3.12"
@@ -183,9 +183,9 @@
         "containerBuild": false,
         "localArguments": [
           "-e",
-          "${workspaceFolder}/functions/local_inputs/update_worksheet.json",
+          "${workspaceFolder}/source/functions/local_inputs/update_worksheet.json",
           "-n",
-          "${workspaceFolder}/local_env.json"
+          "${workspaceFolder}/source/local_env.json"
         ],
         "skipNewImageCheck": false
       },
@@ -198,7 +198,7 @@
       "invokeTarget": {
         "target": "template",
         "logicalId": "UpdateStatusSheetFunction",
-        "templatePath": "${workspaceFolder}/template.yaml"
+        "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
         "runtime": "python3.12"
@@ -207,9 +207,9 @@
         "containerBuild": false,
         "localArguments": [
           "-e",
-          "${workspaceFolder}/functions/local_inputs/update_worksheet.json",
+          "${workspaceFolder}/source/functions/local_inputs/update_worksheet.json",
           "-n",
-          "${workspaceFolder}/local_env.json"
+          "${workspaceFolder}/source/local_env.json"
         ],
         "skipNewImageCheck": false
       },
@@ -222,7 +222,7 @@
       "invokeTarget": {
         "target": "template",
         "logicalId": "UpdateCombatSkillSheetFunction",
-        "templatePath": "${workspaceFolder}/template.yaml"
+        "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
         "runtime": "python3.12"
@@ -231,9 +231,9 @@
         "containerBuild": false,
         "localArguments": [
           "-e",
-          "${workspaceFolder}/functions/local_inputs/update_worksheet.json",
+          "${workspaceFolder}/source/functions/local_inputs/update_worksheet.json",
           "-n",
-          "${workspaceFolder}/local_env.json"
+          "${workspaceFolder}/source/local_env.json"
         ],
         "skipNewImageCheck": false
       },
@@ -246,7 +246,7 @@
       "invokeTarget": {
         "target": "template",
         "logicalId": "UpdateHonorSheetFunction",
-        "templatePath": "${workspaceFolder}/template.yaml"
+        "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
         "runtime": "python3.12"
@@ -255,9 +255,9 @@
         "containerBuild": false,
         "localArguments": [
           "-e",
-          "${workspaceFolder}/functions/local_inputs/update_worksheet.json",
+          "${workspaceFolder}/source/functions/local_inputs/update_worksheet.json",
           "-n",
-          "${workspaceFolder}/local_env.json"
+          "${workspaceFolder}/source/local_env.json"
         ],
         "skipNewImageCheck": false
       },
@@ -270,7 +270,7 @@
       "invokeTarget": {
         "target": "template",
         "logicalId": "UpdateAbyssCurseSheetFunction",
-        "templatePath": "${workspaceFolder}/template.yaml"
+        "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
         "runtime": "python3.12"
@@ -279,9 +279,9 @@
         "containerBuild": false,
         "localArguments": [
           "-e",
-          "${workspaceFolder}/functions/local_inputs/update_worksheet.json",
+          "${workspaceFolder}/source/functions/local_inputs/update_worksheet.json",
           "-n",
-          "${workspaceFolder}/local_env.json"
+          "${workspaceFolder}/source/local_env.json"
         ],
         "skipNewImageCheck": false
       },
@@ -294,7 +294,7 @@
       "invokeTarget": {
         "target": "template",
         "logicalId": "UpdateGeneralSkillSheetFunction",
-        "templatePath": "${workspaceFolder}/template.yaml"
+        "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
         "runtime": "python3.12"
@@ -303,9 +303,9 @@
         "containerBuild": false,
         "localArguments": [
           "-e",
-          "${workspaceFolder}/functions/local_inputs/update_worksheet.json",
+          "${workspaceFolder}/source/functions/local_inputs/update_worksheet.json",
           "-n",
-          "${workspaceFolder}/local_env.json"
+          "${workspaceFolder}/source/local_env.json"
         ],
         "skipNewImageCheck": false
       },
@@ -318,7 +318,7 @@
       "invokeTarget": {
         "target": "template",
         "logicalId": "UpdateLanguageSheetFunction",
-        "templatePath": "${workspaceFolder}/template.yaml"
+        "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
         "runtime": "python3.12"
@@ -327,9 +327,9 @@
         "containerBuild": false,
         "localArguments": [
           "-e",
-          "${workspaceFolder}/functions/local_inputs/update_worksheet.json",
+          "${workspaceFolder}/source/functions/local_inputs/update_worksheet.json",
           "-n",
-          "${workspaceFolder}/local_env.json"
+          "${workspaceFolder}/source/local_env.json"
         ],
         "skipNewImageCheck": false
       },
@@ -342,7 +342,7 @@
       "invokeTarget": {
         "target": "template",
         "logicalId": "GetYtsheetDataFunction",
-        "templatePath": "${workspaceFolder}/template.yaml"
+        "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
         "runtime": "python3.12"
@@ -351,9 +351,9 @@
         "containerBuild": false,
         "localArguments": [
           "-e",
-          "${workspaceFolder}/functions/local_inputs/get_ytsheet_data.json",
+          "${workspaceFolder}/source/functions/local_inputs/get_ytsheet_data.json",
           "-n",
-          "${workspaceFolder}/local_env.json"
+          "${workspaceFolder}/source/local_env.json"
         ],
         "skipNewImageCheck": false
       },
