@@ -307,11 +307,20 @@ OFFICIAL_GENERAL_SKILLS: list[GeneralSkill] = [
     GeneralSkill("チャコールバーナー", "炭焼き"),
     GeneralSkill("ハッター", "帽子屋"),
     GeneralSkill("ブックバインダー", "製本工"),
-    GeneralSkill("レーサー", "競操者"),
+    GeneralSkill("アナウンサー", "実況者"),
+    GeneralSkill("インフラエンジニア", "機構保守技師"),
     GeneralSkill("コメンテーター", "解説者"),
+    GeneralSkill("サイバネティシャン", "義体技師"),
+    GeneralSkill("トランスポーター", "運び屋"),
+    GeneralSkill("ハッカー", "機脳調整師"),
     GeneralSkill(
-        "ハザードアナリスト", "防災士、災害予報士", keywords=["防災士", "災害予報士"]
+        "ハザードアナリスト",
+        "防災士、災害予報士",
+        keywords=["防災士", "災害予報士"],
     ),
+    GeneralSkill("マギテックアプレイザー", "魔動機鑑定士"),
+    GeneralSkill("ランナー", "競走者"),
+    GeneralSkill("レーサー", "競操者"),
 ]
 
 # ヴァグランツ戦闘特技
