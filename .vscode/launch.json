@@ -9,7 +9,17 @@
         "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
-        "runtime": "python3.12"
+        "runtime": "python3.12",
+        "pathMappings": [
+          {
+            "localRoot": "${workspaceFolder}/source/functions/insert_level_caps",
+            "remoteRoot": "/var/task"
+          },
+          {
+            "localRoot": "${workspaceFolder}/source/layers/my_modules",
+            "remoteRoot": "/opt/python/my_modules"
+          }
+        ]
       },
       "sam": {
         "containerBuild": false,
@@ -33,7 +43,17 @@
         "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
-        "runtime": "python3.12"
+        "runtime": "python3.12",
+        "pathMappings": [
+          {
+            "localRoot": "${workspaceFolder}/source/functions/insert_players",
+            "remoteRoot": "/var/task"
+          },
+          {
+            "localRoot": "${workspaceFolder}/source/layers/my_modules",
+            "remoteRoot": "/opt/python/my_modules"
+          }
+        ]
       },
       "sam": {
         "containerBuild": false,
@@ -57,7 +77,17 @@
         "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
-        "runtime": "python3.12"
+        "runtime": "python3.12",
+        "pathMappings": [
+          {
+            "localRoot": "${workspaceFolder}/source/functions/backup_dynamo_db",
+            "remoteRoot": "/var/task"
+          },
+          {
+            "localRoot": "${workspaceFolder}/source/layers/my_modules",
+            "remoteRoot": "/opt/python/my_modules"
+          }
+        ]
       },
       "sam": {
         "containerBuild": false,
@@ -81,7 +111,17 @@
         "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
-        "runtime": "python3.12"
+        "runtime": "python3.12",
+        "pathMappings": [
+          {
+            "localRoot": "${workspaceFolder}/source/functions/restore_dynamo_db",
+            "remoteRoot": "/var/task"
+          },
+          {
+            "localRoot": "${workspaceFolder}/source/layers/my_modules",
+            "remoteRoot": "/opt/python/my_modules"
+          }
+        ]
       },
       "sam": {
         "containerBuild": false,
@@ -105,7 +145,17 @@
         "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
-        "runtime": "python3.12"
+        "runtime": "python3.12",
+        "pathMappings": [
+          {
+            "localRoot": "${workspaceFolder}/source/functions/insert_dynamo_db",
+            "remoteRoot": "/var/task"
+          },
+          {
+            "localRoot": "${workspaceFolder}/source/layers/my_modules",
+            "remoteRoot": "/opt/python/my_modules"
+          }
+        ]
       },
       "sam": {
         "containerBuild": false,
@@ -129,7 +179,17 @@
         "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
-        "runtime": "python3.12"
+        "runtime": "python3.12",
+        "pathMappings": [
+          {
+            "localRoot": "${workspaceFolder}/source/functions/update_player_sheet",
+            "remoteRoot": "/var/task"
+          },
+          {
+            "localRoot": "${workspaceFolder}/source/layers/my_modules",
+            "remoteRoot": "/opt/python/my_modules"
+          }
+        ]
       },
       "sam": {
         "containerBuild": false,
@@ -153,7 +213,17 @@
         "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
-        "runtime": "python3.12"
+        "runtime": "python3.12",
+        "pathMappings": [
+          {
+            "localRoot": "${workspaceFolder}/source/functions/update_basic_sheet",
+            "remoteRoot": "/var/task"
+          },
+          {
+            "localRoot": "${workspaceFolder}/source/layers/my_modules",
+            "remoteRoot": "/opt/python/my_modules"
+          }
+        ]
       },
       "sam": {
         "containerBuild": false,
@@ -177,7 +247,17 @@
         "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
-        "runtime": "python3.12"
+        "runtime": "python3.12",
+        "pathMappings": [
+          {
+            "localRoot": "${workspaceFolder}/source/functions/update_ability_sheet",
+            "remoteRoot": "/var/task"
+          },
+          {
+            "localRoot": "${workspaceFolder}/source/layers/my_modules",
+            "remoteRoot": "/opt/python/my_modules"
+          }
+        ]
       },
       "sam": {
         "containerBuild": false,
@@ -201,7 +281,17 @@
         "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
-        "runtime": "python3.12"
+        "runtime": "python3.12",
+        "pathMappings": [
+          {
+            "localRoot": "${workspaceFolder}/source/functions/update_status_sheet",
+            "remoteRoot": "/var/task"
+          },
+          {
+            "localRoot": "${workspaceFolder}/source/layers/my_modules",
+            "remoteRoot": "/opt/python/my_modules"
+          }
+        ]
       },
       "sam": {
         "containerBuild": false,
@@ -225,7 +315,17 @@
         "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
-        "runtime": "python3.12"
+        "runtime": "python3.12",
+        "pathMappings": [
+          {
+            "localRoot": "${workspaceFolder}/source/functions/update_combat_skill_sheet",
+            "remoteRoot": "/var/task"
+          },
+          {
+            "localRoot": "${workspaceFolder}/source/layers/my_modules",
+            "remoteRoot": "/opt/python/my_modules"
+          }
+        ]
       },
       "sam": {
         "containerBuild": false,
@@ -249,7 +349,17 @@
         "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
-        "runtime": "python3.12"
+        "runtime": "python3.12",
+        "pathMappings": [
+          {
+            "localRoot": "${workspaceFolder}/source/functions/update_honor_sheet",
+            "remoteRoot": "/var/task"
+          },
+          {
+            "localRoot": "${workspaceFolder}/source/layers/my_modules",
+            "remoteRoot": "/opt/python/my_modules"
+          }
+        ]
       },
       "sam": {
         "containerBuild": false,
@@ -273,7 +383,17 @@
         "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
-        "runtime": "python3.12"
+        "runtime": "python3.12",
+        "pathMappings": [
+          {
+            "localRoot": "${workspaceFolder}/source/functions/update_abyss_curse_sheet",
+            "remoteRoot": "/var/task"
+          },
+          {
+            "localRoot": "${workspaceFolder}/source/layers/my_modules",
+            "remoteRoot": "/opt/python/my_modules"
+          }
+        ]
       },
       "sam": {
         "containerBuild": false,
@@ -297,7 +417,17 @@
         "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
-        "runtime": "python3.12"
+        "runtime": "python3.12",
+        "pathMappings": [
+          {
+            "localRoot": "${workspaceFolder}/source/functions/update_general_skill_sheet",
+            "remoteRoot": "/var/task"
+          },
+          {
+            "localRoot": "${workspaceFolder}/source/layers/my_modules",
+            "remoteRoot": "/opt/python/my_modules"
+          }
+        ]
       },
       "sam": {
         "containerBuild": false,
@@ -321,7 +451,17 @@
         "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
-        "runtime": "python3.12"
+        "runtime": "python3.12",
+        "pathMappings": [
+          {
+            "localRoot": "${workspaceFolder}/source/functions/update_language_sheet",
+            "remoteRoot": "/var/task"
+          },
+          {
+            "localRoot": "${workspaceFolder}/source/layers/my_modules",
+            "remoteRoot": "/opt/python/my_modules"
+          }
+        ]
       },
       "sam": {
         "containerBuild": false,
@@ -345,7 +485,17 @@
         "templatePath": "${workspaceFolder}/source/template.yaml"
       },
       "lambda": {
-        "runtime": "python3.12"
+        "runtime": "python3.12",
+        "pathMappings": [
+          {
+            "localRoot": "${workspaceFolder}/source/functions/get_ytsheet_data",
+            "remoteRoot": "/var/task"
+          },
+          {
+            "localRoot": "${workspaceFolder}/source/layers/my_modules",
+            "remoteRoot": "/opt/python/my_modules"
+          }
+        ]
       },
       "sam": {
         "containerBuild": false,
@@ -358,6 +508,40 @@
         "skipNewImageCheck": false
       },
       "name": "GetYtsheetDataFunction",
+      "preLaunchTask": "install libraries"
+    },
+    {
+      "type": "aws-sam",
+      "request": "direct-invoke",
+      "invokeTarget": {
+        "target": "template",
+        "logicalId": "ReorderWorksheetsFunction",
+        "templatePath": "${workspaceFolder}/source/template.yaml"
+      },
+      "lambda": {
+        "runtime": "python3.12",
+        "pathMappings": [
+          {
+            "localRoot": "${workspaceFolder}/source/functions/reorder_worksheets",
+            "remoteRoot": "/var/task"
+          },
+          {
+            "localRoot": "${workspaceFolder}/source/layers/my_modules",
+            "remoteRoot": "/opt/python/my_modules"
+          }
+        ]
+      },
+      "sam": {
+        "containerBuild": false,
+        "localArguments": [
+          "-e",
+          "${workspaceFolder}/source/functions/local_inputs/reorder_worksheets.json",
+          "-n",
+          "${workspaceFolder}/source/local_env.json"
+        ],
+        "skipNewImageCheck": false
+      },
+      "name": "ReorderWorksheetsFunction",
       "preLaunchTask": "install libraries"
     }
   ]
